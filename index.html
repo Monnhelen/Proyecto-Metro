@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro CDMX — Mapa de Accesibilidad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e1a;--panel:#11142a;--card:#181c38;--border:#1e2550;
+  --text:#dfe3f0;--text2:#7a84a8;--text3:#3e4770;
+  --accent:#4fc3f7;--green:#66bb6a;--orange:#ffa726;--red:#ef5350;
+  --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;
+  --node-bg:#0c0e1a;--lbl:#dfe3f0;--tcol:#fff;
+}
+body.light{
+  --bg:#f0ebe3;--panel:#e8e0d4;--card:#ddd5c8;--border:#c5baa8;
+  --text:#2c2418;--text2:#6b5e4d;--text3:#9a8d7c;--accent:#8b6d38;
+  --node-bg:#f0ebe3;--lbl:#2c2418;--tcol:#333;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;flex-direction:column;transition:background .3s,color .3s}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:10;flex-wrap:wrap;transition:background .3s}
+.logo{font-family:var(--mono);font-size:.8rem;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.logo span{color:var(--accent)}
+body.light .logo span{color:#b8860b}
+.hg{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.hs{width:1px;height:16px;background:var(--border);margin:0 4px}
+.p{font-family:var(--mono);font-size:.52rem;padding:3px 7px;border-radius:5px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .12s;user-select:none;background:transparent;white-space:nowrap}
+.p:hover{border-color:var(--accent);color:var(--text)}
+.p.on{background:rgba(79,195,247,.18);border-color:var(--accent);color:var(--accent)}
+body.light .p.on{background:rgba(139,109,56,.15);border-color:#8b6d38;color:#8b6d38}
+.p.warn{border-color:var(--orange);color:var(--orange);font-size:.5rem}
+.main{display:flex;flex:1;overflow:hidden}
+.cv{flex:1;overflow:hidden;position:relative;background:var(--bg);transition:background .3s}
+.cv svg{display:block;cursor:grab}.cv svg:active{cursor:grabbing}
+.sb{width:270px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
+.ss{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.st2{font-family:var(--mono);font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.sr{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.sd{width:6px;height:6px;border-radius:50%;flex-shrink:0}.sds{background:var(--orange)}.sdt{background:var(--green)}
+select{font-family:var(--mono);font-size:.58rem;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 5px;flex:1;cursor:pointer;transition:background .3s,color .3s}
+select:focus{outline:none;border-color:var(--accent)}
+.br{display:flex;gap:3px;margin-top:3px}
+.btn{font-family:var(--mono);font-size:.5rem;font-weight:700;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;text-transform:uppercase;transition:all .1s}
+.ba{background:var(--accent);color:#000}.ba:hover{filter:brightness(1.15)}
+.bg2{background:transparent;border:1px solid var(--border);color:var(--text2)}.bg2:hover{border-color:var(--accent);color:var(--text)}
+body.light .ba{background:#b8860b;color:#fff}
+.tgl{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+.tk{width:28px;height:16px;border-radius:8px;background:var(--card);border:1.5px solid var(--border);position:relative;transition:all .2s;flex-shrink:0}
+.tk.on{background:rgba(79,195,247,.25);border-color:var(--accent)}
+body.light .tk.on{background:rgba(139,109,56,.2);border-color:#b8860b}
+.tm{width:10px;height:10px;border-radius:50%;background:var(--text3);position:absolute;top:2px;left:2px;transition:all .2s}
+.tk.on .tm{left:14px;background:var(--accent)}
+body.light .tk.on .tm{background:#b8860b}
+.tl{font-size:.56rem;color:var(--text2)}
+.lg{display:flex;flex-wrap:wrap;gap:2px 6px}
+.li{display:flex;align-items:center;gap:3px;font-size:.48rem;color:var(--text2);cursor:pointer;transition:opacity .15s}.li.dim{opacity:.2}
+.lsw{width:12px;height:3px;border-radius:1px}
+.rl{flex:1;overflow-y:auto;padding:6px 10px}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px 7px;margin-bottom:4px;cursor:pointer;transition:all .1s;border-left:3px solid transparent}
+.rc:hover{border-color:var(--accent)}.rc.sel{border-left-color:var(--accent);background:rgba(79,195,247,.07)}
+.rlb{font-size:.48rem;color:var(--text3);margin-bottom:2px;font-family:var(--mono)}
+.rp{display:flex;flex-wrap:wrap;align-items:center;gap:1px}
+.rn{font-size:.46rem;padding:1px 3px;border-radius:2px;background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border);max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rn.rs{background:rgba(255,167,38,.1);border-color:rgba(255,167,38,.3);color:var(--orange)}
+.rn.rt{background:rgba(102,187,106,.1);border-color:rgba(102,187,106,.3);color:var(--green)}
+.ra{color:var(--text3);font-size:.46rem}.rt3{color:var(--accent);font-size:.42rem;font-family:var(--mono)}
+.nrt{color:var(--text3);font-size:.58rem;text-align:center;padding:18px 6px;line-height:1.4}
+.tip{position:fixed;background:rgba(12,14,26,.95);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-size:.56rem;pointer-events:none;z-index:999;display:none;max-width:220px;line-height:1.4}
+body.light .tip{background:rgba(240,235,227,.96)}.tip.show{display:block}
+.tn{font-weight:700;color:var(--accent);margin-bottom:2px}
+body.light .tn{color:#8b6d38}
+.tr2{display:flex;gap:4px}.tk3{color:var(--text3);min-width:58px}.tv{color:var(--text2)}
+.ty{color:var(--green);font-weight:600}.tno{color:var(--red);font-weight:600}
+.stb{background:var(--panel);border-top:1px solid var(--border);padding:2px 12px;font-size:.46rem;color:var(--text3);flex-shrink:0;display:flex;gap:10px;align-items:center;font-family:var(--mono);transition:background .3s}
+.wp{display:none;position:absolute;bottom:8px;left:8px;background:rgba(12,14,26,.92);border:1px solid var(--orange);border-radius:7px;padding:8px 12px;font-size:.54rem;color:var(--orange);max-width:280px;z-index:5;line-height:1.4}
+body.light .wp{background:rgba(240,235,227,.94)}.wp.show{display:block}
+.wp h4{margin-bottom:3px;font-size:.58rem}.wp ul{margin:3px 0 0 12px;color:var(--text2);font-size:.5rem}
+.wc{position:absolute;top:3px;right:6px;cursor:pointer;color:var(--text3);font-size:.6rem}
+.zc{position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:2px;z-index:5}
+.zb{width:24px;height:24px;border-radius:4px;background:var(--panel);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zb:hover{border-color:var(--accent);color:var(--text)}
+/* Radial controls */
+.rad-ctrl{display:none}.rad-ctrl.show{display:block}
+.rad-sel{font-size:.56rem;margin-bottom:4px}
+.rad-range{width:100%;margin:4px 0;accent-color:var(--accent)}
+.rad-info{font-size:.48rem;color:var(--text3);margin-top:2px;line-height:1.4}
+.rad-info b{color:var(--accent)}
+body.light .rad-info b{color:#8b6d38}
+.rad-near{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px 7px;margin-top:5px;font-size:.5rem;line-height:1.5}
+.rad-near .hl{color:var(--green);font-weight:600}
+.rad-filter{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.rfb{font-family:var(--mono);font-size:.46rem;padding:2px 5px;border-radius:3px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .12s;background:transparent;white-space:nowrap}
+.rfb:hover{border-color:var(--accent);color:var(--text)}.rfb.on{background:rgba(79,195,247,.18);border-color:var(--accent);color:var(--accent)}
+body.light .rfb.on{background:rgba(139,109,56,.15);border-color:#8b6d38;color:#8b6d38}
+.walk-note{margin-top:4px;background:rgba(255,167,38,.08);border:1px solid rgba(255,167,38,.3);border-radius:4px;padding:4px 6px;font-size:.45rem;color:var(--orange);line-height:1.5;display:none}
+.walk-note.show{display:block}
+.rni{display:flex;align-items:center;gap:3px;padding:2px 0;border-bottom:1px solid var(--border);font-size:.46rem}
+.rni:last-child{border-bottom:none}.rni-nm{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rni-d{color:var(--text3);font-family:var(--mono);font-size:.42rem;white-space:nowrap}
+.rni-b{font-size:.4rem;padding:0 2px;border-radius:2px;flex-shrink:0}
+.b-acc{background:rgba(102,187,106,.2);color:var(--green)}.b-elev{background:rgba(79,195,247,.2);color:var(--accent)}.b-ee{background:rgba(255,167,38,.2);color:var(--orange)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<header>
+  <div class="logo"><span>◆</span> METRO CDMX</div>
+  <div class="hg" id="vp">
+    <div class="p on" data-v="sch">Esquemático</div>
+    <div class="p" data-v="geo">Mapa Metro</div>
+    <div class="p" data-v="col2">2 Columnas</div>
+    <div class="p" data-v="col3">2×2 Grid</div>
+    <div class="p" data-v="quad">Cuadrantes</div>
+    <div class="p" data-v="rad">⊙ Radial</div>
+  </div>
+  <div class="hs"></div>
+  <div class="hg">
+    <div class="p" id="ps">⊙ Afluencia</div>
+    <div class="p" id="pt">☀ Tema Metro</div>
+    <div class="p warn" id="pw">⚠ Coords</div>
+  </div>
+</header>
+<div class="main">
+  <div class="cv" id="cv">
+    <svg id="svg"><g id="gM"></g></svg>
+    <div class="zc">
+      <div class="zb" id="zi">+</div>
+      <div class="zb" id="zo">−</div>
+      <div class="zb" id="zf">⊡</div>
+    </div>
+    <div class="wp" id="wp">
+      <span class="wc" id="wcc">✕</span>
+      <h4>⚠ Coordenadas por validar</h4>
+      <ul>
+        <li><b>Lomas_Estrella</b> (L12) — interpolada</li>
+        <li><b>Etiopia</b> (L3) → Etiopía/Plaza Transparencia</li>
+        <li><b>Insugentes_Sur</b> (L12) — typo</li>
+        <li><b>Mexilcalcingo</b> (L12) → Mexicaltzingo</li>
+        <li><b>Nezahuacoyotl</b> (LB) → Nezahualcóyotl</li>
+        <li><b>La_Villa</b> (L6) → La Villa-Basílica</li>
+        <li><b>Santa_Martha</b> (LA) → Santa Marta</li>
+        <li><b>UAM</b> (L8) → UAM-I</li>
+        <li><b>Viveros</b> (L3) → Viveros/Derechos Humanos</li>
+      </ul>
+    </div>
+  </div>
+  <div class="sb">
+    <div class="ss rad-ctrl" id="radPanel">
+      <div class="st2">Centro Radial</div>
+      <select id="radSel" class="rad-sel"></select>
+      <div class="st2" style="margin-top:6px">Radio máximo</div>
+      <input type="range" id="radRange" class="rad-range" min="3" max="15" value="8" step="1">
+      <div class="rad-info"><b id="radKm">8</b> km · <span id="radCount">0</span> estaciones en rango</div>
+      <div class="rad-near" id="radNear"></div>
+      <div id="walkNote" class="walk-note"></div>
+      <div class="st2" style="margin-top:6px">Filtrar por</div>
+      <div class="rad-filter" id="radFilter">
+        <div class="rfb on" data-f="all">Todos</div>
+        <div class="rfb" data-f="acc">♿ Acc</div>
+        <div class="rfb" data-f="elev">Elevador</div>
+        <div class="rfb" data-f="ee">Esc.Eléc</div>
+        <div class="rfb" data-f="elevee">Elev+EE</div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="st2">Ruta</div>
+      <div class="sr"><div class="sd sds"></div><select id="ss"><option value="">— Origen —</option></select></div>
+      <div class="sr"><div class="sd sdt"></div><select id="st"><option value="">— Destino —</option></select></div>
+      <div class="br"><button class="btn ba" id="bf">Buscar</button><button class="btn bg2" id="bc">Limpiar</button></div>
+    </div>
+    <div class="ss"><div class="tgl" id="tgp"><div class="tk" id="tkp"><div class="tm"></div></div><span class="tl">Solo accesibles ♿</span></div></div>
+    <div class="ss">
+      <div class="st2">Líneas</div>
+      <div class="lg" id="leg"></div>
+    </div>
+    <div class="ss" style="padding-bottom:0"><div class="st2">Rutas <span id="rcc" style="color:var(--accent)"></span></div></div>
+    <div class="rl" id="rli"><div class="nrt">Selecciona origen y destino</div></div>
+  </div>
+</div>
+<div class="stb"><span>●</span><span id="si">Cargando...</span></div>
+
+<script>
+'use strict';
+const LC={"1":"#E4538F","2":"#0069A7","3":"#928A37","4":"#6ABFB0","5":"#FFCD00","6":"#D32F2F","7":"#ED6D26","8":"#118147","9":"#6F2B81","12":"#C1A832","A":"#D4652F","B":"#9E9E9E"};
+const LN={"1":"L1 Rosa","2":"L2 Azul","3":"L3 Café","4":"L4 Cyan","5":"L5 Amarillo","6":"L6 Rojo","7":"L7 Naranja","8":"L8 Verde","9":"L9 Morado","12":"L12 Dorado","A":"LA Naranja","B":"LB Gris"};
+const LD=["1","2","3","4","5","6","7","8","9","12","A","B"];
+
+const POI={
+  "AICM (Aeropuerto)":{lat:19.4363,lng:-99.0721},
+  "AIFA (Felipe Ángeles)":{lat:19.7181,lng:-99.0095},
+  "Hospital General":{lat:19.4136,lng:-99.1539},
+  "Hospital 20 de Nov":{lat:19.3720,lng:-99.1710},
+  "Zócalo":{lat:19.4332,lng:-99.1329},
+  "CU (Ciudad Universitaria)":{lat:19.3244,lng:-99.1740}
+};
+
+let NODES=[],EDGES=[],LO={},TF=[];
+let POS={};
+const Z={x:0,y:0,s:1};
+const S={src:null,tgt:null,routes:[],sel:null,hid:new Set(),pcd:false,mode:'sch',sz:false,
+  radCenter:'AICM (Aeropuerto)',radMax:8,radNearest:null,radNearestAcc:null,radFilterMode:'all'};
+
+// ═══════ HAVERSINE ═══════
+function hav(lat1,lon1,lat2,lon2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function bearing(lat1,lon1,lat2,lon2){
+  const dLon=(lon2-lon1)*Math.PI/180;
+  const y=Math.sin(dLon)*Math.cos(lat2*Math.PI/180);
+  const x=Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos(dLon);
+  return (Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+
+async function load(){
+  const [nT,eT]=await Promise.all([fetch('data/nodos.csv').then(r=>r.text()),fetch('data/aristas.csv').then(r=>r.text())]);
+  function csv(t){const ls=t.replace(/\r\n/g,'\n').split('\n').filter(l=>l.trim());const h=ls[0].split(',').map(s=>s.trim());return ls.slice(1).map(l=>{const v=l.split(',');const o={};h.forEach((k,i)=>o[k]=v[i]?.trim()||'');return o})}
+  NODES=csv(nT);EDGES=csv(eT);
+  NODES.forEach(n=>{if(!LO[n.Linea])LO[n.Linea]=[];LO[n.Linea].push(n)});
+  for(const l in LO)LO[l].sort((a,b)=>+a.Orden-+b.Orden);
+  TF=EDGES.filter(e=>e.Tipo==='Transbordo');
+  cL();initUI();render();
+  const aY=NODES.filter(n=>n.Accesibilidad==='Si').length;
+  document.getElementById('si').textContent=`${NODES.length} est. · ${aY} accesibles · ${TF.length} transbordos`;
+}
+
+// ═══════ LAYOUTS ═══════
+const GAP=48,LGAP=65,ML=70,MT=40;
+function cL(){POS={};delete POS._qL;const m=S.mode;if(m==='sch')lSch();else if(m==='geo')lGeo();else if(m==='col2')lCol(2);else if(m==='col3')lGrid();else if(m==='quad')lQuad();else if(m==='rad')lRad()}
+
+function lSch(){LD.forEach((lid,li)=>{const sts=LO[lid]||[];const y=MT+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:ML+si*GAP,y}})})}
+function lGeo(){
+  let a=90,b=-90,c=0,d=-999;
+  NODES.forEach(n=>{const la=+n.lat,ln=+n.lng;if(la<a)a=la;if(la>b)b=la;if(ln<c)c=ln;if(ln>d)d=ln});
+  const p1=(b-a)*.06,p2=(d-c)*.06;a-=p1;b+=p1;c-=p2;d+=p2;
+  NODES.forEach(n=>{POS[n.id]={x:30+((+n.lng-c)/(d-c))*1300,y:30+((b-+n.lat)/(b-a))*950}});
+}
+function lCol(cols){
+  const pc=Math.ceil(LD.length/cols);const cW=Math.max(...LD.map(l=>(LO[l]||[]).length))*GAP+ML+50;
+  LD.forEach((lid,li)=>{const col=Math.floor(li/pc),row=li%pc;const sts=LO[lid]||[];const y=MT+row*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:ML+col*cW+si*GAP,y}})});
+}
+function lGrid(){
+  const cells=[[],[],[],[]];LD.forEach((lid,i)=>cells[Math.floor(i/3)].push(lid));
+  const mxS=Math.max(...LD.map(l=>(LO[l]||[]).length));const cellW=mxS*GAP+ML+30;const cellH=3*LGAP+30;
+  POS._qL=[];const labels=['BLOQUE 1','BLOQUE 2','BLOQUE 3','BLOQUE 4'];
+  cells.forEach((cLines,ci)=>{const col=ci%2,row=Math.floor(ci/2);const gx=col*cellW+10,gy=row*cellH+10;
+    POS._qL.push({label:labels[ci]+' ('+cLines.map(l=>'L'+l).join(', ')+')',x:gx+5,y:gy+10,mx:gx+cellW-10,my:gy+cellH-10});
+    cLines.forEach((lid,li)=>{const sts=LO[lid]||[];const y=gy+24+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:gx+ML+si*GAP,y}})})});
+}
+function lQuad(){
+  const mLa=19.41,mLn=-99.13;const Q={NW:[],NE:[],SW:[],SE:[]};
+  LD.forEach(lid=>{const sts=LO[lid]||[];let nw=0,ne=0,sw=0,se=0;
+    sts.forEach(n=>{const la=+n.lat,ln=+n.lng;if(la>=mLa&&ln<=mLn)nw++;else if(la>=mLa)ne++;else if(ln<=mLn)sw++;else se++});
+    const mx=Math.max(nw,ne,sw,se);if(mx===nw)Q.NW.push(lid);else if(mx===ne)Q.NE.push(lid);else if(mx===sw)Q.SW.push(lid);else Q.SE.push(lid)});
+  const ql={NW:'PONIENTE · NORTE',NE:'ORIENTE · NORTE',SW:'PONIENTE · SUR',SE:'ORIENTE · SUR'};
+  const qp={NW:{x:0,y:0},NE:{x:1,y:0},SW:{x:0,y:1},SE:{x:1,y:1}};
+  const mxL=Math.max(...Object.values(Q).map(a=>a.length));const qH=mxL*LGAP+50;
+  const mxS2=Math.max(...LD.map(l=>(LO[l]||[]).length));const qW=mxS2*GAP+ML+30;
+  POS._qL=[];
+  ['NW','NE','SW','SE'].forEach(q=>{const gx=qp[q].x*qW+15,gy=qp[q].y*qH+12;
+    POS._qL.push({label:ql[q],x:gx,y:gy,mx:gx+qW-15,my:gy+qH-12});
+    Q[q].forEach((lid,li)=>{const sts=LO[lid]||[];const y=gy+22+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:gx+ML+si*GAP,y}})})});
+}
+
+// ═══════ RADIAL LAYOUT ═══════
+function lRad(){
+  const center=POI[S.radCenter]||null;
+  let cLat,cLng;
+  if(center){cLat=center.lat;cLng=center.lng}
+  else{const cn=NODES.find(n=>n.id===S.radCenter);if(!cn)return;cLat=+cn.lat;cLng=+cn.lng}
+  const maxKm=S.radMax;
+  const CX=500,CY=500,maxR=420;
+  const RINGS=[1,2,3,5,8,12];
+  POS._rad={cx:CX,cy:CY,maxR,maxKm,rings:RINGS.filter(r=>r<=maxKm),cLat,cLng,centerName:S.radCenter};
+
+  // Find nearest station (any) and nearest accessible
+  let minD=Infinity,minDAcc=Infinity;S.radNearest=null;S.radNearestAcc=null;
+  NODES.forEach(n=>{
+    const d=hav(cLat,cLng,+n.lat,+n.lng);
+    if(d<minD){minD=d;S.radNearest=n.id}
+    if(d<minDAcc&&n.Accesibilidad==='Si'){minDAcc=d;S.radNearestAcc=n.id}
+  });
+
+  let inRange=0;
+  NODES.forEach(n=>{
+    const d=hav(cLat,cLng,+n.lat,+n.lng);
+    const ang=bearing(cLat,cLng,+n.lat,+n.lng);
+    const angRad=(ang-90)*Math.PI/180;// rotate so north=up
+    if(d<=maxKm){
+      const r=(d/maxKm)*maxR;
+      POS[n.id]={x:CX+Math.cos(angRad)*r,y:CY+Math.sin(angRad)*r,dist:d};
+      inRange++;
+    }else{
+      // Tiny dot at edge
+      const r=maxR+15;
+      POS[n.id]={x:CX+Math.cos(angRad)*r,y:CY+Math.sin(angRad)*r,dist:d,outside:true};
+    }
+  });
+
+  // Update radial info
+  document.getElementById('radCount').textContent=inRange;
+  const ni=document.getElementById('radNear');
+  const nearList=NODES.filter(n=>POS[n.id]&&!POS[n.id].outside).map(n=>({n,d:POS[n.id].dist})).sort((a,b)=>a.d-b.d).slice(0,5);
+  let nih='';nearList.forEach(({n,d})=>{const nm=n.id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');const bs=(n.Accesibilidad==='Si'?'<span class="rni-b b-acc">♿</span>':'')+(n.Elevador==='Si'?'<span class="rni-b b-elev">E</span>':'')+(n.EE==='Si'?'<span class="rni-b b-ee">EE</span>':'');nih+=`<div class="rni"><span class="rni-nm" style="border-left:2px solid ${LC[n.Linea]};padding-left:3px">${nm}</span><span class="rni-d">${d.toFixed(1)}km</span>${bs}</div>`});
+  ni.innerHTML=nih||'<span style="color:var(--text3)">Sin estaciones en rango</span>';
+  const wn=document.getElementById('walkNote');if(wn){const nn=N(S.radNearest);if(nn&&nn.Accesibilidad!=='Si'&&S.radNearestAcc&&S.radNearestAcc!==S.radNearest){const na2=N(S.radNearestAcc);const extraKm=na2?hav(+nn.lat,+nn.lng,+na2.lat,+na2.lng):0;const mins=Math.round(extraKm*60/5);wn.innerHTML=`⚠ Est. más cercana no accesible<br>Caminata: ~${extraKm.toFixed(1)} km (≈${mins} min) → <b>${S.radNearestAcc.replace(/_/g,' ')}</b>`;wn.classList.add('show')}else{wn.classList.remove('show')}}
+  // Auto-set source for routing
+  S.src=S.radNearest;document.getElementById('ss').value=S.radNearest||'';
+}
+
+// ═══════ HELPERS ═══════
+function N(id){return NODES.find(n=>n.id===id)}
+function gbn(id){return id.replace(/_(1|2|3|4|5|6|7|8|9|12|A|B)$/,'')}
+function bAdj(pcd){const a={};NODES.forEach(n=>a[n.id]=[]);EDGES.forEach(e=>{if(pcd&&e.Accesible_PCD!=='1')return;if(a[e.source])a[e.source].push(e.target);if(a[e.target])a[e.target].push(e.source)});return a}
+function fR(src,tgt,adj,mg=3){if(!src||!tgt||src===tgt)return[];const dl=Date.now()+3000,q=[[src]],gm={};let tot=0;while(q.length){if(Date.now()>dl||tot>=mg*3)break;const p=q.shift(),c=p[p.length-1];if(c===tgt){const d=p.length-1,gl=Object.keys(gm).length;if(gl>=mg&&!(d in gm))continue;gm[d]=gm[d]||[];if(gm[d].length<3){gm[d].push([...p]);tot++}continue}if(p.length>50)continue;const v=new Set(p);for(const nb of(adj[c]||[]))if(!v.has(nb))q.push([...p,nb])}const r=[];Object.keys(gm).map(Number).sort((a,b)=>a-b).slice(0,mg).forEach((d,gi)=>{gm[d].sort((a,b)=>a.join('').localeCompare(b.join(''))).forEach((p,ai)=>{r.push({path:p,distance:d,group:gi+1,altIdx:ai})})});return r}
+function nr(nd){if(!S.sz)return 5;const v=+nd.Personas_Afectadas||0;return 3+Math.sqrt(v/600)*2.5}
+
+// ═══════ RENDER ═══════
+function render(){
+  if(S.mode==='rad'){renderRadial();return}
+  const g=document.getElementById('gM');
+  let mx=0,my=0;for(const k in POS){if(k.startsWith('_'))continue;const p=POS[k];if(p){mx=Math.max(mx,p.x);my=Math.max(my,p.y)}}
+  const W=mx+130,H=my+60;const svg=document.getElementById('svg');
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);aZ();
+  const rt=S.sel!==null?S.routes[S.sel]:null;
+  const ps=rt?new Set(rt.path):null;const pe=new Set();
+  if(rt)for(let i=0;i<rt.path.length-1;i++){pe.add(rt.path[i]+'|'+rt.path[i+1]);pe.add(rt.path[i+1]+'|'+rt.path[i])}
+  const isG=S.mode==='geo';let h='';
+  if(POS._qL){POS._qL.forEach(ql=>{
+    h+=`<text x="${ql.x}" y="${ql.y}" fill="var(--text3)" font-size="9" font-weight="700" font-family="var(--mono)" opacity="0.45">${ql.label}</text>`;
+    h+=`<rect x="${ql.x-5}" y="${ql.y-12}" width="${ql.mx-ql.x+10}" height="${ql.my-ql.y+16}" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,3" rx="4" opacity="0.3"/>`;
+  })}
+  for(const lid of LD){if(S.hid.has(lid))continue;const sts=LO[lid]||[];if(!sts.length)continue;const col=LC[lid];
+    for(let i=0;i<sts.length-1;i++){const a=sts[i].id,b=sts[i+1].id;if(!POS[a]||!POS[b])continue;const pa=POS[a],pb=POS[b];const inR=pe.has(a+'|'+b);const na=N(a),nb=N(b);const bA=na&&nb&&na.Accesibilidad==='Si'&&nb.Accesibilidad==='Si';const pD=S.pcd&&!rt&&!bA;const sw=inR?5:(isG?2.5:3.5);const op=rt?(inR?1:0.06):(pD?0.1:1);
+    h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${col}" stroke-width="${sw}" stroke-opacity="${op}" stroke-linecap="round"${pD?' stroke-dasharray="2,2"':''}/>`;
+    }
+    if(!isG&&sts.length){const fp=POS[sts[0].id];if(fp)h+=`<text x="${fp.x-10}" y="${fp.y}" text-anchor="end" fill="${col}" font-size="8" font-weight="700" font-family="var(--mono)" dominant-baseline="central" opacity="${rt?.2:.9}">L${lid}</text>`}
+  }
+  for(const tf of TF){const a=tf.source,b=tf.target;if(!POS[a]||!POS[b])continue;const na=N(a),nb=N(b);if(!na||!nb||S.hid.has(na.Linea)||S.hid.has(nb.Linea))continue;const pa=POS[a],pb=POS[b];const inR=pe.has(a+'|'+b);const bA=na.Accesibilidad==='Si'&&nb.Accesibilidad==='Si';
+    if(rt){if(inR){h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="var(--accent)" stroke-width="2.5" opacity="1"/>`;h+=`<circle cx="${(pa.x+pb.x)/2}" cy="${(pa.y+pb.y)/2}" r="2" fill="var(--accent)"/>`}}
+    else{const cl=S.pcd?(bA?'var(--green)':'var(--red)'):'var(--tcol)';h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${cl}" stroke-width="1" stroke-opacity="${S.pcd?(bA?.4:.1):.25}" stroke-dasharray="3,2"/>`}
+  }
+  for(const nd of NODES){if(!POS[nd.id]||S.hid.has(nd.Linea))continue;const p=POS[nd.id],col=LC[nd.Linea];const isSrc=nd.id===S.src,isTgt=nd.id===S.tgt,ip=ps&&ps.has(nd.id);const acc=nd.Accesibilidad==='Si';const r=nr(nd);
+    let fl='var(--node-bg)',sk=col,sw=2,op=rt?(ip||isSrc||isTgt?1:.07):1;
+    if(S.pcd&&!rt&&!acc)op=.18;
+    if(isSrc){fl='var(--orange)';sk='#fff';sw=2.5;op=1}else if(isTgt){fl='var(--green)';sk='#fff';sw=2.5;op=1}else if(ip){fl=col;sk='#fff';op=1}
+    const isTr=nd.Tipo&&nd.Tipo.includes('Transbordo');
+    if(isTr&&!isSrc&&!isTgt&&!ip)h+=`<circle cx="${p.x}" cy="${p.y}" r="${r+2.5}" fill="none" stroke="${col}" stroke-width="1.5" opacity="${op*.5}"/>`;
+    h+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fl}" stroke="${sk}" stroke-width="${sw}" opacity="${op}" class="nd" data-id="${nd.id}" style="cursor:pointer"/>`;
+    if(!acc&&!isSrc&&!isTgt&&!ip&&!rt)h+=`<circle cx="${p.x}" cy="${p.y}" r="${r*.5}" fill="var(--text3)" opacity="${op*.35}"/>`;
+    if(S.pcd&&!acc&&!rt){const s=r*.55;h+=`<line x1="${p.x-s}" y1="${p.y-s}" x2="${p.x+s}" y2="${p.y+s}" stroke="var(--red)" stroke-width="1" opacity="0.35"/><line x1="${p.x+s}" y1="${p.y-s}" x2="${p.x-s}" y2="${p.y+s}" stroke="var(--red)" stroke-width="1" opacity="0.35"/>`}
+    const dn=nd.id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
+    const tOp=rt?(ip||isSrc||isTgt?.8:.03):(S.pcd&&!acc?.08:.55);
+    const fs=isG?5:(S.mode==='quad'?5.5:6);
+    h+=`<text x="${p.x}" y="${p.y+r+4}" text-anchor="start" fill="${isSrc?'var(--orange)':isTgt?'var(--green)':'var(--lbl)'}" font-size="${fs}" font-family="'DM Sans'" font-weight="${ip||isTr?600:400}" opacity="${tOp}" transform="rotate(${isG?28:35} ${p.x} ${p.y+r+4})">${dn}</text>`;
+  }
+  g.innerHTML=h;bindNodes();
+}
+
+// ═══════ RADIAL RENDER ═══════
+function renderRadial(){
+  const rd=POS._rad;if(!rd)return;
+  const g=document.getElementById('gM');const svg=document.getElementById('svg');
+  const W=1020,H=1020;svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);aZ();
+  const {cx,cy,maxR,maxKm,rings,centerName}=rd;
+  const rt=S.sel!==null?S.routes[S.sel]:null;
+  const ps=rt?new Set(rt.path):null;
+  let h='';
+
+  // Concentric rings
+  rings.forEach(km=>{
+    const r=(km/maxKm)*maxR;
+    h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.5"/>`;
+    h+=`<text x="${cx+4}" y="${cy-r+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.6">${km} km</text>`;
+  });
+  // Outer ring (max)
+  h+=`<circle cx="${cx}" cy="${cy}" r="${maxR}" fill="none" stroke="var(--border)" stroke-width="1" opacity="0.35"/>`;
+  h+=`<text x="${cx+4}" y="${cy-maxR+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.5">${maxKm} km</text>`;
+  // Cross hairs
+  h+=`<line x1="${cx}" y1="${cy-maxR-20}" x2="${cx}" y2="${cy+maxR+20}" stroke="var(--border)" stroke-width="0.5" opacity="0.2"/>`;
+  h+=`<line x1="${cx-maxR-20}" y1="${cy}" x2="${cx+maxR+20}" y2="${cy}" stroke="var(--border)" stroke-width="0.5" opacity="0.2"/>`;
+  // Cardinal labels
+  h+=`<text x="${cx}" y="${cy-maxR-8}" text-anchor="middle" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">N</text>`;
+  h+=`<text x="${cx}" y="${cy+maxR+14}" text-anchor="middle" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">S</text>`;
+  h+=`<text x="${cx+maxR+10}" y="${cy+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">E</text>`;
+  h+=`<text x="${cx-maxR-14}" y="${cy+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">O</text>`;
+  // Center point
+  h+=`<circle cx="${cx}" cy="${cy}" r="4" fill="var(--accent)" opacity="0.9"/>`;
+  h+=`<circle cx="${cx}" cy="${cy}" r="8" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>`;
+  const cnShort=centerName.length>20?centerName.slice(0,18)+'…':centerName;
+  h+=`<text x="${cx}" y="${cy+18}" text-anchor="middle" fill="var(--accent)" font-size="8" font-weight="700" font-family="var(--mono)" opacity="0.8">${cnShort}</text>`;
+
+  // Connection lines from center to nearest accessible
+  if(S.radNearest){
+    const np=POS[S.radNearest];
+    if(np&&!np.outside)h+=`<line x1="${cx}" y1="${cy}" x2="${np.x}" y2="${np.y}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3,2" opacity="0.3"/>`;
+  }
+  if(S.radNearestAcc&&S.radNearestAcc!==S.radNearest){
+    const np=POS[S.radNearestAcc];
+    if(np&&!np.outside)h+=`<line x1="${cx}" y1="${cy}" x2="${np.x}" y2="${np.y}" stroke="var(--green)" stroke-width="1" stroke-dasharray="3,2" opacity="0.3"/>`;
+  }
+
+  // Route path lines (drawn before nodes so they appear behind)
+  if(rt&&rt.path.length>1){for(let i=0;i<rt.path.length-1;i++){const a=rt.path[i],b=rt.path[i+1];const pa2=POS[a],pb2=POS[b];if(!pa2||!pb2||pa2.outside||pb2.outside)continue;const na2=N(a);h+=`<line x1="${pa2.x}" y1="${pa2.y}" x2="${pb2.x}" y2="${pb2.y}" stroke="${na2?LC[na2.Linea]:'var(--accent)'}" stroke-width="3" stroke-linecap="round" opacity="0.9"/>`;}}
+
+  // Nodes — sorted so outside ones render first (behind)
+  const sorted=[...NODES].sort((a,b)=>{const pa=POS[a.id],pb=POS[b.id];return (pb?.outside?1:0)-(pa?.outside?1:0)});
+  for(const nd of sorted){
+    if(!POS[nd.id]||S.hid.has(nd.Linea))continue;
+    const p=POS[nd.id],col=LC[nd.Linea];
+    const acc=nd.Accesibilidad==='Si';
+    const isNearest=nd.id===S.radNearest;
+    const isNearAcc=nd.id===S.radNearestAcc;
+    const isTgt=nd.id===S.tgt;
+    const ip=ps&&ps.has(nd.id);
+
+    if(p.outside){
+      // Tiny dot at edge
+      h+=`<circle cx="${p.x}" cy="${p.y}" r="2" fill="${col}" opacity="0.15" class="nd" data-id="${nd.id}" style="cursor:pointer"/>`;
+      continue;
+    }
+
+    let r=S.sz?(3+Math.sqrt((+nd.Personas_Afectadas||0)/600)*2.5):5;
+    let fl='var(--node-bg)',sk=col,sw=1.5,op=0.8;
+    if(isNearest){fl=col;sk='#fff';sw=2;r=7;op=1}
+    if(isNearAcc&&!isNearest){sk='var(--green)';sw=2.5;r=7;op=1}
+    if(isTgt){fl='var(--green)';sk='#fff';sw=2.5;r=8;op=1}
+    if(ip){fl=col;sk='#fff';sw=2;op=1}
+    // Filter dimming
+    const flt=S.radFilterMode;const matchF=flt==='all'||(flt==='acc'&&acc)||(flt==='elev'&&nd.Elevador==='Si')||(flt==='ee'&&nd.EE==='Si')||(flt==='elevee'&&(nd.Elevador==='Si'||nd.EE==='Si'));
+    if(!matchF&&!isNearest&&!isNearAcc&&!isTgt&&!ip)op*=0.1;
+
+    // Line from center (spoke)
+    h+=`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${col}" stroke-width="0.5" opacity="${ip?0.5:0.12}"/>`;
+
+    if(!acc)h+=`<circle cx="${p.x}" cy="${p.y}" r="${r*.5}" fill="var(--text3)" opacity="0.3"/>`;
+    h+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fl}" stroke="${sk}" stroke-width="${sw}" opacity="${op}" class="nd" data-id="${nd.id}" style="cursor:pointer"/>`;
+
+    // Highlight ring for nearest accessible
+    if(isNearAcc)h+=`<circle cx="${p.x}" cy="${p.y}" r="${r+4}" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>`;
+
+    // Label
+    const dn=nd.id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
+    const dist=p.dist?` (${p.dist.toFixed(1)}km)`:'';
+    const showLabel=isNearest||isNearAcc||isTgt||ip||p.dist<2;
+    if(showLabel){
+      const ang=Math.atan2(p.y-cy,p.x-cx)*180/Math.PI;
+      h+=`<text x="${p.x}" y="${p.y-r-3}" text-anchor="middle" fill="var(--lbl)" font-size="6" font-family="'DM Sans'" font-weight="${isNearest||isNearAcc?700:400}" opacity="0.75">${dn}</text>`;
+      h+=`<text x="${p.x}" y="${p.y-r-3+8}" text-anchor="middle" fill="var(--text3)" font-size="5" font-family="var(--mono)" opacity="0.5">${p.dist.toFixed(1)} km</text>`;
+    }
+    // Accessibility badges
+    let bx=p.x+r+2;const by=p.y;
+    if(acc){h+=`<text x="${bx}" y="${by+2.5}" font-size="6" font-family="'DM Sans'" opacity="${op*0.9}" fill="var(--green)">♿</text>`;bx+=8}
+    if(nd.Elevador==='Si'){h+=`<rect x="${bx}" y="${by-3.5}" width="7" height="7" rx="1.5" fill="var(--accent)" opacity="${op*0.75}"/><text x="${bx+3.5}" y="${by+2}" text-anchor="middle" font-size="4" font-weight="700" fill="#000" font-family="var(--mono)">E</text>`;bx+=9}
+    if(nd.EE==='Si'){h+=`<rect x="${bx}" y="${by-3.5}" width="9" height="7" rx="1.5" fill="var(--orange)" opacity="${op*0.75}"/><text x="${bx+4.5}" y="${by+2}" text-anchor="middle" font-size="3.5" font-weight="700" fill="#000" font-family="var(--mono)">EE</text>`}
+  }
+
+  g.innerHTML=h;bindNodes();
+}
+
+function bindNodes(){
+  document.getElementById('gM').querySelectorAll('.nd').forEach(el=>{
+    el.addEventListener('click',e=>{e.stopPropagation();clN(el.dataset.id)});
+    el.addEventListener('mouseenter',e=>sT(e,el.dataset.id));el.addEventListener('mousemove',e=>mT(e));el.addEventListener('mouseleave',hT)});
+}
+
+// ═══════ PAN & ZOOM ═══════
+function aZ(){document.getElementById('gM').setAttribute('transform',`translate(${Z.x},${Z.y}) scale(${Z.s})`)}
+(function(){const cv=document.getElementById('cv'),svg=document.getElementById('svg');let dr=false,sx,sy,zx,zy;
+  svg.addEventListener('mousedown',e=>{if(e.target.classList.contains('nd'))return;dr=true;sx=e.clientX;sy=e.clientY;zx=Z.x;zy=Z.y});
+  window.addEventListener('mousemove',e=>{if(!dr)return;Z.x=zx+(e.clientX-sx);Z.y=zy+(e.clientY-sy);aZ()});
+  window.addEventListener('mouseup',()=>dr=false);
+  cv.addEventListener('wheel',e=>{e.preventDefault();const r=svg.getBoundingClientRect();const mx2=e.clientX-r.left,my2=e.clientY-r.top;const d=e.deltaY>0?.9:1.1;const ns=Math.max(.1,Math.min(6,Z.s*d));Z.x=mx2-(mx2-Z.x)*(ns/Z.s);Z.y=my2-(my2-Z.y)*(ns/Z.s);Z.s=ns;aZ()},{passive:false});
+  document.getElementById('zi').addEventListener('click',()=>{Z.s=Math.min(6,Z.s*1.3);aZ()});
+  document.getElementById('zo').addEventListener('click',()=>{Z.s=Math.max(.1,Z.s/1.3);aZ()});
+  document.getElementById('zf').addEventListener('click',()=>{Z.x=0;Z.y=0;Z.s=1;aZ()});
+})();
+
+// ═══════ INTERACTION ═══════
+function clN(id){
+  if(S.mode==='rad'){
+    // In radial: click sets destination, auto-calc route from nearest station
+    S.tgt=id;document.getElementById('st').value=id;calc();return;
+  }
+  if(!S.src){S.src=id;document.getElementById('ss').value=id}
+  else if(!S.tgt&&id!==S.src){S.tgt=id;document.getElementById('st').value=id;calc();return}
+  else{S.src=id;S.tgt=null;S.routes=[];S.sel=null;document.getElementById('ss').value=id;document.getElementById('st').value='';rRL()}
+  render();
+}
+function calc(){if(S.src&&S.tgt){const a=bAdj(S.pcd);S.routes=fR(S.src,S.tgt,a);S.sel=S.routes.length?0:null}rRL();render()}
+
+function sT(e,id){const nd=N(id);if(!nd)return;const t=document.getElementById('tip');const dn=id.replace(/_/g,' ');
+  let h=`<div class="tn">${dn}</div><div class="tr2"><span class="tk3">Línea</span><span class="tv" style="color:${LC[nd.Linea]}">${LN[nd.Linea]}</span></div><div class="tr2"><span class="tk3">Tipo</span><span class="tv">${nd.Tipo}</span></div><div class="tr2"><span class="tk3">Accesible</span><span class="${nd.Accesibilidad==='Si'?'ty':'tno'}">${nd.Accesibilidad==='Si'?'✓':'✗'}</span></div><div class="tr2"><span class="tk3">Elevador</span><span class="tv">${nd.Elevador}</span></div><div class="tr2"><span class="tk3">Esc.Eléc.</span><span class="tv">${nd.EE}</span></div>`;
+  const pa=+nd.Personas_Afectadas;if(pa)h+=`<div class="tr2"><span class="tk3">Pax afect.</span><span class="tv">${pa.toLocaleString()}</span></div>`;
+  if(S.mode==='rad'&&POS[nd.id]?.dist!=null)h+=`<div class="tr2"><span class="tk3">Distancia</span><span class="tv">${POS[nd.id].dist.toFixed(2)} km</span></div>`;
+  t.innerHTML=h;t.style.left=(e.clientX+10)+'px';t.style.top=(e.clientY-6)+'px';t.classList.add('show')}
+function mT(e){const t=document.getElementById('tip');t.style.left=(e.clientX+10)+'px';t.style.top=(e.clientY-6)+'px'}
+function hT(){document.getElementById('tip').classList.remove('show')}
+
+function rRL(){const c=document.getElementById('rli'),n=document.getElementById('rcc');
+  if(!S.src||!S.tgt){c.innerHTML='<div class="nrt">Selecciona origen y destino</div>';n.textContent='';return}
+  if(!S.routes.length){c.innerHTML=`<div class="nrt" style="color:var(--red)">${S.pcd?'Sin ruta accesible ♿':'Sin ruta'}</div>`;n.textContent='0';return}
+  n.textContent=`(${S.routes.length})`;let h='';
+  S.routes.forEach((r,i)=>{h+=`<div class="rc${S.sel===i?' sel':''}" data-i="${i}"><div class="rlb">Ruta ${i+1} · ${r.distance} est.${S.pcd?' ♿':''}</div><div class="rp">`;
+    r.path.forEach((nid,pi)=>{if(pi>0){const pv=r.path[pi-1],pn=N(pv),cn=N(nid);if(gbn(pv)===gbn(nid)&&pn&&cn&&pn.Linea!==cn.Linea)h+='<span class="rt3">⇌</span>';else h+='<span class="ra">→</span>'}
+      const cls=nid===S.src?' rs':nid===S.tgt?' rt':'';const nm=nid.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');const nd2=N(nid);h+=`<span class="rn${cls}" style="border-left:2px solid ${nd2?LC[nd2.Linea]:'#888'}" title="${nid}">${nm}</span>`});
+    h+='</div></div>'});
+  c.innerHTML=h;c.querySelectorAll('.rc').forEach(cd=>{cd.addEventListener('click',()=>{S.sel=+cd.dataset.i;rRL();render()})})}
+
+// ═══════ UI ═══════
+function initUI(){
+  const all=[];LD.forEach(lid=>(LO[lid]||[]).forEach(n=>all.push(n)));
+  ['ss','st'].forEach((sid,idx)=>{const sel=document.getElementById(sid);
+    all.forEach(n=>{const o=document.createElement('option');o.value=n.id;o.textContent=`${n.Accesibilidad==='Si'?'♿':'   '} [L${n.Linea}] ${n.id.replace(/_/g,' ')}`;sel.appendChild(o)});
+    sel.addEventListener('change',()=>{if(idx===0)S.src=sel.value||null;else S.tgt=sel.value||null;if(S.src&&S.tgt)calc();else{S.routes=[];S.sel=null;rRL();render()}})});
+
+  // Radial center dropdown
+  const rs=document.getElementById('radSel');
+  // POI first
+  const optG1=document.createElement('optgroup');optG1.label='Puntos de interés';
+  Object.keys(POI).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;optG1.appendChild(o)});
+  rs.appendChild(optG1);
+  // Then all stations
+  const optG2=document.createElement('optgroup');optG2.label='Estaciones del metro';
+  all.forEach(n=>{const o=document.createElement('option');o.value=n.id;o.textContent=`[L${n.Linea}] ${n.id.replace(/_/g,' ')}`;optG2.appendChild(o)});
+  rs.appendChild(optG2);
+  rs.value=S.radCenter;
+  rs.addEventListener('change',()=>{S.radCenter=rs.value;S.tgt=null;S.routes=[];S.sel=null;document.getElementById('st').value='';cL();rRL();render()});
+
+  // Radial range slider
+  const rr=document.getElementById('radRange');
+  rr.addEventListener('input',()=>{S.radMax=+rr.value;document.getElementById('radKm').textContent=rr.value;cL();render()});
+
+  const lg=document.getElementById('leg');
+  LD.forEach(lid=>{const el=document.createElement('div');el.className='li';el.dataset.l=lid;el.innerHTML=`<div class="lsw" style="background:${LC[lid]}"></div><span>L${lid}</span>`;
+    el.addEventListener('click',()=>{if(S.hid.has(lid)){S.hid.delete(lid);el.classList.remove('dim')}else{S.hid.add(lid);el.classList.add('dim')}render()});lg.appendChild(el)});
+
+  document.querySelectorAll('#vp .p').forEach(p=>{p.addEventListener('click',()=>{
+    document.querySelectorAll('#vp .p').forEach(x=>x.classList.remove('on'));p.classList.add('on');
+    S.mode=p.dataset.v;Z.x=0;Z.y=0;Z.s=1;
+    // Toggle radial panel
+    document.getElementById('radPanel').classList.toggle('show',S.mode==='rad');
+    S.tgt=null;S.routes=[];S.sel=null;document.getElementById('st').value='';
+    cL();rRL();render();
+  })});
+
+  document.getElementById('ps').addEventListener('click',function(){S.sz=!S.sz;this.classList.toggle('on',S.sz);render()});
+  document.getElementById('pt').addEventListener('click',function(){document.body.classList.toggle('light');const isL=document.body.classList.contains('light');this.classList.toggle('on',isL);this.textContent=isL?'🌙 Oscuro':'☀ Tema Metro';render()});
+  document.getElementById('pw').addEventListener('click',()=>document.getElementById('wp').classList.toggle('show'));
+  document.getElementById('wcc').addEventListener('click',()=>document.getElementById('wp').classList.remove('show'));
+  document.getElementById('tgp').addEventListener('click',()=>{S.pcd=!S.pcd;document.getElementById('tkp').classList.toggle('on',S.pcd);if(S.src&&S.tgt)calc();else render()});
+  document.getElementById('bf').addEventListener('click',calc);
+  document.getElementById('bc').addEventListener('click',()=>{S.src=null;S.tgt=null;S.routes=[];S.sel=null;document.getElementById('ss').value='';document.getElementById('st').value='';rRL();render()});
+  document.querySelectorAll('#radFilter .rfb').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('#radFilter .rfb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');S.radFilterMode=btn.dataset.f;render()})});
+}
+
+load().catch(e=>{document.getElementById('si').textContent='Error: '+e.message;console.error(e)});
+</script>
+</body>
+</html>
