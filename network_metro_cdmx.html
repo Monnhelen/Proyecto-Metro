@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro CDMX – Accesibilidad</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e0e0e0;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#161b27;border-bottom:1px solid #262f44;flex-shrink:0;flex-wrap:wrap}
+  h1{font-size:14px;font-weight:700;letter-spacing:.5px;color:#fff;white-space:nowrap}
+  h1 span{color:#C8A219}
+  .view-btns{display:flex;gap:6px}
+  .vbtn{padding:6px 14px;border:1px solid #3a4460;border-radius:20px;background:transparent;color:#8a9bbf;font-size:12px;cursor:pointer;transition:all .2s}
+  .vbtn.active{background:#C8A219;color:#000;border-color:#C8A219;font-weight:700}
+  .vbtn:hover:not(.active){background:#23293a;color:#fff}
+  .sep{width:1px;height:20px;background:#3a4460}
+  .legend{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .li{display:flex;align-items:center;gap:5px;font-size:11px;color:#8a9bbf;cursor:pointer;padding:3px 7px;border-radius:12px;border:1px solid transparent;user-select:none;transition:all .18s}
+  .li:hover{border-color:#3a4460;background:#1e2535}
+  .li.off{opacity:.32;text-decoration:line-through}
+  .lc{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:opacity .18s}
+  #canvas{flex:1;position:relative;overflow:hidden}
+  svg{width:100%;height:100%}
+  .link{stroke-opacity:.5;transition:stroke-opacity .2s}
+  .node{cursor:pointer}
+  .node circle{transition:r .3s ease,fill .2s}
+  .node:hover circle{filter:brightness(1.4)}
+  .node text{pointer-events:none;font-size:9px;fill:#ccc;text-anchor:middle}
+  /* Tooltip */
+  #tooltip{position:fixed;background:#1e2535;border:1px solid #3a4460;border-radius:8px;padding:8px 12px;font-size:12px;color:#e0e0e0;pointer-events:none;opacity:0;transition:opacity .15s;max-width:180px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+  /* Popup */
+  #popup{position:fixed;right:18px;top:60px;width:300px;max-height:calc(100vh - 80px);overflow-y:auto;background:#1a2035;border:1px solid #3a4460;border-radius:12px;padding:16px;z-index:200;box-shadow:0 8px 40px rgba(0,0,0,.7);display:none}
+  #popup-close{position:sticky;top:0;float:right;background:#e74c3c;border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:22px;text-align:center;margin:-4px -4px 8px 8px}
+  #popup-content{clear:both;font-family:sans-serif;font-size:13px}
+  #popup-content *{color:#ddd!important;border-color:#3a4460!important}
+  #popup-content b{color:#fff!important}
+  #popup-content table{width:100%}
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#161b27}::-webkit-scrollbar-thumb{background:#3a4460;border-radius:3px}
+  .info-bar{font-size:11px;color:#556;padding:4px 18px;background:#161b27;border-top:1px solid #1e2535;flex-shrink:0}
+  .highlighted circle{stroke:#fff!important;stroke-width:2.5px!important}
+  .dimmed{opacity:.15}
+</style>
+</head>
+<body>
+<header>
+  <h1>Metro CDMX <span>·</span> Accesibilidad Universal</h1>
+  <div class="sep"></div>
+  <div class="view-btns">
+    <button class="vbtn active" onclick="setView('network')" id="btn-network">⬡ Network</button>
+    <button class="vbtn" onclick="setView('radial')" id="btn-radial">◎ Radial</button>
+    <button class="vbtn" onclick="setView('arch')" id="btn-arch">⌢ Arch</button>
+  </div>
+  <div class="sep"></div>
+  <div class="legend">
+    <span class="li" id="leg-AccesoFuncional" onclick="toggleCat('AccesoFuncional')"><span class="lc" style="background:#27ae60"></span>Acceso funcional</span>
+    <span class="li" id="leg-AccesoNoFuncional" onclick="toggleCat('AccesoNoFuncional')"><span class="lc" style="background:#e74c3c"></span>Fuera de servicio</span>
+    <span class="li" id="leg-SinAccesos" onclick="toggleCat('SinAccesos')"><span class="lc" style="background:#95a5a6"></span>Sin accesos</span>
+    <span class="li" id="leg-1" onclick="toggleCat('1')"><span class="lc" style="background:#E91E8C"></span>L1</span>
+    <span class="li" id="leg-2" onclick="toggleCat('2')"><span class="lc" style="background:#0B4EA2"></span>L2</span>
+    <span class="li" id="leg-3" onclick="toggleCat('3')"><span class="lc" style="background:#6B8E23"></span>L3</span>
+    <span class="li" id="leg-7" onclick="toggleCat('7')"><span class="lc" style="background:#F47920"></span>L7</span>
+    <span class="li" id="leg-8" onclick="toggleCat('8')"><span class="lc" style="background:#00A85D"></span>L8</span>
+    <span class="li" id="leg-9" onclick="toggleCat('9')"><span class="lc" style="background:#836539"></span>L9</span>
+    <span class="li" id="leg-12" onclick="toggleCat('12')"><span class="lc" style="background:#C8A219"></span>L12</span>
+    <span class="li" id="leg-A" onclick="toggleCat('A')"><span class="lc" style="background:#8B2FC9"></span>LA</span>
+  </div>
+</header>
+<div id="canvas">
+  <svg id="svg">
+    <g id="links-g"></g>
+    <g id="nodes-g"></g>
+  </svg>
+</div>
+<div id="tooltip"></div>
+<div id="popup">
+  <button id="popup-close" onclick="closePopup()">✕</button>
+  <div id="popup-content"></div>
+</div>
+<div class="info-bar" id="info-bar">Hover para ver el nodo · Click para detalles completos</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const RAW_NODES = [
+  {id:'Acatitla',cat:'A',tipo:'Estación',afluencia:13803,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Acatitla</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>13.803 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.038.262</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Aculco',cat:'8',tipo:'Estación',afluencia:7579,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Aculco</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>7.579 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>2.766.155</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Agricola_Oriental',cat:'A',tipo:'Estación',afluencia:10147,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Agricola Oriental</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>10.147 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.703.662</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Apatlaco',cat:'8',tipo:'Estación',afluencia:11246,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Apatlaco</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.246 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.104.884</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Atlalilco_12',cat:'12',tipo:'Estación',afluencia:11948,transbordo:1,indice:26,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Atlalilco</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.948 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.360.932</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>26/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>1 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>7 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Corredores</b></td><td style='color:#27ae60'>7 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Atlalilco_8',cat:'8',tipo:'Estación',afluencia:12675,transbordo:1,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Atlalilco</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>12.675 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.626.445</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Balderas_3',cat:'3',tipo:'Estación',afluencia:11223,transbordo:1,indice:18,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Balderas</b></p><p style='margin:0 0 2px;color:#555'>Linea 3</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.223 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.096.244</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>18/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Balderas_1',cat:'1',tipo:'Estación',afluencia:16122,transbordo:1,indice:22,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Balderas</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>16.122 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.884.404</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>22/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>9 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Bellas_Artes_8',cat:'8',tipo:'Estación',afluencia:17018,transbordo:1,indice:10,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Bellas Artes</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>17.018 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>6.211.550</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>10/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>5 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Bellas_Artes_2',cat:'2',tipo:'Estación',afluencia:26238,transbordo:1,indice:4,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Bellas Artes</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>26.238 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>9.577.017</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>4/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Calle_11',cat:'12',tipo:'Estación',afluencia:11716,transbordo:0,indice:22,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Calle 11</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.716 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.276.275</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>22/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>5 fuera</td></tr></table></div>`},
+  {id:'Camarones',cat:'7',tipo:'Estación',afluencia:12042,transbordo:0,indice:30,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Camarones</b></p><p style='margin:0 0 2px;color:#555'>Linea 7</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>12.042 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.395.275</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>30/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>15 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Canal_de_San_Juan',cat:'A',tipo:'Estación',afluencia:11160,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Canal de San Juan</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.160 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.073.516</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Centro_Medico_9',cat:'9',tipo:'Estación',afluencia:13152,transbordo:1,indice:26,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Centro Medico</b></p><p style='margin:0 0 2px;color:#555'>Linea 9</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>13.152 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.800.425</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>26/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>5 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Centro_Medico_3',cat:'3',tipo:'Estación',afluencia:15374,transbordo:1,indice:16,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Centro Medico</b></p><p style='margin:0 0 2px;color:#555'>Linea 3</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>15.374 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.611.357</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>16/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Cerro_de_la_Estrella',cat:'8',tipo:'Estación',afluencia:9919,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Cerro de la Estrella</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.919 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.620.255</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Chabacano_9',cat:'9',tipo:'Estación',afluencia:7676,transbordo:2,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Chabacano</b></p><p style='margin:0 0 2px;color:#555'>Linea 9</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 2 lineas</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>7.676 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>2.801.857</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Chabacano_2',cat:'2',tipo:'Estación',afluencia:21997,transbordo:2,indice:22,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Chabacano</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 2 lineas</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>21.997 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>8.028.803</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>22/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>1 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>5 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Chabacano_8',cat:'8',tipo:'Estación',afluencia:3537,transbordo:2,indice:14,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Chabacano</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 2 lineas</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>3.537 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>1.291.159</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>14/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Chapultepec',cat:'1',tipo:'Estación',afluencia:28346,transbordo:0,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Chapultepec</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>28.346 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>10.346.229</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Constitucion_de_1917',cat:'8',tipo:'Estación',afluencia:91959,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Constitución de 1917</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>91.959 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>33.565.010</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Coyuya',cat:'8',tipo:'Estación',afluencia:23632,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Coyuya</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>23.632 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>8.625.706</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Cuatro_Caminos',cat:'2',tipo:'Estación',afluencia:96300,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Cuatro Caminos</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>96.300 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>35.149.370</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>1 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>2 fuera</td></tr></table></div>`},
+  {id:'Cuauhtemoc',cat:'1',tipo:'Estación',afluencia:8504,transbordo:0,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Cuauhtémoc</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>8.504 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.103.823</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Culhuacan',cat:'12',tipo:'Estación',afluencia:14912,transbordo:0,indice:16,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Culhuacán</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>14.912 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.442.736</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>16/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Doctores',cat:'8',tipo:'Estación',afluencia:9810,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Doctores</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.810 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.580.686</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Eje_Central',cat:'12',tipo:'Estación',afluencia:10706,transbordo:0,indice:16,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Eje Central</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>10.706 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.907.654</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>16/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Ermita',cat:'12',tipo:'Estación',afluencia:8347,transbordo:1,indice:28,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Ermita</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>8.347 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.046.483</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>28/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>8 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Escuadron_201',cat:'8',tipo:'Estación',afluencia:17940,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Escuadrón 201</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>17.940 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>6.548.055</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Garibaldi_8',cat:'8',tipo:'Estación',afluencia:16562,transbordo:1,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Garibaldi</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>16.562 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>6.045.016</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Guelatao',cat:'A',tipo:'Estación',afluencia:17376,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Guelatao</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>17.376 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>6.342.357</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Hidalgo_3',cat:'3',tipo:'Estación',afluencia:15622,transbordo:1,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Hidalgo</b></p><p style='margin:0 0 2px;color:#555'>Linea 3</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>15.622 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.701.862</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>6 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Hidalgo_2',cat:'2',tipo:'Estación',afluencia:25817,transbordo:1,indice:4,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Hidalgo</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>25.817 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>9.423.264</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>4/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>2 fuera</td></tr></table></div>`},
+  {id:'Hospital_20_de_Noviembre',cat:'12',tipo:'Estación',afluencia:9571,transbordo:0,indice:16,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Hospital 20 de Noviembre</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.571 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.493.593</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>16/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Hospital_General',cat:'3',tipo:'Estación',afluencia:16072,transbordo:0,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Hospital General</b></p><p style='margin:0 0 2px;color:#555'>Linea 3</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>16.072 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.866.377</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Insugentes_Sur',cat:'12',tipo:'Estación',afluencia:31297,transbordo:0,indice:18,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Insurgentes Sur</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>31.297 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>11.423.375</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>18/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>5 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'Insurgentes',cat:'1',tipo:'Estación',afluencia:21349,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Insurgentes</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>21.349 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>7.792.395</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Iztacalco',cat:'8',tipo:'Estación',afluencia:15351,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Iztacalco</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>15.351 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.603.104</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Iztapalapa',cat:'8',tipo:'Estación',afluencia:9271,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Iztapalapa</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.271 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.383.872</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Juanacatlan',cat:'1',tipo:'Estación',afluencia:6663,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Juanacatlán</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>6.663 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>242.089</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'La_Paz',cat:'A',tipo:'Estación',afluencia:39432,transbordo:0,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>La Paz</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>39.432 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>14.392.733</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'La_Viga',cat:'8',tipo:'Estación',afluencia:6304,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>La Viga</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>6.304 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>2.301.016</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Lomas_Estrella',cat:'12',tipo:'Estación',afluencia:8563,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Lomas Estrella</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>8.563 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.125.513</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Los_Reyes',cat:'A',tipo:'Estación',afluencia:18729,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Los Reyes</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>18.729 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>6.836.028</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Mexilcalcingo',cat:'12',tipo:'Estación',afluencia:15094,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Mexicalcingo</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>15.094 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.509.441</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>6 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Mixcoac',cat:'12',tipo:'Estación',afluencia:14371,transbordo:1,indice:26,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Mixcoac</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>14.371 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.245.428</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>26/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>7 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Nopalera',cat:'12',tipo:'Estación',afluencia:21407,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Nopalera</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>21.407 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>7.813.431</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>4 fuera</td></tr></table></div>`},
+  {id:'Obrera',cat:'8',tipo:'Estación',afluencia:11297,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Obrera</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.297 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.123.299</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Observatorio',cat:'1',tipo:'Estación',afluencia:3852,transbordo:0,indice:16,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Observatorio</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>3.852 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>1.405.966</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>16/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Olivos',cat:'12',tipo:'Estación',afluencia:14581,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Olivos</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>14.581 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>5.321.907</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>4 fuera</td></tr></table></div>`},
+  {id:'Pantitlan',cat:'A',tipo:'Estación',afluencia:30336,transbordo:3,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Pantitlán</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 3 lineas</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>30.336 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>11.072.684</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Parque_de_los_Venados',cat:'12',tipo:'Estación',afluencia:9537,transbordo:0,indice:20,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Parque de los Venados</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.537 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.481.138</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>20/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Penon_Viejo',cat:'A',tipo:'Estación',afluencia:11557,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Peñón Viejo</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.557 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.218.264</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Periferico_Oriente',cat:'12',tipo:'Estación',afluencia:30853,transbordo:0,indice:28,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Periférico Oriente</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>30.853 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>11.261.165</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>28/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>8 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Pino_Suarez_1',cat:'1',tipo:'Estación',afluencia:24531,transbordo:1,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Pino Suárez</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>24.531 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>8.953.719</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Pino_Suarez_2',cat:'2',tipo:'Estación',afluencia:30103,transbordo:1,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Pino Suárez</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>30.103 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>10.987.499</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Salto_del_Agua_1',cat:'1',tipo:'Estación',afluencia:11552,transbordo:1,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Salto del Agua</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.552 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.216.549</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Salto_del_Agua_8',cat:'8',tipo:'Estación',afluencia:12294,transbordo:1,indice:8,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Salto del Agua</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>12.294 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.487.164</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>8/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>1 fuera</td></tr></table></div>`},
+  {id:'San_Andres_Tomatlan',cat:'12',tipo:'Estación',afluencia:9441,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>San Andrés Tomatlan</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>9.441 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>3.446.063</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'San_Juan_de_Letran',cat:'8',tipo:'Estación',afluencia:22171,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>San Juan de Letrán</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>22.171 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>8.092.273</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Santa_Anita',cat:'8',tipo:'Estación',afluencia:4086,transbordo:1,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Santa Anita</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>4.086 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>1.491.505</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Santa_Martha',cat:'A',tipo:'Estación',afluencia:35324,transbordo:0,indice:4,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Santa Marta</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>35.324 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>12.893.127</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>4/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Sevilla',cat:'1',tipo:'Estación',afluencia:12673,transbordo:0,indice:12,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Sevilla</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>12.673 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.625.612</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>12/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Tacuba_7',cat:'7',tipo:'Estación',afluencia:7218,transbordo:1,indice:26,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tacuba</b></p><p style='margin:0 0 2px;color:#555'>Linea 7</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>7.218 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>2.634.510</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>26/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>13 func.</td><td style='color:#c0392b'>2 fuera</td></tr></table></div>`},
+  {id:'Tacuba_2',cat:'2',tipo:'Estación',afluencia:29416,transbordo:1,indice:4,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tacuba</b></p><p style='margin:0 0 2px;color:#555'>Linea 2</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>29.416 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>10.736.966</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>4/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Tacubaya',cat:'1',tipo:'Estación',afluencia:1810,transbordo:2,indice:20,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tacubaya</b></p><p style='margin:0 0 2px;color:#555'>Linea 1</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 2 lineas</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>1.810 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>660.778</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>20/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Tepalcates',cat:'A',tipo:'Estación',afluencia:23232,transbordo:0,indice:4,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tepalcates</b></p><p style='margin:0 0 2px;color:#555'>Linea A</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>23.232 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>8.479.506</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>4/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Tezonco',cat:'12',tipo:'Estación',afluencia:20502,transbordo:0,indice:18,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tezonco</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>20.502 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>7.483.245</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>18/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>1 func.</td><td style='color:#c0392b'>1 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>3 fuera</td></tr></table></div>`},
+  {id:'Tlahuac',cat:'12',tipo:'Estación',afluencia:53267,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tláhuac</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>53.267 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>19.442.307</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Tlaltenco',cat:'12',tipo:'Estación',afluencia:4640,transbordo:0,indice:14,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Tlaltenco</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>4.640 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>1.693.684</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>14/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>3 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'UAM',cat:'8',tipo:'Estación',afluencia:21068,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>UAM-I</b></p><p style='margin:0 0 2px;color:#555'>Linea 8</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>21.068 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>7.689.817</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#999;margin:4px 0'>Sin equipamiento de accesibilidad registrado</p></div>`},
+  {id:'Zapata',cat:'12',tipo:'Estación',afluencia:12415,transbordo:1,indice:22,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Zapata</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#e67e22'>Transbordo con 1 linea</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>12.415 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.531.365</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>22/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>1 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>7 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  {id:'Zapotitlan',cat:'12',tipo:'Estación',afluencia:11848,transbordo:0,indice:24,html:`<div style='font-family:sans-serif;font-size:13px;max-width:260px'><p style='margin:0 0 2px;font-size:16px'><b>Zapotitlán</b></p><p style='margin:0 0 2px;color:#555'>Linea 12</p><p style='margin:0 0 6px;font-size:12px'><span style='color:#999'>Sin transbordo</span></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:3px 0'><b>Afluencia diaria: </b>11.848 personas</p><p style='margin:3px 0'><b>Afluencia anual 2025: </b>4.324.687</p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='margin:6px 0 4px'><b>Indice accesibilidad: </b>24/30</p><table style='font-size:12px;border-collapse:collapse;width:100%'><tr><td><b>Elevadores</b></td><td style='color:#27ae60'>2 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Plataformas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr><tr><td><b>Esc. electricas</b></td><td style='color:#27ae60'>4 func.</td><td style='color:#c0392b'>0 fuera</td></tr></table></div>`},
+  // Access nodes — HTML exacto de la columna Popup_HTML del CSV
+  {id:'Elevador_Funciona',cat:'AccesoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:30,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Elevadores en servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>46 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 1</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Chapultepec <span style='color:#aaa;font-size:11px'>28.346 diarios - 3 unid.</span></li><li style='margin:2px 0'>Pino_Suarez <span style='color:#aaa;font-size:11px'>24.531 diarios - 1 unid.</span></li><li style='margin:2px 0'>Insurgentes <span style='color:#aaa;font-size:11px'>21.349 diarios - 2 unid.</span></li><li style='margin:2px 0'>Balderas <span style='color:#aaa;font-size:11px'>16.122 diarios - 1 unid.</span></li><li style='margin:2px 0'>Sevilla <span style='color:#aaa;font-size:11px'>12.673 diarios - 2 unid.</span></li><li style='color:#aaa;font-style:italic'>5 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Tlahuac <span style='color:#aaa;font-size:11px'>53.267 diarios - 4 unid.</span></li><li style='margin:2px 0'>Insugentes_Sur <span style='color:#aaa;font-size:11px'>31.297 diarios - 2 unid.</span></li><li style='margin:2px 0'>Periferico_Oriente <span style='color:#aaa;font-size:11px'>30.853 diarios - 3 unid.</span></li><li style='margin:2px 0'>Nopalera <span style='color:#aaa;font-size:11px'>21.407 diarios - 2 unid.</span></li><li style='margin:2px 0'>Tezonco <span style='color:#aaa;font-size:11px'>20.502 diarios - 1 unid.</span></li><li style='color:#aaa;font-style:italic'>15 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 2</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Cuatro_Caminos <span style='color:#aaa;font-size:11px'>96.300 diarios - 1 unid.</span></li><li style='margin:2px 0'>Pino_Suarez <span style='color:#aaa;font-size:11px'>30.103 diarios - 4 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>21.997 diarios - 3 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 3</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Hospital_General <span style='color:#aaa;font-size:11px'>16.072 diarios - 2 unid.</span></li><li style='margin:2px 0'>Hidalgo <span style='color:#aaa;font-size:11px'>15.622 diarios - 6 unid.</span></li><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>15.374 diarios - 2 unid.</span></li><li style='margin:2px 0'>Balderas <span style='color:#aaa;font-size:11px'>11.223 diarios - 3 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 8</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Constitucion_de_1917 <span style='color:#aaa;font-size:11px'>91.959 diarios - 2 unid.</span></li><li style='margin:2px 0'>Coyuya <span style='color:#aaa;font-size:11px'>23.632 diarios - 2 unid.</span></li><li style='margin:2px 0'>Atlalilco <span style='color:#aaa;font-size:11px'>12.675 diarios - 2 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>3.537 diarios - 2 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 9</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>13.152 diarios - 2 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea A</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>La_Paz <span style='color:#aaa;font-size:11px'>39.432 diarios - 2 unid.</span></li><li style='margin:2px 0'>Santa_Martha <span style='color:#aaa;font-size:11px'>35.324 diarios - 1 unid.</span></li><li style='margin:2px 0'>Pantitlan <span style='color:#aaa;font-size:11px'>30.336 diarios - 3 unid.</span></li><li style='margin:2px 0'>Tepalcates <span style='color:#aaa;font-size:11px'>23.232 diarios - 1 unid.</span></li></ul></div>`},
+  {id:'Elevador_Nofunciona',cat:'AccesoNoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Elevadores fuera de servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>7 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Tezonco <span style='color:#aaa;font-size:11px'>20.502 diarios - 1 unid.</span></li><li style='margin:2px 0'>Zapata <span style='color:#aaa;font-size:11px'>12.415 diarios - 1 unid.</span></li><li style='margin:2px 0'>Atlalilco <span style='color:#aaa;font-size:11px'>11.948 diarios - 1 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 2</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Cuatro_Caminos <span style='color:#aaa;font-size:11px'>96.300 diarios - 1 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>21.997 diarios - 1 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 8</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Coyuya <span style='color:#aaa;font-size:11px'>23.632 diarios - 1 unid.</span></li><li style='margin:2px 0'>Iztacalco <span style='color:#aaa;font-size:11px'>15.351 diarios - 1 unid.</span></li></ul></div>`},
+  {id:'Plataformas_Funciona',cat:'AccesoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:30,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Plataformas en servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>9 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Nopalera <span style='color:#aaa;font-size:11px'>21.407 diarios - 2 unid.</span></li><li style='margin:2px 0'>Tezonco <span style='color:#aaa;font-size:11px'>20.502 diarios - 2 unid.</span></li><li style='margin:2px 0'>Olivos <span style='color:#aaa;font-size:11px'>14.581 diarios - 2 unid.</span></li><li style='margin:2px 0'>Atlalilco <span style='color:#aaa;font-size:11px'>11.948 diarios - 2 unid.</span></li><li style='margin:2px 0'>Zapotitlan <span style='color:#aaa;font-size:11px'>11.848 diarios - 2 unid.</span></li><li style='color:#aaa;font-style:italic'>3 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 9</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>13.152 diarios - 2 unid.</span></li></ul></div>`},
+  {id:'EE_Funciona',cat:'AccesoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:30,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Escaleras electricas en servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>43 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 1</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Pino_Suarez <span style='color:#aaa;font-size:11px'>24.531 diarios - 4 unid.</span></li><li style='margin:2px 0'>Balderas <span style='color:#aaa;font-size:11px'>16.122 diarios - 9 unid.</span></li><li style='margin:2px 0'>Sevilla <span style='color:#aaa;font-size:11px'>12.673 diarios - 2 unid.</span></li><li style='margin:2px 0'>Salto_del_Agua <span style='color:#aaa;font-size:11px'>11.552 diarios - 2 unid.</span></li><li style='margin:2px 0'>Cuauhtemoc <span style='color:#aaa;font-size:11px'>8.504 diarios - 2 unid.</span></li><li style='color:#aaa;font-style:italic'>1 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Tlahuac <span style='color:#aaa;font-size:11px'>53.267 diarios - 4 unid.</span></li><li style='margin:2px 0'>Insugentes_Sur <span style='color:#aaa;font-size:11px'>31.297 diarios - 5 unid.</span></li><li style='margin:2px 0'>Periferico_Oriente <span style='color:#aaa;font-size:11px'>30.853 diarios - 8 unid.</span></li><li style='margin:2px 0'>Nopalera <span style='color:#aaa;font-size:11px'>21.407 diarios - 4 unid.</span></li><li style='margin:2px 0'>Tezonco <span style='color:#aaa;font-size:11px'>20.502 diarios - 3 unid.</span></li><li style='color:#aaa;font-style:italic'>15 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 2</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Cuatro_Caminos <span style='color:#aaa;font-size:11px'>96.300 diarios - 2 unid.</span></li><li style='margin:2px 0'>Pino_Suarez <span style='color:#aaa;font-size:11px'>30.103 diarios - 4 unid.</span></li><li style='margin:2px 0'>Tacuba <span style='color:#aaa;font-size:11px'>29.416 diarios - 2 unid.</span></li><li style='margin:2px 0'>Bellas_Artes <span style='color:#aaa;font-size:11px'>26.238 diarios - 2 unid.</span></li><li style='margin:2px 0'>Hidalgo <span style='color:#aaa;font-size:11px'>25.817 diarios - 2 unid.</span></li><li style='color:#aaa;font-style:italic'>1 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea 3</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Hospital_General <span style='color:#aaa;font-size:11px'>16.072 diarios - 2 unid.</span></li><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>15.374 diarios - 4 unid.</span></li><li style='margin:2px 0'>Balderas <span style='color:#aaa;font-size:11px'>11.223 diarios - 3 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 7</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Camarones <span style='color:#aaa;font-size:11px'>12.042 diarios - 15 unid.</span></li><li style='margin:2px 0'>Tacuba <span style='color:#aaa;font-size:11px'>7.218 diarios - 13 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 8</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Bellas_Artes <span style='color:#aaa;font-size:11px'>17.018 diarios - 5 unid.</span></li><li style='margin:2px 0'>Garibaldi <span style='color:#aaa;font-size:11px'>16.562 diarios - 4 unid.</span></li><li style='margin:2px 0'>Salto_del_Agua <span style='color:#aaa;font-size:11px'>12.294 diarios - 4 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>3.537 diarios - 3 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 9</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>13.152 diarios - 5 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>7.676 diarios - 4 unid.</span></li></ul></div>`},
+  {id:'EE_Nofunciona',cat:'AccesoNoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Escaleras electricas fuera de servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>12 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Insugentes_Sur <span style='color:#aaa;font-size:11px'>31.297 diarios - 1 unid.</span></li><li style='margin:2px 0'>Nopalera <span style='color:#aaa;font-size:11px'>21.407 diarios - 4 unid.</span></li><li style='margin:2px 0'>Tezonco <span style='color:#aaa;font-size:11px'>20.502 diarios - 3 unid.</span></li><li style='margin:2px 0'>Olivos <span style='color:#aaa;font-size:11px'>14.581 diarios - 4 unid.</span></li><li style='margin:2px 0'>Calle_11 <span style='color:#aaa;font-size:11px'>11.716 diarios - 5 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 2</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Cuatro_Caminos <span style='color:#aaa;font-size:11px'>96.300 diarios - 2 unid.</span></li><li style='margin:2px 0'>Hidalgo <span style='color:#aaa;font-size:11px'>25.817 diarios - 2 unid.</span></li><li style='margin:2px 0'>Chabacano <span style='color:#aaa;font-size:11px'>21.997 diarios - 1 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 7</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Camarones <span style='color:#aaa;font-size:11px'>12.042 diarios - 1 unid.</span></li><li style='margin:2px 0'>Tacuba <span style='color:#aaa;font-size:11px'>7.218 diarios - 2 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 8</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Salto_del_Agua <span style='color:#aaa;font-size:11px'>12.294 diarios - 1 unid.</span></li></ul><p style='margin:8px 0 2px'><b>Linea 9</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Centro_Medico <span style='color:#aaa;font-size:11px'>13.152 diarios - 1 unid.</span></li></ul></div>`},
+  {id:'Corredor_Funciona',cat:'AccesoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:30,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Corredores en servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>1 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Atlalilco <span style='color:#aaa;font-size:11px'>11.948 diarios - 7 unid.</span></li></ul></div>`},
+  {id:'Corredor_Nofunciona',cat:'AccesoNoFuncional',tipo:'Acceso',afluencia:1000,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Corredores fuera de servicio</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>1 estaciones - de mayor a menor afluencia diaria</p><p style='margin:8px 0 2px'><b>Linea 12</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Atlalilco <span style='color:#aaa;font-size:11px'>11.948 diarios - 1 unid.</span></li></ul></div>`},
+  {id:'SinAccesos',cat:'SinAccesos',tipo:'Especial',afluencia:1000,transbordo:0,indice:0,html:`<div style='font-family:sans-serif;font-size:13px;max-width:280px'><p style='margin:0 0 4px;font-size:15px'><b>Estaciones sin equipamiento de accesibilidad</b></p><hr style='margin:6px 0;border:none;border-top:1px solid #ddd'><p style='color:#888;font-size:11px;margin:0 0 6px'>18 estaciones con indice 0 - de mayor a menor afluencia</p><p style='margin:8px 0 2px'><b>Linea 8</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>San_Juan_de_Letran <span style='color:#aaa;font-size:11px'>22.171 diarios</span></li><li style='margin:2px 0'>UAM <span style='color:#aaa;font-size:11px'>21.068 diarios</span></li><li style='margin:2px 0'>Escuadron_201 <span style='color:#aaa;font-size:11px'>17.940 diarios</span></li><li style='margin:2px 0'>Iztacalco <span style='color:#aaa;font-size:11px'>15.351 diarios</span></li><li style='margin:2px 0'>Obrera <span style='color:#aaa;font-size:11px'>11.297 diarios</span></li><li style='color:#aaa;font-style:italic'>7 estaciones mas</li></ul><p style='margin:8px 0 2px'><b>Linea A</b></p><ul style='margin:0;padding-left:16px'><li style='margin:2px 0'>Los_Reyes <span style='color:#aaa;font-size:11px'>18.729 diarios</span></li><li style='margin:2px 0'>Guelatao <span style='color:#aaa;font-size:11px'>17.376 diarios</span></li><li style='margin:2px 0'>Acatitla <span style='color:#aaa;font-size:11px'>13.803 diarios</span></li><li style='margin:2px 0'>Penon_Viejo <span style='color:#aaa;font-size:11px'>11.557 diarios</span></li><li style='margin:2px 0'>Canal_de_San_Juan <span style='color:#aaa;font-size:11px'>11.160 diarios</span></li><li style='color:#aaa;font-style:italic'>1 estaciones mas</li></ul></div>`}
+];
+
+const RAW_LINKS = [
+  {s:'Elevador_Funciona',t:'Atlalilco_12',w:1},{s:'Elevador_Nofunciona',t:'Atlalilco_12',w:1},{s:'Plataformas_Funciona',t:'Atlalilco_12',w:4},{s:'EE_Funciona',t:'Atlalilco_12',w:7},{s:'Corredor_Funciona',t:'Atlalilco_12',w:7},{s:'Corredor_Nofunciona',t:'Atlalilco_12',w:1},
+  {s:'Elevador_Funciona',t:'Atlalilco_8',w:2},
+  {s:'Elevador_Funciona',t:'Balderas_3',w:3},{s:'EE_Funciona',t:'Balderas_3',w:3},
+  {s:'Elevador_Funciona',t:'Balderas_1',w:1},{s:'EE_Funciona',t:'Balderas_1',w:9},
+  {s:'EE_Funciona',t:'Bellas_Artes_8',w:5},{s:'EE_Funciona',t:'Bellas_Artes_2',w:2},
+  {s:'Elevador_Funciona',t:'Calle_11',w:2},{s:'Plataformas_Funciona',t:'Calle_11',w:4},{s:'EE_Funciona',t:'Calle_11',w:3},{s:'EE_Nofunciona',t:'Calle_11',w:5},
+  {s:'EE_Funciona',t:'Camarones',w:15},{s:'EE_Nofunciona',t:'Camarones',w:1},
+  {s:'Elevador_Funciona',t:'Centro_Medico_9',w:2},{s:'Plataformas_Funciona',t:'Centro_Medico_9',w:4},{s:'EE_Funciona',t:'Centro_Medico_9',w:5},{s:'EE_Nofunciona',t:'Centro_Medico_9',w:1},
+  {s:'Elevador_Funciona',t:'Centro_Medico_3',w:2},{s:'EE_Funciona',t:'Centro_Medico_3',w:4},
+  {s:'EE_Funciona',t:'Chabacano_9',w:4},
+  {s:'Elevador_Funciona',t:'Chabacano_2',w:3},{s:'Elevador_Nofunciona',t:'Chabacano_2',w:1},{s:'EE_Funciona',t:'Chabacano_2',w:5},{s:'EE_Nofunciona',t:'Chabacano_2',w:1},
+  {s:'Elevador_Funciona',t:'Chabacano_8',w:2},{s:'EE_Funciona',t:'Chabacano_8',w:3},
+  {s:'Elevador_Funciona',t:'Chapultepec',w:3},
+  {s:'Elevador_Funciona',t:'Constitucion_de_1917',w:2},
+  {s:'Elevador_Funciona',t:'Coyuya',w:2},{s:'Elevador_Nofunciona',t:'Coyuya',w:1},
+  {s:'Elevador_Funciona',t:'Cuatro_Caminos',w:1},{s:'Elevador_Nofunciona',t:'Cuatro_Caminos',w:1},{s:'EE_Funciona',t:'Cuatro_Caminos',w:2},{s:'EE_Nofunciona',t:'Cuatro_Caminos',w:2},
+  {s:'Elevador_Funciona',t:'Cuauhtemoc',w:2},{s:'EE_Funciona',t:'Cuauhtemoc',w:2},
+  {s:'Elevador_Funciona',t:'Culhuacan',w:2},{s:'EE_Funciona',t:'Culhuacan',w:4},
+  {s:'Elevador_Funciona',t:'Eje_Central',w:2},{s:'EE_Funciona',t:'Eje_Central',w:4},
+  {s:'Elevador_Funciona',t:'Ermita',w:3},{s:'EE_Funciona',t:'Ermita',w:8},
+  {s:'EE_Funciona',t:'Garibaldi_8',w:4},
+  {s:'Elevador_Funciona',t:'Hidalgo_3',w:6},{s:'EE_Funciona',t:'Hidalgo_2',w:2},{s:'EE_Nofunciona',t:'Hidalgo_2',w:2},
+  {s:'Elevador_Funciona',t:'Hospital_20_de_Noviembre',w:2},{s:'EE_Funciona',t:'Hospital_20_de_Noviembre',w:4},
+  {s:'Elevador_Funciona',t:'Hospital_General',w:2},{s:'EE_Funciona',t:'Hospital_General',w:2},
+  {s:'Elevador_Funciona',t:'Insugentes_Sur',w:2},{s:'EE_Funciona',t:'Insugentes_Sur',w:5},{s:'EE_Nofunciona',t:'Insugentes_Sur',w:1},
+  {s:'Elevador_Funciona',t:'Insurgentes',w:2},
+  {s:'Elevador_Funciona',t:'Juanacatlan',w:2},
+  {s:'Elevador_Funciona',t:'La_Paz',w:2},
+  {s:'Elevador_Funciona',t:'Lomas_Estrella',w:2},{s:'Plataformas_Funciona',t:'Lomas_Estrella',w:4},{s:'EE_Funciona',t:'Lomas_Estrella',w:4},
+  {s:'Elevador_Funciona',t:'Mexilcalcingo',w:3},{s:'EE_Funciona',t:'Mexilcalcingo',w:6},
+  {s:'Elevador_Funciona',t:'Mixcoac',w:3},{s:'EE_Funciona',t:'Mixcoac',w:7},
+  {s:'Elevador_Funciona',t:'Nopalera',w:2},{s:'Plataformas_Funciona',t:'Nopalera',w:4},{s:'EE_Funciona',t:'Nopalera',w:4},{s:'EE_Nofunciona',t:'Nopalera',w:4},
+  {s:'Elevador_Funciona',t:'Observatorio',w:4},
+  {s:'Elevador_Funciona',t:'Olivos',w:2},{s:'Plataformas_Funciona',t:'Olivos',w:4},{s:'EE_Funciona',t:'Olivos',w:4},{s:'EE_Nofunciona',t:'Olivos',w:4},
+  {s:'Elevador_Funciona',t:'Pantitlan',w:3},
+  {s:'Elevador_Funciona',t:'Parque_de_los_Venados',w:3},{s:'EE_Funciona',t:'Parque_de_los_Venados',w:4},
+  {s:'Elevador_Funciona',t:'Periferico_Oriente',w:3},{s:'EE_Funciona',t:'Periferico_Oriente',w:8},
+  {s:'Elevador_Funciona',t:'Pino_Suarez_1',w:1},{s:'EE_Funciona',t:'Pino_Suarez_1',w:4},
+  {s:'Elevador_Funciona',t:'Pino_Suarez_2',w:4},{s:'EE_Funciona',t:'Pino_Suarez_2',w:4},
+  {s:'Elevador_Funciona',t:'Salto_del_Agua_1',w:2},{s:'EE_Funciona',t:'Salto_del_Agua_1',w:2},
+  {s:'EE_Funciona',t:'Salto_del_Agua_8',w:4},{s:'EE_Nofunciona',t:'Salto_del_Agua_8',w:1},
+  {s:'Elevador_Funciona',t:'San_Andres_Tomatlan',w:2},{s:'Plataformas_Funciona',t:'San_Andres_Tomatlan',w:4},{s:'EE_Funciona',t:'San_Andres_Tomatlan',w:4},
+  {s:'Elevador_Funciona',t:'Santa_Martha',w:1},
+  {s:'Elevador_Funciona',t:'Sevilla',w:2},{s:'EE_Funciona',t:'Sevilla',w:2},
+  {s:'EE_Funciona',t:'Tacuba_7',w:13},{s:'EE_Nofunciona',t:'Tacuba_7',w:2},{s:'EE_Funciona',t:'Tacuba_2',w:2},
+  {s:'Elevador_Funciona',t:'Tacubaya',w:3},{s:'EE_Funciona',t:'Tacubaya',w:4},
+  {s:'Elevador_Funciona',t:'Tepalcates',w:1},
+  {s:'Elevador_Funciona',t:'Tezonco',w:1},{s:'Elevador_Nofunciona',t:'Tezonco',w:1},{s:'Plataformas_Funciona',t:'Tezonco',w:4},{s:'EE_Funciona',t:'Tezonco',w:3},{s:'EE_Nofunciona',t:'Tezonco',w:3},
+  {s:'Elevador_Funciona',t:'Tlahuac',w:4},{s:'EE_Funciona',t:'Tlahuac',w:4},
+  {s:'Elevador_Funciona',t:'Tlaltenco',w:2},{s:'EE_Funciona',t:'Tlaltenco',w:3},
+  {s:'Elevador_Funciona',t:'Zapata',w:2},{s:'Elevador_Nofunciona',t:'Zapata',w:1},{s:'EE_Funciona',t:'Zapata',w:7},
+  {s:'Elevador_Funciona',t:'Zapotitlan',w:2},{s:'Plataformas_Funciona',t:'Zapotitlan',w:4},{s:'EE_Funciona',t:'Zapotitlan',w:4},
+  {s:'SinAccesos',t:'Iztacalco',w:0},{s:'SinAccesos',t:'Cerro_de_la_Estrella',w:0},{s:'SinAccesos',t:'Guelatao',w:0},{s:'SinAccesos',t:'Santa_Anita',w:0},{s:'SinAccesos',t:'Penon_Viejo',w:0},{s:'SinAccesos',t:'Canal_de_San_Juan',w:0},{s:'SinAccesos',t:'Iztapalapa',w:0},{s:'SinAccesos',t:'San_Juan_de_Letran',w:0},{s:'SinAccesos',t:'Aculco',w:0},{s:'SinAccesos',t:'La_Viga',w:0},{s:'SinAccesos',t:'Obrera',w:0},{s:'SinAccesos',t:'Doctores',w:0},{s:'SinAccesos',t:'Agricola_Oriental',w:0},{s:'SinAccesos',t:'UAM',w:0},{s:'SinAccesos',t:'Acatitla',w:0},{s:'SinAccesos',t:'Apatlaco',w:0},{s:'SinAccesos',t:'Escuadron_201',w:0},{s:'SinAccesos',t:'Los_Reyes',w:0}
+];
+
+// ─── COLOR SCALES ─────────────────────────────────────────────────────────────
+const LINE_COLORS = {
+  '1':'#E91E8C','2':'#0B4EA2','3':'#6B8E23','7':'#F47920',
+  '8':'#00A85D','9':'#836539','12':'#C8A219','A':'#8B2FC9'
+};
+const ACCESS_COLORS = {
+  AccesoFuncional:'#27ae60',AccesoNoFuncional:'#e74c3c',SinAccesos:'#7f8c8d',Especial:'#7f8c8d'
+};
+function nodeColor(d){
+  if(d.tipo==='Estación') return LINE_COLORS[d.cat]||'#888';
+  return ACCESS_COLORS[d.cat]||'#888';
+}
+function nodeRadius(d,view){
+  if(d.tipo==='Acceso'||d.tipo==='Especial'){
+    if(view==='radial') return 18;
+    return d.id==='SinAccesos'?16:14;
+  }
+  const base = Math.sqrt(d.afluencia/600);
+  return Math.max(5, Math.min(22, base));
+}
+
+// ─── CATEGORY FILTER STATE ───────────────────────────────────────────────────
+const hiddenCats = new Set();
+
+function toggleCat(cat){
+  if(hiddenCats.has(cat)) hiddenCats.delete(cat);
+  else hiddenCats.add(cat);
+  document.getElementById('leg-'+cat)?.classList.toggle('off', hiddenCats.has(cat));
+  applyFilters();
+}
+
+function applyFilters(){
+  if(!nodeSel) return;
+  nodeSel.style('display', d => hiddenCats.has(d.cat) ? 'none' : null);
+  linksG.selectAll('g.lgrp').style('display', d => {
+    const sid = typeof d.source==='object'?d.source.id:d.source;
+    const tid = typeof d.target==='object'?d.target.id:d.target;
+    const sn = nodeMap[sid], tn = nodeMap[tid];
+    return (sn&&hiddenCats.has(sn.cat))||(tn&&hiddenCats.has(tn.cat)) ? 'none' : null;
+  });
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentView = 'network';
+let simulation = null;
+const nodeMap = {};
+RAW_NODES.forEach(n=>nodeMap[n.id]=n);
+
+// ─── SVG SETUP ────────────────────────────────────────────────────────────────
+const svg = d3.select('#svg');
+const linksG = d3.select('#links-g');
+const nodesG = d3.select('#nodes-g');
+let W = 0, H = 0;
+
+function dims(){
+  const el = document.getElementById('canvas');
+  W = el.clientWidth; H = el.clientHeight;
+}
+
+// Zoom
+const zoom = d3.zoom().scaleExtent([0.2,4]).on('zoom',e=>{
+  linksG.attr('transform',e.transform);
+  nodesG.attr('transform',e.transform);
+});
+svg.call(zoom);
+
+// ─── TOOLTIP / POPUP ──────────────────────────────────────────────────────────
+const tooltip = document.getElementById('tooltip');
+const popup = document.getElementById('popup');
+const popupContent = document.getElementById('popup-content');
+let popupOpen = false;
+
+function showTooltip(event,d){
+  const label = d.id.replace(/_/g,' ');
+  tooltip.innerHTML = `<b>${label}</b><br><span style="color:#888;font-size:11px">${d.tipo} ${d.cat!==d.tipo?'· '+d.cat:''}</span>`;
+  tooltip.style.opacity='1';
+  moveTooltip(event);
+}
+function moveTooltip(event){
+  const x = event.clientX+14, y = event.clientY-10;
+  tooltip.style.left = Math.min(x, window.innerWidth-200)+'px';
+  tooltip.style.top  = Math.max(y,10)+'px';
+}
+function hideTooltip(){tooltip.style.opacity='0';}
+
+function showPopup(d){
+  popupContent.innerHTML = d.html;
+  popup.style.display = 'block';
+  popupOpen = true;
+}
+function closePopup(){
+  popup.style.display = 'none';
+  popupOpen = false;
+  nodesG.selectAll('.node').classed('dimmed',false).classed('highlighted',false);
+  linksG.selectAll('line,path').classed('dimmed',false);
+}
+
+// ─── BUILD NODES / LINKS ──────────────────────────────────────────────────────
+const nodes = RAW_NODES.map(d=>({...d}));
+const links = RAW_LINKS.map(d=>({source:d.s,target:d.t,w:d.w}));
+
+// ─── DRAW ELEMENTS ────────────────────────────────────────────────────────────
+let linkSel, nodeSel;
+
+function linkStroke(d){ return Math.max(1.5, d.w * 1.1); }
+function linkColor(d){
+  const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
+  if(!src) return '#444';
+  if(src.cat==='SinAccesos') return '#55606a';
+  if(src.cat==='AccesoNoFuncional') return '#c0392b';
+  return '#27ae60';
+}
+
+function buildDOM(){
+  linksG.selectAll('*').remove();
+  nodesG.selectAll('*').remove();
+
+  // Each link is a <g> with a <line> + weight <text>
+  const linkGrp = linksG.selectAll('g.lgrp').data(links).join('g').attr('class','lgrp');
+
+  linkSel = linkGrp.append('line')
+    .attr('class','link')
+    .attr('stroke', linkColor)
+    .attr('stroke-width', linkStroke)
+    .attr('stroke-opacity', 0.45);
+
+  // Weight label, hidden by default, shown on group hover
+  linkGrp.append('text')
+    .attr('class','wlabel')
+    .attr('text-anchor','middle')
+    .attr('dy','0.35em')
+    .style('font-size','10px')
+    .style('fill','#ffe')
+    .style('pointer-events','none')
+    .style('opacity', 0)
+    .style('text-shadow','0 0 4px #000')
+    .text(d => d.w > 0 ? d.w : '');
+
+  linkGrp
+    .on('mouseover',(e,d)=>{
+      const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
+      const tgt = nodeMap[typeof d.target==='object'?d.target.id:d.target];
+      const sl = src?src.id.replace(/_/g,' '):'?';
+      const tl = tgt?tgt.id.replace(/_/g,' '):'?';
+      tooltip.innerHTML = `<span style="color:#aaa;font-size:10px">${sl}</span><br><b style="color:#C8A219">Peso: ${d.w}</b><br><span style="color:#aaa;font-size:10px">${tl}</span>`;
+      tooltip.style.opacity='1';
+      moveTooltip(e);
+      d3.select(e.currentTarget).select('line')
+        .attr('stroke-opacity',1)
+        .attr('stroke-width', d2=>Math.max(3, d2.w*1.8));
+      d3.select(e.currentTarget).select('.wlabel').style('opacity',1);
+    })
+    .on('mousemove', moveTooltip)
+    .on('mouseout',(e)=>{
+      hideTooltip();
+      d3.select(e.currentTarget).select('line')
+        .attr('stroke-opacity',0.45)
+        .attr('stroke-width', linkStroke);
+      d3.select(e.currentTarget).select('.wlabel').style('opacity',0);
+    });
+
+  nodeSel = nodesG.selectAll('.node').data(nodes,d=>d.id).join(
+    enter=>{
+      const g = enter.append('g').attr('class','node');
+      g.append('circle')
+        .attr('r', d=>nodeRadius(d,currentView))
+        .attr('fill', d=>nodeColor(d))
+        .attr('stroke', d=>d.tipo==='Acceso'||d.tipo==='Especial'?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)')
+        .attr('stroke-width',1.5);
+      g.append('text').attr('dy','0.35em').attr('y',d=>nodeRadius(d,currentView)+9)
+        .text(d=>{
+          const label = d.id.replace(/_/g,' ');
+          return label.length>14?label.slice(0,13)+'…':label;
+        });
+      return g;
+    }
+  );
+
+  nodeSel
+    .on('mouseover',(e,d)=>{showTooltip(e,d); highlightConnected(d);})
+    .on('mousemove', moveTooltip)
+    .on('mouseout', (e,d)=>{hideTooltip(); if(!popupOpen) unhighlight();})
+    .on('click',(e,d)=>{
+      e.stopPropagation();
+      showPopup(d);
+      highlightConnected(d);
+    });
+
+  svg.on('click',(e)=>{if(!popup.contains(e.target)&&!e.target.closest('.node')) closePopup();});
+  applyFilters();
+}
+
+function highlightConnected(d){
+  const connectedIds = new Set([d.id]);
+  links.forEach(l=>{
+    const sid = typeof l.source==='object'?l.source.id:l.source;
+    const tid = typeof l.target==='object'?l.target.id:l.target;
+    if(sid===d.id) connectedIds.add(tid);
+    if(tid===d.id) connectedIds.add(sid);
+  });
+  nodeSel.classed('dimmed',n=>!connectedIds.has(n.id));
+  nodeSel.classed('highlighted',n=>n.id===d.id);
+  linksG.selectAll('g.lgrp').classed('dimmed',l=>{
+    const sid = typeof l.source==='object'?l.source.id:l.source;
+    const tid = typeof l.target==='object'?l.target.id:l.target;
+    return sid!==d.id&&tid!==d.id;
+  });
+}
+function unhighlight(){
+  nodeSel.classed('dimmed',false).classed('highlighted',false);
+  linksG.selectAll('g.lgrp').classed('dimmed',false);
+}
+
+// ─── VIEWS ────────────────────────────────────────────────────────────────────
+function setView(v){
+  currentView = v;
+  ['network','radial','arch'].forEach(x=>{
+    document.getElementById('btn-'+x).classList.toggle('active',x===v);
+  });
+  closePopup();
+  if(simulation) simulation.stop();
+
+  if(v==='network') drawNetwork();
+  else if(v==='radial') drawRadial();
+  else drawArch();
+}
+
+// NETWORK (Force-directed)
+function drawNetwork(){
+  dims(); buildDOM();
+
+  // Update circle radii for this view
+  nodeSel.select('circle').attr('r',d=>nodeRadius(d,'network'));
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d=>d.id).distance(d=>{
+      const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
+      return src&&src.tipo==='Acceso'?60:40;
+    }).strength(0.5))
+    .force('charge', d3.forceManyBody().strength(d=>d.tipo==='Acceso'?-400:-150))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collision', d3.forceCollide().radius(d=>nodeRadius(d,'network')+4))
+    .on('tick', ticked);
+
+  // Drag
+  nodeSel.call(d3.drag()
+    .on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+    .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+    .on('end',(e,d)=>{if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;})
+  );
+  document.getElementById('info-bar').textContent='Arrastra los nodos · Scroll para hacer zoom · Click para detalles';
+}
+
+function ticked(){
+  linksG.selectAll('g.lgrp').each(function(d){
+    const sx=d.source.x,sy=d.source.y,tx=d.target.x,ty=d.target.y;
+    d3.select(this).select('line')
+      .attr('x1',sx).attr('y1',sy).attr('x2',tx).attr('y2',ty);
+    d3.select(this).select('.wlabel')
+      .attr('x',(sx+tx)/2).attr('y',(sy+ty)/2);
+  });
+  nodeSel.attr('transform',d=>`translate(${d.x},${d.y})`);
+}
+
+// RADIAL
+function drawRadial(){
+  dims(); buildDOM();
+
+  // Replace lines with paths inside the existing lgrp groups
+  linksG.selectAll('g.lgrp line').remove();
+  const arcPaths = linksG.selectAll('g.lgrp').append('path')
+    .attr('class','link').attr('fill','none')
+    .attr('stroke', linkColor)
+    .attr('stroke-width', linkStroke)
+    .attr('stroke-opacity', 0.4);
+
+  const cx = W/2, cy = H/2;
+  const R1 = Math.min(W,H)*0.12;
+  const R2 = Math.min(W,H)*0.37;
+
+  const accessNodes = nodes.filter(d=>d.tipo==='Acceso'||d.tipo==='Especial');
+  const stationNodes = nodes.filter(d=>d.tipo==='Estación').sort((a,b)=>a.cat.localeCompare(b.cat)||b.afluencia-a.afluencia);
+
+  accessNodes.forEach((d,i)=>{
+    const angle = (i/accessNodes.length)*2*Math.PI - Math.PI/2;
+    d.rx = cx + R1*Math.cos(angle); d.ry = cy + R1*Math.sin(angle);
+  });
+  stationNodes.forEach((d,i)=>{
+    const angle = (i/stationNodes.length)*2*Math.PI - Math.PI/2;
+    const r = R2 + nodeRadius(d,'radial')*0.3;
+    d.rx = cx + r*Math.cos(angle); d.ry = cy + r*Math.sin(angle);
+  });
+  nodes.forEach(d=>{if(d.rx===undefined){d.rx=cx;d.ry=cy;}});
+
+  nodeSel.select('circle').attr('r',d=>nodeRadius(d,'radial'));
+  nodeSel.transition().duration(700).ease(d3.easeCubicInOut)
+    .attr('transform',d=>`translate(${d.rx},${d.ry})`);
+
+  const posMap = {};
+  nodes.forEach(d=>posMap[d.id]={x:d.rx,y:d.ry});
+
+  setTimeout(()=>{
+    linksG.selectAll('g.lgrp').each(function(d){
+      const sid = typeof d.source==='object'?d.source.id:d.source;
+      const tid = typeof d.target==='object'?d.target.id:d.target;
+      const s = posMap[sid], t = posMap[tid];
+      if(!s||!t) return;
+      const mx = (s.x+t.x)/2*.5+cx*.5;
+      const my = (s.y+t.y)/2*.5+cy*.5;
+      d3.select(this).select('path').attr('d',`M${s.x},${s.y} Q${mx},${my} ${t.x},${t.y}`);
+      d3.select(this).select('.wlabel').attr('x',mx).attr('y',my);
+    });
+    applyFilters();
+  }, 750);
+
+  document.getElementById('info-bar').textContent='Vista radial: accesos al centro · estaciones agrupadas por línea · Click para detalles';
+}
+
+// ARCH
+function drawArch(){
+  dims(); buildDOM();
+
+  linksG.selectAll('g.lgrp line').remove();
+  linksG.selectAll('g.lgrp').append('path')
+    .attr('class','link').attr('fill','none')
+    .attr('stroke', linkColor)
+    .attr('stroke-width', linkStroke)
+    .attr('stroke-opacity', 0.42);
+
+  const accessNodes = nodes.filter(d=>d.tipo==='Acceso'||d.tipo==='Especial');
+  const lineOrder = {'1':0,'2':1,'3':2,'7':3,'8':4,'9':5,'12':6,'A':7};
+  const stationNodes = nodes.filter(d=>d.tipo==='Estación')
+    .sort((a,b)=>(lineOrder[a.cat]??9)-(lineOrder[b.cat]??9)||b.afluencia-a.afluencia);
+
+  const totalNodes = [...accessNodes, ...stationNodes];
+  const padX = 60;
+  const baseY = H*0.72;
+  const step = (W - padX*2) / (totalNodes.length - 1);
+
+  const posMap = {};
+  totalNodes.forEach((d,i)=>{
+    d.ax = padX + i*step; d.ay = baseY;
+    posMap[d.id] = {x:d.ax, y:d.ay, i};
+  });
+
+  nodeSel.select('circle').attr('r',d=>Math.max(5,nodeRadius(d,'arch')));
+  nodeSel.transition().duration(600).ease(d3.easeCubicInOut)
+    .attr('transform',d=>`translate(${d.ax},${d.ay})`);
+  nodeSel.select('text')
+    .attr('transform','rotate(-60)').attr('text-anchor','end')
+    .attr('y',0).attr('dx',-6).attr('dy','0.35em');
+
+  setTimeout(()=>{
+    linksG.selectAll('g.lgrp').each(function(d){
+      const sid = typeof d.source==='object'?d.source.id:d.source;
+      const tid = typeof d.target==='object'?d.target.id:d.target;
+      const s = posMap[sid], t = posMap[tid];
+      if(!s||!t) return;
+      const dist = Math.abs(s.i-t.i);
+      const h = Math.min(dist*18, H*0.6);
+      const mx = (s.x+t.x)/2, my = baseY - h;
+      d3.select(this).select('path').attr('d',`M${s.x},${s.y} Q${mx},${my} ${t.x},${t.y}`);
+      d3.select(this).select('.wlabel').attr('x',mx).attr('y',my-8);
+    });
+    applyFilters();
+  }, 650);
+
+  document.getElementById('info-bar').textContent='Vista Arch: arcos conectando accesos (izq.) con estaciones por línea · Click para detalles';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('resize',()=>{if(currentView==='network'){if(simulation){dims();simulation.force('center',d3.forceCenter(W/2,H/2)).restart();}}else{setView(currentView);}});
+dims();
+svg.call(zoom.transform, d3.zoomIdentity);
+drawNetwork();
+</script>
+</body>
+</html>

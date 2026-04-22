@@ -3,203 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ejercicio Metro CDMX — Mapa de Accesibilidad</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<title>Metro CDMX — Accesibilidad e Inclusión</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#040404;--panel:#101010;--card:#1c1c1c;--border:rgba(244,243,233,.1);
-  --text:#F4F3E9;--text2:rgba(244,243,233,.55);--text3:rgba(244,243,233,.32);
-  --accent:#1939FF;--green:#66bb6a;--orange:#FF5808;--red:#ef5350;
-  --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Sans',sans-serif;
-  --node-bg:#040404;--lbl:#F4F3E9;--tcol:#F4F3E9;
-  --ink:#F4F3E9;--col:700px;
-}
-body.light{
-  --bg:#F4F3E9;--panel:#ECEADC;--card:#E4E2D4;--border:rgba(4,4,4,.1);
-  --text:#040404;--text2:rgba(4,4,4,.56);--text3:rgba(4,4,4,.38);
-  --accent:#1939FF;--orange:#FF5808;
-  --node-bg:#F4F3E9;--lbl:#040404;--tcol:#040404;
-  --ink:#040404;
-}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;flex-direction:column;transition:background .3s,color .3s}
-header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:10;flex-wrap:wrap;transition:background .3s}
-.logo{font-family:var(--sans);font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
-.logo span{color:var(--accent)}
-.hg{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
-.hs{width:1px;height:16px;background:var(--border);margin:0 4px}
-.p{font-family:var(--sans);font-size:.52rem;padding:3px 7px;border-radius:5px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .12s;user-select:none;background:transparent;white-space:nowrap}
-.p:hover{border-color:var(--accent);color:var(--text)}
-.p.on{background:rgba(25,57,255,.1);border-color:var(--accent);color:var(--accent)}
-.p.warn{border-color:var(--orange);color:var(--orange);font-size:.5rem}
-.main{display:flex;flex:1;overflow:hidden}
-.cv{flex:1;overflow:hidden;position:relative;background:var(--bg);transition:background .3s}
-.cv svg{display:block;cursor:grab}.cv svg:active{cursor:grabbing}
-.sb{width:270px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
-.ss{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
-.st2{font-family:var(--mono);font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
-.sr{display:flex;align-items:center;gap:4px;margin-bottom:3px}
-.sd{width:6px;height:6px;border-radius:50%;flex-shrink:0}.sds{background:var(--orange)}.sdt{background:var(--green)}
-select{font-family:var(--mono);font-size:.58rem;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 5px;flex:1;cursor:pointer;transition:background .3s,color .3s}
-select:focus{outline:none;border-color:var(--accent)}
-.br{display:flex;gap:3px;margin-top:3px}
-.btn{font-family:var(--mono);font-size:.5rem;font-weight:700;padding:3px 7px;border-radius:4px;border:none;cursor:pointer;text-transform:uppercase;transition:all .1s}
-.ba{background:var(--accent);color:#fff}.ba:hover{filter:brightness(1.12)}
-.bg2{background:transparent;border:1px solid var(--border);color:var(--text2)}.bg2:hover{border-color:var(--accent);color:var(--text)}
-.tgl{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
-.tk{width:28px;height:16px;border-radius:8px;background:var(--card);border:1.5px solid var(--border);position:relative;transition:all .2s;flex-shrink:0}
-.tk.on{background:rgba(25,57,255,.18);border-color:var(--accent)}
-.tm{width:10px;height:10px;border-radius:50%;background:var(--text3);position:absolute;top:2px;left:2px;transition:all .2s}
-.tk.on .tm{left:14px;background:var(--accent)}
-.tl{font-size:.56rem;color:var(--text2)}
-.lg{display:flex;flex-wrap:wrap;gap:2px 6px}
-.li{display:flex;align-items:center;gap:3px;font-size:.48rem;color:var(--text2);cursor:pointer;transition:opacity .15s}.li.dim{opacity:.2}
-.lsw{width:12px;height:3px;border-radius:1px}
-.rl{flex:1;overflow-y:auto;padding:6px 10px}
-.rc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px 7px;margin-bottom:4px;cursor:pointer;transition:all .1s;border-left:3px solid transparent}
-.rc:hover{border-color:var(--accent)}.rc.sel{border-left-color:var(--accent);background:rgba(25,57,255,.06)}
-.rlb{font-size:.48rem;color:var(--text3);margin-bottom:2px;font-family:var(--mono)}
-.rp{display:flex;flex-wrap:wrap;align-items:center;gap:1px}
-.rn{font-size:.46rem;padding:1px 3px;border-radius:2px;background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border);max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rn.rs{background:rgba(255,167,38,.1);border-color:rgba(255,167,38,.3);color:var(--orange);font-weight:700}
-.rn.rt{background:rgba(102,187,106,.1);border-color:rgba(102,187,106,.3);color:var(--green);font-weight:700}
-.ra{color:var(--text3);font-size:.46rem}.rt3{color:var(--accent);font-size:.42rem;font-family:var(--mono)}
-.nrt{color:var(--text3);font-size:.58rem;text-align:center;padding:18px 6px;line-height:1.4}
-.tip{position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-size:.56rem;pointer-events:none;z-index:999;display:none;max-width:220px;line-height:1.4;box-shadow:0 4px 16px rgba(4,4,4,.12)}.tip.show{display:block}
-.tn{font-weight:700;color:var(--accent);margin-bottom:2px}
-.tr2{display:flex;gap:4px}.tk3{color:var(--text3);min-width:58px}.tv{color:var(--text2)}
-.ty{color:var(--green);font-weight:600}.tno{color:var(--red);font-weight:600}
-.stb{background:var(--panel);border-top:1px solid var(--border);padding:2px 12px;font-size:.46rem;color:var(--text3);flex-shrink:0;display:flex;gap:10px;align-items:center;font-family:var(--mono);transition:background .3s}
-.wp{display:none;position:absolute;bottom:8px;left:8px;background:var(--panel);border:1px solid var(--orange);border-radius:7px;padding:8px 12px;font-size:.54rem;color:var(--orange);max-width:280px;z-index:5;line-height:1.4}.wp.show{display:block}
-.wp h4{margin-bottom:3px;font-size:.58rem}.wp ul{margin:3px 0 0 12px;color:var(--text2);font-size:.5rem}
-.wc{position:absolute;top:3px;right:6px;cursor:pointer;color:var(--text3);font-size:.6rem}
-.zc{position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:2px;z-index:5}
-.zb{width:24px;height:24px;border-radius:4px;background:var(--panel);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.zb:hover{border-color:var(--accent);color:var(--text)}
-.intro-panel{display:none;position:absolute;inset:0;overflow:auto;padding:0;
-  --bg:#F4F3E9;--panel:#ECEADC;--card:#E4E2D4;--border:rgba(4,4,4,.1);
-  --text:#040404;--text2:rgba(4,4,4,.56);--text3:rgba(4,4,4,.38);
-  --accent:#1939FF;--orange:#FF5808;
-  --ink:#040404;--col:700px;--serif:'DM Sans',sans-serif;
-  background:var(--bg);color:var(--text)}
-.intro-panel-inner{width:100%}
-.intro-kicker{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
-.intro-title{font-family:var(--sans);font-size:clamp(1.5rem,2.8vw,2.2rem);line-height:1.1;font-weight:800;margin-bottom:10px;color:var(--text)}
-.intro-deck{font-family:var(--sans);font-size:clamp(1rem,1.7vw,1.3rem);font-weight:300;line-height:1.7;color:var(--text2);max-width:760px;margin-bottom:24px}
-.intro-meta{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0 12px;margin-bottom:22px;color:var(--text3);font-family:var(--sans);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase}
-.intro-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin:14px 0 18px;background:var(--border)}
-.intro-stat{background:var(--bg);padding:14px 14px 12px;border-top:2px solid var(--accent)}
-.intro-stat-num{font-family:var(--sans);font-size:clamp(1.8rem,4vw,2.8rem);line-height:1;font-weight:900;color:var(--accent);margin-bottom:5px;letter-spacing:-.02em}
-.intro-stat-label{font-size:.78rem;line-height:1.5;color:var(--text2);font-weight:400}
-.intro-section{margin:0 0 22px}
-.intro-label{font-family:var(--sans);font-size:.58rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.intro-h2{font-family:var(--sans);font-size:clamp(1.45rem,2.8vw,2.2rem);line-height:1.12;font-weight:700;margin-bottom:10px;color:var(--text)}
-.intro-p{font-size:.96rem;line-height:1.85;color:var(--text2);margin-bottom:12px;max-width:900px}
-.intro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin-top:14px;background:var(--border)}
-.intro-card{background:var(--bg);padding:16px 16px 14px}
-.intro-card h3{font-family:var(--sans);font-size:1rem;line-height:1.25;font-weight:700;margin-bottom:6px;color:var(--text)}
-.intro-card p{font-size:.88rem;line-height:1.7;color:var(--text2)}
-.intro-note{font-family:var(--sans);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:18px}
-.main.intro .sb{display:none}
-.main.intro .cv{width:100%;overflow:auto}
-.main.intro .cv svg:not(#v3-svg):not(#nv-svg),
-.main.intro .cv .zc,
-.main.intro .cv .wp,
-.main.intro .cv .tip{display:none}
-.main.intro .intro-panel{display:block}
-.main.intro .cv{background:var(--bg)}
-/* Radial controls */
-.rad-ctrl{display:none}.rad-ctrl.show{display:block}
-.rad-sel{font-size:.56rem;margin-bottom:4px}
-.rad-range{width:100%;margin:4px 0;accent-color:var(--accent)}
-.rad-info{font-size:.48rem;color:var(--text3);margin-top:2px;line-height:1.4}
-.rad-info b{color:var(--accent)}
-.rad-near{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px 7px;margin-top:5px;font-size:.5rem;line-height:1.5}
-.rad-near .hl{color:var(--green);font-weight:600}
-.rad-filter{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
-.rfb{font-family:var(--mono);font-size:.46rem;padding:2px 5px;border-radius:3px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .12s;background:transparent;white-space:nowrap}
-.rfb:hover{border-color:var(--accent);color:var(--text)}.rfb.on{background:rgba(25,57,255,.1);border-color:var(--accent);color:var(--accent)}
-.walk-note{margin-top:4px;background:rgba(255,167,38,.08);border:1px solid rgba(255,167,38,.3);border-radius:4px;padding:4px 6px;font-size:.45rem;color:var(--orange);line-height:1.5;display:none}
-.walk-note.show{display:block}
-.rni{display:flex;align-items:center;gap:3px;padding:2px 0;border-bottom:1px solid var(--border);font-size:.46rem}
-.rni:last-child{border-bottom:none}.rni-nm{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.rni-d{color:var(--text3);font-family:var(--mono);font-size:.42rem;white-space:nowrap}
-.rni-b{font-size:.4rem;padding:0 2px;border-radius:2px;flex-shrink:0}
-.b-acc{background:rgba(102,187,106,.2);color:var(--green)}.b-elev{background:rgba(79,195,247,.2);color:var(--accent)}.b-ee{background:rgba(255,167,38,.2);color:var(--orange)}
-.rad-ee-box{background:rgba(0,0,0,.04);border:1px solid var(--border);border-radius:5px;padding:6px 8px;margin-bottom:6px;font-size:.46rem;line-height:1.65}
-body.light .rad-ee-box{background:rgba(0,0,0,.03)}
-.rad-ee-title{color:var(--text3);font-weight:700;font-family:var(--mono);font-size:.4rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.rad-ee-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;min-height:14px}
-.rad-ee-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.rad-ee-lbl{color:var(--text3);font-size:.44rem;min-width:46px;flex-shrink:0}
-.rad-ee-val{font-weight:500;font-size:.46rem}
-.rad-ee-ext{display:flex;gap:5px;padding:3px 0 1px 6px;align-items:flex-start}
-.rad-ee-ext-line{color:var(--border);font-size:.7rem;line-height:1;padding-top:1px;flex-shrink:0}
-.rad-ee-ext-body{font-size:.43rem;line-height:1.5}
-.rad-ee-ext-tag{display:inline-block;font-family:var(--mono);font-size:.38rem;text-transform:uppercase;letter-spacing:.06em;border:1px dashed currentColor;color:var(--text3);padding:0 3px;border-radius:2px;margin-bottom:2px}
-.rad-ee-ext-dest{color:var(--text2);font-size:.44rem}
-.rn-icon{font-size:.38rem;color:var(--text3);margin-left:2px;font-family:var(--mono)}
-/* Autocomplete */
-.ac-wrap{position:relative;flex:1;min-width:0}
-.ac-input{font-family:var(--mono);font-size:.58rem;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:3px 6px;width:100%;transition:background .3s,color .3s}
-.ac-input:focus{outline:none;border-color:var(--accent)}
-.ac-input::placeholder{color:var(--text3)}
-.ac-list{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;z-index:300;max-height:180px;overflow-y:auto;list-style:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,.4)}
-body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
-.ac-list.show{display:block}
-.ac-item{padding:4px 8px;font-size:.54rem;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text)}
-.ac-item:hover,.ac-item.foc{background:var(--card)}
-.ac-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.ac-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--sans)}
-.ac-meta{font-size:.42rem;color:var(--text3);font-family:var(--mono);flex-shrink:0}
-/* Lines panel — left side of map */
-.lp{position:absolute;left:8px;top:8px;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 8px;display:none;flex-direction:column;gap:1px}
-.lp.show{display:flex}
-.lp-ttl{font-family:var(--mono);font-size:.42rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.main.intro .lp{display:none!important}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.hg-right{margin-left:auto;display:flex;align-items:center;gap:3px;flex-shrink:0}
-.dl-wrap{position:relative}
-.dl-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;overflow:hidden;z-index:200;display:none;min-width:90px}
-.dl-menu.show{display:block}
-.dl-opt{font-family:var(--mono);font-size:.52rem;padding:5px 10px;cursor:pointer;color:var(--text2);white-space:nowrap;transition:background .1s}
-.dl-opt:hover{background:var(--card);color:var(--text)}
-.ov-wrap{position:relative}
-.ov-menu{position:absolute;top:calc(100% + 4px);left:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;overflow:hidden;z-index:200;display:none;min-width:108px}
-.ov-menu.show{display:block}
-.ov-opt{font-family:var(--mono);font-size:.52rem;padding:5px 10px;cursor:pointer;color:var(--text2);white-space:nowrap;transition:background .1s}
-.ov-opt:hover{background:var(--card);color:var(--text)}
-.ov-opt.on{color:var(--accent)}
 
-/* ── V3: Dot-plot afluencia + accesibilidad ── */
-.viz-section-inner{margin:1.5rem -2rem 2rem;padding:1.5rem 2rem 1rem;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);overflow-x:auto}
-#v3-section{margin-top:20px}
-#v3-legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin:8px 0 10px;align-items:center}
-.v3-li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.48rem;color:var(--text2);letter-spacing:.05em;user-select:none}
-.v3-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.v3-g{background:#3d7a42}.v3-o{background:#c07320}.v3-r{background:#a63025}
-.v3-li{color:var(--text2)}
-#v3-outer{overflow:hidden;padding-bottom:4px;margin:0 -2px;cursor:default}
-#v3-svg{display:block}
-#v3-tip{position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:8px 11px;font-family:var(--sans);font-size:.75rem;color:var(--text);pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;max-width:210px;line-height:1.55;box-shadow:0 4px 18px rgba(0,0,0,.28)}
-#v3-tip strong{display:block;font-size:.82rem;color:var(--text);margin-bottom:3px;font-weight:700}
-#v3-tip .v3-ta-g{color:#3d7a42;font-weight:600}
-#v3-tip .v3-ta-o{color:#c07320;font-weight:600}
-#v3-tip .v3-ta-r{color:#a63025;font-weight:600}
-#v3-tip .v3-ts{font-family:var(--mono);font-size:.6rem;color:var(--text3);margin-top:4px;display:block}
-#v3-tip .v3-tl{font-size:.7rem;color:var(--text3);margin-bottom:2px}
-
-/* ═══════════════════════════════════════════════
-   METRO ACCESIBILIDAD — narrative styles
-   (scoped to .intro-panel context)
-═══════════════════════════════════════════════ */
-/* Reset font-size for narrative content inside the panel */
-.intro-panel { font-size: 18px; }
 /* ═══════════════════════════════════════════════
    BASE
 ═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* identical to index.html light theme */
+  --bg:     #f0ebe3;
+  --panel:  #e8e0d4;
+  --card:   #ddd5c8;
+  --border: #c5baa8;
+  --text:   #2c2418;
+  --text2:  #6b5e4d;
+  --text3:  #9a8d7c;
+  --accent: #8b6d38;
+  --accent2:#b8860b;
+  --green:  #3d7a42;
+  --orange: #c07320;
+  --red:    #a63025;
+  --ink:    #1a1410;
+  --col:    660px;
+  --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+  --mono:  'Space Mono', 'Courier New', monospace;
+}
+
+html{ scroll-behavior:smooth; font-size:18px; }
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--serif);
+  line-height:1.8;
+  overflow-x:hidden;
+}
+
+::-webkit-scrollbar{ width:3px }
+::-webkit-scrollbar-track{ background:transparent }
+::-webkit-scrollbar-thumb{ background:var(--accent);border-radius:2px }
 
 /* ═══════════════════════════════════════════════
    PROGRESS
@@ -217,39 +63,37 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 ═══════════════════════════════════════════════ */
 #nav{
   position:fixed;top:2px;left:0;right:0;
-  background:rgba(244,243,233,.96);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(4,4,4,.1);
-  padding:9px 24px;
+  background:rgba(240,235,227,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:8px 20px;
   display:flex;align-items:center;justify-content:space-between;
   z-index:100;
-  font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.06em;
+  font-family:var(--mono);font-size:.52rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--text3);
   opacity:0;
   transition:opacity .3s;
 }
 #nav.show{opacity:1}
-#nav .nav-logo{color:#1939FF;font-weight:700;font-size:.58rem;letter-spacing:.1em}
+#nav .nav-logo{color:var(--accent);font-weight:700;font-size:.55rem;letter-spacing:.12em}
 #nav .nav-title{color:var(--text2)}
 #nav .nav-back{
   color:var(--text3);text-decoration:none;cursor:pointer;
-  transition:color .15s;padding:3px 8px;
-  border:1px solid rgba(4,4,4,.14);border-radius:3px;font-size:.52rem;
+  transition:color .15s;padding:2px 6px;
+  border:1px solid var(--border);border-radius:3px;font-size:.5rem;
 }
-#nav .nav-back:hover{color:#1939FF;border-color:#1939FF}
+#nav .nav-back:hover{color:var(--accent);border-color:var(--accent)}
 
 /* ═══════════════════════════════════════════════
    HERO
 ═══════════════════════════════════════════════ */
 #hero{
-  min-height:auto;
+  min-height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:flex-end;
-  padding:0;
-  background:var(--bg);
-  border-top:3px solid var(--accent);
-  border-bottom:1px solid var(--border);
+  padding:0 0 0;
+  background:var(--ink);
   position:relative;
   overflow:hidden;
 }
@@ -259,13 +103,13 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(25,57,255,.025) 0px, rgba(25,57,255,.025) 1px,
-      transparent 1px, transparent 80px
+      rgba(139,109,56,.04) 0px, rgba(139,109,56,.04) 1px,
+      transparent 1px, transparent 60px
     ),
     repeating-linear-gradient(
       0deg,
-      rgba(25,57,255,.025) 0px, rgba(25,57,255,.025) 1px,
-      transparent 1px, transparent 80px
+      rgba(139,109,56,.04) 0px, rgba(139,109,56,.04) 1px,
+      transparent 1px, transparent 60px
     );
   z-index:0;
 }
@@ -277,80 +121,77 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   pointer-events:none;
   overflow:hidden;
 }
-#hero-lines svg{ width:100%;height:100%;opacity:.06 }
+#hero-lines svg{ width:100%;height:100%;opacity:.18 }
 
 #hero-content{
   position:relative;z-index:2;
-  max-width:var(--col);
-  margin:0 auto;
-  width:100%;
-  padding:clamp(2.5rem,5vw,4rem) 2rem clamp(2rem,4vw,3rem);
+  max-width:780px;
+  padding:clamp(3rem,8vw,7rem) clamp(1.5rem,5vw,4rem) clamp(3rem,6vw,5rem);
 }
 
 .hero-kicker{
-  font-family:var(--sans);
+  font-family:var(--mono);
   font-size:.58rem;
-  font-weight:500;
-  letter-spacing:.22em;
+  letter-spacing:.28em;
   text-transform:uppercase;
   color:var(--accent);
-  margin-bottom:.9rem;
+  margin-bottom:1.4rem;
   opacity:0;
-  animation:fadeUp .6s .1s forwards;
+  animation:fadeUp .7s .2s forwards;
 }
 
 .hero-hl{
-  font-family:var(--sans);
-  font-size:clamp(1.5rem,2.8vw,2.4rem);
-  font-weight:800;
-  line-height:1.1;
-  color:var(--text);
-  margin-bottom:.9rem;
-  letter-spacing:-.01em;
+  font-family:var(--serif);
+  font-size:clamp(2.2rem,5vw,4.5rem);
+  font-weight:900;
+  line-height:1.06;
+  color:#f0ebe3;
+  margin-bottom:1.5rem;
   opacity:0;
-  animation:fadeUp .7s .25s forwards;
+  animation:fadeUp .9s .45s forwards;
 }
 .hero-hl em{
-  font-style:normal;
+  font-style:italic;
   color:var(--accent);
 }
 
 .hero-deck{
-  font-family:var(--sans);
-  font-size:clamp(.85rem,1.3vw,.95rem);
+  font-family:var(--serif);
+  font-size:clamp(1rem,1.8vw,1.3rem);
   font-weight:400;
+  font-style:italic;
   line-height:1.65;
-  color:var(--text2);
-  max-width:520px;
-  margin-bottom:1.6rem;
+  color:rgba(240,235,227,.72);
+  max-width:560px;
+  margin-bottom:2.5rem;
   opacity:0;
-  animation:fadeUp .7s .45s forwards;
+  animation:fadeUp .9s .7s forwards;
 }
 
 .hero-meta{
-  display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;
-  font-family:var(--sans);font-size:.6rem;font-weight:400;
-  color:var(--text3);
-  border-top:1px solid var(--border);
-  padding-top:.9rem;
+  display:flex;flex-wrap:wrap;gap:.5rem 1.8rem;
+  font-family:var(--sans);font-size:.75rem;
+  color:rgba(240,235,227,.45);
+  border-top:1px solid rgba(197,186,168,.2);
+  padding-top:1.2rem;
   opacity:0;
-  animation:fadeUp .6s .65s forwards;
+  animation:fadeUp .7s 1s forwards;
 }
-.hero-meta strong{color:var(--text2);font-weight:600}
+.hero-meta strong{color:rgba(240,235,227,.7);font-weight:600}
 
 .hero-scroll-cue{
   display:flex;align-items:center;gap:.5rem;
-  font-family:var(--sans);font-size:.5rem;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--text3);
-  margin-top:1.2rem;
+  font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(240,235,227,.35);
+  margin-top:2rem;
   opacity:0;
-  animation:fadeUp .6s .85s forwards;
+  animation:fadeUp .7s 1.3s forwards;
 }
 .hero-scroll-cue span{
   display:inline-block;
-  width:1px;height:20px;
-  background:var(--border);
-  animation:scrollPulse 2s 1.5s infinite;
+  width:1px;height:28px;
+  background:rgba(197,186,168,.3);
+  animation:scrollPulse 2s 2s infinite;
 }
 
 @keyframes fadeUp{
@@ -368,56 +209,56 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 #article{
   max-width:var(--col);
   margin:0 auto;
-  padding:3rem 2rem 4rem;
+  padding:4rem 2rem 6rem;
 }
 
 /* ═══════════════════════════════════════════════
    TYPOGRAPHY
 ═══════════════════════════════════════════════ */
 .body-p{
-  font-family:var(--sans);
-  font-size:.92rem;
+  font-family:var(--serif);
+  font-size:1.05rem;
   font-weight:400;
-  line-height:1.75;
-  color:var(--text2);
-  margin-bottom:1.1rem;
+  line-height:1.85;
+  color:var(--text);
+  margin-bottom:1.6rem;
 }
 
 .standfirst{
-  font-family:var(--sans);
-  font-size:clamp(.98rem,1.6vw,1.15rem);
+  font-family:var(--serif);
+  font-size:clamp(1.2rem,2.2vw,1.5rem);
   font-weight:400;
-  line-height:1.6;
+  font-style:italic;
+  line-height:1.65;
   color:var(--text);
-  border-left:2px solid var(--accent);
-  padding-left:1.1rem;
-  margin-bottom:2rem;
+  border-left:3px solid var(--accent);
+  padding-left:1.4rem;
+  margin-bottom:2.5rem;
 }
 
 .section-label{
-  font-family:var(--sans);
-  font-size:.52rem;
-  font-weight:600;
-  letter-spacing:.18em;
+  font-family:var(--mono);
+  font-size:.55rem;
+  letter-spacing:.22em;
   text-transform:uppercase;
   color:var(--accent);
-  margin-bottom:.6rem;
+  margin-bottom:.9rem;
   display:block;
 }
 
 .chapter-head{
-  font-family:var(--sans);
-  font-size:clamp(1.1rem,2vw,1.55rem);
-  font-weight:800;
+  font-family:var(--serif);
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:700;
   line-height:1.18;
   color:var(--ink);
-  margin-bottom:1rem;
+  margin-bottom:1.4rem;
 }
 
 .rule{
   border:none;
   border-top:1px solid var(--border);
-  margin:1.8rem 0;
+  margin:2.5rem 0;
 }
 .rule.thick{border-top:2px solid var(--ink)}
 
@@ -425,38 +266,41 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
    STAT CALLOUTS
 ═══════════════════════════════════════════════ */
 .stat-block{
-  background:var(--card);
-  color:var(--text);
-  padding:1.4rem 1.6rem;
-  margin:1.4rem 0;
+  background:var(--ink);
+  color:var(--bg);
+  padding:2rem 2.2rem;
+  margin:2.2rem 0;
   position:relative;
-  border:1px solid var(--border);
-  border-top:3px solid var(--accent);
   overflow:hidden;
 }
+.stat-block::before{
+  content:'';
+  position:absolute;top:0;left:0;
+  width:100%;height:3px;
+  background:var(--accent);
+}
 .stat-num{
-  font-family:var(--sans);
-  font-size:clamp(2rem,5vw,3.4rem);
+  font-family:var(--serif);
+  font-size:clamp(3rem,9vw,5.5rem);
   font-weight:900;
   line-height:1;
   color:var(--accent);
-  letter-spacing:-.03em;
+  letter-spacing:-.02em;
 }
 .stat-desc{
   font-family:var(--sans);
-  font-size:.84rem;
-  color:var(--text2);
-  margin-top:.4rem;
-  line-height:1.45;
-  font-weight:400;
+  font-size:.95rem;
+  color:rgba(240,235,227,.65);
+  margin-top:.5rem;
+  line-height:1.5;
+  font-weight:300;
 }
 .stat-source{
-  font-family:var(--sans);
-  font-size:.54rem;
-  font-weight:400;
-  letter-spacing:.04em;
-  color:var(--text3);
-  margin-top:.9rem;
+  font-family:var(--mono);
+  font-size:.52rem;
+  letter-spacing:.08em;
+  color:rgba(240,235,227,.3);
+  margin-top:1.2rem;
   text-transform:uppercase;
 }
 
@@ -465,7 +309,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:1px;
-  margin:1.4rem 0;
+  margin:2.2rem 0;
   background:var(--border);
 }
 .stat-pair .stat-block{margin:0}
@@ -474,20 +318,20 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
    PULL QUOTE
 ═══════════════════════════════════════════════ */
 .pull-quote{
-  margin:1.6rem 0;
-  padding:1.4rem 0 1.2rem;
+  margin:2.2rem 0;
+  padding:1.8rem 0;
   border-top:2px solid var(--ink);
   border-bottom:1px solid var(--border);
 }
 .pull-quote p{
-  font-family:var(--sans);
-  font-size:clamp(1.05rem,1.8vw,1.35rem);
+  font-family:var(--serif);
+  font-size:clamp(1.3rem,2.8vw,1.9rem);
   font-weight:700;
-  line-height:1.3;
+  line-height:1.28;
   color:var(--ink);
 }
 .pull-quote .pq-accent{
-  font-style:normal;
+  font-style:italic;
   color:var(--accent);
 }
 
@@ -502,10 +346,10 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 }
 .line-card{
   background:var(--bg);
-  padding:.9rem 1.1rem;
+  padding:1.2rem 1.4rem;
   display:grid;
   grid-template-columns:auto 1fr;
-  gap:.8rem;
+  gap:1rem;
   align-items:start;
 }
 .line-badge{
@@ -516,10 +360,10 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   flex-shrink:0;
 }
 .line-card-text{
-  font-family:var(--sans);
-  font-size:.84rem;
-  line-height:1.6;
-  color:var(--text2);
+  font-family:var(--serif);
+  font-size:.95rem;
+  line-height:1.72;
+  color:var(--text);
 }
 
 /* ═══════════════════════════════════════════════
@@ -528,10 +372,16 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .viz-placeholder{
   background:var(--panel);
   border:1px solid var(--border);
-  border-top:2px solid var(--accent);
-  margin:1.8rem -1rem;
-  padding:1.6rem 1.6rem;
+  border-left:3px solid var(--accent);
+  margin:2.5rem -1.5rem;
+  padding:2.5rem 2rem;
   position:relative;
+}
+.viz-placeholder::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, var(--accent), transparent);
 }
 .viz-label{
   font-family:var(--mono);
@@ -549,7 +399,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   flex-shrink:0;
 }
 .viz-title{
-  font-family:var(--sans);
+  font-family:var(--serif);
   font-size:1.05rem;font-weight:700;
   color:var(--ink);margin-bottom:.5rem;
 }
@@ -573,90 +423,32 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 }
 
 /* ═══════════════════════════════════════════════
-   ROUTE SCROLLYTELLING
-═══════════════════════════════════════════════ */
-#route-stories{margin:2rem -1rem;}
-.rs-story{position:relative;}
-.rs-sticky{
-  position:sticky;top:0;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-top:2px solid var(--accent);
-  padding:1.1rem 1.4rem 1rem;
-  z-index:5;
-}
-.rs-header{margin-bottom:.8rem;}
-.rs-tag{
-  display:inline-block;
-  font-family:var(--mono);font-size:.46rem;font-weight:700;
-  letter-spacing:.18em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:.35rem;
-}
-.rs-title{
-  font-family:var(--sans);font-size:.92rem;font-weight:700;
-  color:var(--ink);line-height:1.2;margin-bottom:.18rem;
-}
-.rs-meta{
-  font-family:var(--mono);font-size:.5rem;
-  color:var(--text3);letter-spacing:.06em;
-}
-.rs-canvas-wrap{
-  width:100%;overflow:hidden;
-  margin:0 -1.4rem;width:calc(100% + 2.8rem);
-}
-.rs-canvas-wrap svg{display:block;width:100%;aspect-ratio:820/520;}
-.rs-caption{
-  min-height:3rem;padding:.55rem 0 .3rem;
-  border-top:1px solid var(--border);margin-top:.5rem;
-}
-#rs-cap-text-1{
-  font-family:var(--sans);font-size:.8rem;font-weight:400;
-  line-height:1.6;color:var(--text2);
-  transition:opacity .25s ease;
-}
-.rs-legend{
-  display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;
-  margin-top:.45rem;
-}
-.rs-leg-item{
-  display:flex;align-items:center;gap:.3rem;
-  font-family:var(--mono);font-size:.46rem;font-weight:400;
-  letter-spacing:.05em;text-transform:uppercase;
-  color:var(--text3);
-}
-.rs-spacer{pointer-events:none;}
-.rs-step{height:140px;}
-
-/* ═══════════════════════════════════════════════
    CLOSING SECTION
 ═══════════════════════════════════════════════ */
 #closing{
-  background:var(--panel);
-  color:var(--text);
-  border-top:3px solid var(--ink);
-  padding:2.5rem clamp(1.5rem,5vw,4rem) 3rem;
-  margin-top:2rem;
-  max-width:var(--col);
-  margin-left:auto;margin-right:auto;
+  background:var(--ink);
+  color:var(--bg);
+  padding:4rem clamp(1.5rem,5vw,4rem);
+  margin-top:3rem;
 }
 #closing .close-label{
-  font-family:var(--sans);font-size:.54rem;font-weight:600;
-  letter-spacing:.2em;text-transform:uppercase;
-  color:var(--orange);margin-bottom:1rem;
+  font-family:var(--mono);font-size:.55rem;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(139,109,56,.8);margin-bottom:1.5rem;
 }
 #closing .close-text{
-  font-family:var(--sans);
-  font-size:clamp(1.15rem,2.2vw,1.7rem);
-  font-weight:800;line-height:1.18;letter-spacing:-.01em;
-  color:var(--ink);
-  max-width:520px;margin-bottom:1rem;
+  font-family:var(--serif);
+  font-size:clamp(1.5rem,3.2vw,2.4rem);
+  font-weight:700;line-height:1.22;
+  color:rgba(240,235,227,.95);
+  max-width:580px;margin-bottom:1.5rem;
 }
 #closing .close-coda{
-  font-family:var(--sans);
-  font-size:clamp(.88rem,1.5vw,1rem);
-  font-weight:400;
-  color:var(--text2);
-  max-width:460px;
+  font-family:var(--serif);
+  font-size:clamp(1.1rem,2vw,1.6rem);
+  font-style:italic;font-weight:400;
+  color:var(--accent);
+  max-width:480px;
 }
 
 /* ═══════════════════════════════════════════════
@@ -664,8 +456,8 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 ═══════════════════════════════════════════════ */
 #footer-note{
   max-width:var(--col);margin:0 auto;
-  padding:1.4rem 2rem 2.5rem;
-  font-family:var(--sans);font-size:.7rem;
+  padding:2rem 2rem 3rem;
+  font-family:var(--sans);font-size:.75rem;
   color:var(--text3);line-height:1.6;
   border-top:1px solid var(--border);
 }
@@ -677,9 +469,9 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 ═══════════════════════════════════════════════ */
 .reveal{
   opacity:0;
-  transform:translateY(16px);
-  transition:opacity .6s cubic-bezier(.22,1,.36,1),
-             transform .6s cubic-bezier(.22,1,.36,1);
+  transform:translateY(26px);
+  transition:opacity .75s cubic-bezier(.22,1,.36,1),
+             transform .75s cubic-bezier(.22,1,.36,1);
 }
 .reveal.in{
   opacity:1;
@@ -705,45 +497,57 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .viz-embed{
   background:var(--panel);
   border:1px solid var(--border);
-  border-top:2px solid var(--accent);
-  margin:1.8rem -1rem;
-  padding:1.2rem 1.4rem 1rem;
+  border-left:3px solid var(--accent);
+  margin:2.5rem -1.5rem;
+  padding:1.6rem 1.8rem 1.2rem;
   position:relative;
   overflow:hidden;
+}
+.viz-embed::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, var(--accent), transparent);
 }
 
 #nv-header{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   flex-wrap:wrap;
   gap:.6rem .8rem;
   margin-bottom:.8rem;
 }
+#nv-viewbtns{
+  display:flex;gap:5px;
+}
+.nv-vbtn{
+  padding:4px 12px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:transparent;
+  color:var(--text3);
+  font-family:var(--mono);
+  font-size:.48rem;
+  cursor:pointer;
+  transition:all .18s;
+  letter-spacing:.04em;
+}
+.nv-vbtn:hover:not(.nv-active){
+  background:var(--card);
+  color:var(--text);
+  border-color:var(--text3);
+}
+.nv-vbtn.nv-active{
+  background:var(--accent);
+  color:#f0ebe3;
+  border-color:var(--accent);
+  font-weight:700;
+}
 #nv-legend{
   display:flex;
-  gap:.8rem 1.2rem;
+  gap:4px;
   flex-wrap:wrap;
-}
-.nv-leg-group{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:3px 4px;
-  padding:4px 8px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:6px;
-}
-.nv-leg-group-title{
-  width:100%;
-  font-family:var(--mono);
-  font-size:.4rem;
-  color:var(--text3);
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  padding-bottom:2px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:1px;
+  margin-left:auto;
 }
 .nv-li{
   display:flex;
@@ -762,7 +566,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 }
 .nv-li:hover{
   border-color:var(--border);
-  background:var(--panel);
+  background:var(--card);
   color:var(--text2);
 }
 .nv-li.off{
@@ -774,18 +578,9 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   border-radius:50%;
   flex-shrink:0;
 }
-#nv-caption{
-  font-family:var(--mono);
-  font-size:.42rem;
-  color:var(--text3);
-  letter-spacing:.04em;
-  text-align:center;
-  padding:.5rem 0 .2rem;
-  margin:0;
-}
 #nv-canvas{
   position:relative;
-  height:500px;
+  height:460px;
   background:var(--bg);
   border:1px solid var(--border);
   border-radius:3px;
@@ -804,10 +599,6 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   fill:var(--text);
   text-anchor:middle;
   font-family:var(--sans);
-  paint-order:stroke;
-  stroke:var(--bg);
-  stroke-width:2.5px;
-  stroke-linejoin:round;
 }
 .nv-highlighted circle{stroke:var(--accent)!important;stroke-width:2.5px!important}
 .nv-dimmed{opacity:.12}
@@ -887,47 +678,17 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 
 </style>
 </head>
-<body class="light">
-<div class="tip" id="tip"></div>
-<header>
-  <div class="logo"><span>◆</span> METRO CDMX</div>
-  <div class="hg" id="vp">
-    <div class="p on" data-v="intro">Intro</div>
-    <div class="p" data-v="rad">⊙ Radial</div>
-    <div class="ov-wrap">
-      <div class="p" id="ovBtn">Otras vistas ▾</div>
-      <div class="ov-menu" id="ovMenu">
-        <div class="ov-opt" data-v="sch">Esquemático</div>
-        <div class="ov-opt" data-v="geo">Mapa Metro</div>
-        <div class="ov-opt" data-v="col2">2 Columnas</div>
-        <div class="ov-opt" data-v="col3">2×2 Grid</div>
-        <div class="ov-opt" data-v="quad">Cuadrantes</div>
-      </div>
-    </div>
-  </div>
-  <div class="hs"></div>
-  <div class="hg">
-    <div class="p" id="ps">⊙ Afluencia</div>
-    <div class="p on" id="pt">🌙 Oscuro</div>
-    <div class="p warn" id="pw">⚠ Coords</div>
-  </div>
-  <div class="hg-right">
-    <div class="dl-wrap">
-      <div class="p" id="pdl">↓ Exportar</div>
-      <div class="dl-menu" id="dlMenu">
-        <div class="dl-opt" id="dlPng">Descargar PNG</div>
-        <div class="dl-opt" id="dlSvg">Descargar SVG</div>
-      </div>
-    </div>
-    <div class="p" id="pfs">⛶ Pantalla completa</div>
-  </div>
-</header>
-<div class="main">
-  <div class="cv" id="cv">
-    <div class="intro-panel" id="introPanel">
-      <div class="intro-panel-inner">
-<div id="acc-prog" style="position:sticky;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:9999;transition:width .12s linear;margin-bottom:-2px;"></div>
+<body>
 
+<!-- Reading progress -->
+<div id="prog"></div>
+
+<!-- Sticky nav (appears after hero) -->
+<nav id="nav">
+  <span class="nav-logo">◆ Metro CDMX</span>
+  <span class="nav-title">Accesibilidad e Inclusión</span>
+  <a class="nav-back" href="index.html">← Visualización interactiva</a>
+</nav>
 
 <!-- ═══════════════════════════════════════════════
      HERO
@@ -978,13 +739,31 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     ARTICLE — Narrative scrollytelling
+     ARTICLE
 ═══════════════════════════════════════════════ -->
 <main id="article">
 
-  <!-- ── Opening standfirst ── -->
-  <p class="body-p reveal" style="font-size:.88rem;color:var(--text);">
-    El Metro de la Ciudad de México es el sistema de transporte más usado en la capital. Solo en enero de 2026, más de 100 millones de personas lo utilizaron. Sin embargo, gran parte de sus instalaciones no cuenta con la infraestructura necesaria para garantizar que todas las personas puedan utilizarlo de manera segura y autónoma — en particular quienes viven con alguna discapacidad o limitación motriz, que representan el 18.5% de la población de la CDMX (1.7 millones de personas, según el INEGI).
+  <!-- ── Opening para ── -->
+  <p class="standfirst reveal">
+    El Metro de la Ciudad de México es el sistema de transporte más usado en la capital. Solo en enero de 2026, más de 100 millones de personas lo utilizaron, una cifra que supera con creces a otros sistemas como el Metrobús.
+  </p>
+
+  <!-- Stat callout -->
+  <div class="stat-pair reveal reveal-d1">
+    <div class="stat-block">
+      <div class="stat-num">+100M</div>
+      <div class="stat-desc">personas utilizaron el Metro<br>solo en enero de 2026</div>
+      <div class="stat-source">Sistema de Transporte Colectivo Metro</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">18.5%</div>
+      <div class="stat-desc">de la población de la CDMX<br>vive con alguna discapacidad o limitación motriz</div>
+      <div class="stat-source">INEGI — 1.7 millones de personas</div>
+    </div>
+  </div>
+
+  <p class="body-p reveal">
+    Sin embargo, el sistema presenta importantes limitaciones: gran parte de sus instalaciones no cuenta con la infraestructura necesaria para garantizar que todas las personas puedan utilizarlo de manera segura y autónoma. Esta situación afecta sobre todo a quienes viven con alguna discapacidad o limitación motriz; en la Ciudad de México, el 18.5% de la población, es decir, 1.7 millones de personas, según datos del INEGI, para quienes el acceso al transporte sigue siendo un obstáculo cotidiano.
   </p>
 
   <hr class="rule reveal">
@@ -993,7 +772,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   <span class="section-label reveal">Diseño universal</span>
 
   <p class="body-p reveal">
-    Un sistema de transporte pensado para todos es el que desde su construcción garantiza que cualquier persona, sin importar su edad, capacidad o condición física, pueda usarlo sin obstáculos. A eso apunta el diseño universal. El Metro de la Ciudad de México, sin embargo, no fue concebido bajo ese principio. Con el paso de los años, algunas líneas han incorporado ciertos elementos de accesibilidad para personas con discapacidad o limitación motriz, pero de forma parcial e irregular
+    Un sistema de transporte pensado para todos es el que desde su construcción garantiza que cualquier persona, sin importar su edad, capacidad o condición física, pueda usarlo sin obstáculos. A eso apunta el diseño universal. El Metro de la Ciudad de México, sin embargo, no fue concebido bajo ese principio. Con el paso de los años, algunas líneas han incorporado ciertos elementos de accesibilidad para personas con discapacidad o limitación motriz, pero de forma parcial e irregular.
   </p>
 
   <p class="body-p reveal">
@@ -1002,7 +781,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 
   <hr class="rule reveal">
 
-  <!-- ── El recorrido ── -->
+  <!-- ── Obstáculo cotidiano ── -->
   <span class="section-label reveal">El recorrido que no debería ser un laberinto</span>
 
   <p class="body-p reveal">
@@ -1013,65 +792,15 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
     En la siguiente visualización se presentan tres ejemplos de rutas reales, construidos a partir de los registros oficiales del Sistema de Transporte Colectivo Metro, sobre cuales estaciones cuentan con escaleras eléctricas y elevadores.
   </p>
 
-  <!-- ═══════════════════════════════════════
-       ROUTE SCROLLYTELLING — Tres rutas reales
-  ═══════════════════════════════════════ -->
-  <div id="route-stories">
-
-    <!-- ── Ruta 1: Pantitlán → Hospital General ── -->
-    <div class="rs-story" id="rs-story-1">
-      <div class="rs-sticky" id="rs-sticky-1">
-        <div class="rs-header">
-          <span class="rs-tag">Ruta de salud</span>
-          <div class="rs-title">Pantitlán → Hospital General</div>
-          <div class="rs-meta">Línea 5 + Línea 3 &nbsp;·&nbsp; 17 estaciones</div>
-        </div>
-        <div class="rs-canvas-wrap">
-          <svg id="rs-svg-1" viewBox="0 0 820 520" preserveAspectRatio="xMidYMid meet" aria-label="Mapa radial de ruta Pantitlán a Hospital General">
-            <rect width="820" height="520" fill="var(--panel)" rx="4"/>
-            <g id="rs-g-1"></g>
-          </svg>
-        </div>
-        <div class="rs-caption">
-          <p id="rs-cap-text-1">Desplázate para recorrer la ruta estación por estación.</p>
-        </div>
-        <div class="rs-legend">
-          <span class="rs-leg-item">
-            <svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="var(--green)"/></svg>
-            Accesible
-          </span>
-          <span class="rs-leg-item">
-            <svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="var(--text3)" stroke-width="1.5"/></svg>
-            No accesible
-          </span>
-          <span class="rs-leg-item">
-            <svg width="14" height="10" aria-hidden="true"><circle cx="5" cy="5" r="4" fill="none" stroke="var(--text3)" stroke-width="1"/><circle cx="5" cy="5" r="7" fill="none" stroke="var(--text3)" stroke-width=".6" opacity=".5"/></svg>
-            Transbordo
-          </span>
-        </div>
-      </div>
-      <!-- Scroll spacer: 16 steps × 100px each -->
-      <div class="rs-spacer" aria-hidden="true">
-        <div class="rs-step" data-step="0"></div>
-        <div class="rs-step" data-step="1"></div>
-        <div class="rs-step" data-step="2"></div>
-        <div class="rs-step" data-step="3"></div>
-        <div class="rs-step" data-step="4"></div>
-        <div class="rs-step" data-step="5"></div>
-        <div class="rs-step" data-step="6"></div>
-        <div class="rs-step" data-step="7"></div>
-        <div class="rs-step" data-step="8"></div>
-        <div class="rs-step" data-step="9"></div>
-        <div class="rs-step" data-step="10"></div>
-        <div class="rs-step" data-step="11"></div>
-        <div class="rs-step" data-step="12"></div>
-        <div class="rs-step" data-step="13"></div>
-        <div class="rs-step" data-step="14"></div>
-        <div class="rs-step" data-step="15"></div>
-      </div>
+  <!-- VISUALIZATION PLACEHOLDER — Tres casos -->
+  <div class="viz-placeholder reveal-wipe">
+    <div class="viz-label">Visualización</div>
+    <div class="viz-title">Tres casos de rutas reales</div>
+    <div class="viz-desc">Comparación de trayectos según accesibilidad de estaciones — Registros oficiales del STC Metro</div>
+    <div class="viz-area">
+      <div class="viz-area-inner">[ visualización ]</div>
     </div>
-
-  </div><!-- /#route-stories -->
+  </div>
 
   <hr class="rule reveal">
 
@@ -1105,35 +834,32 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   <div class="viz-embed reveal-wipe" id="nv-section">
 
     <div class="viz-label">Visualización · Red de accesibilidad</div>
-    <div class="viz-title" style="font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Elementos de accesibilidad por línea</div>
+    <div class="viz-title" style="font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Elementos de accesibilidad por línea</div>
     <div class="viz-desc" style="font-family:var(--sans);font-size:.82rem;color:var(--text3);line-height:1.5;margin-bottom:1rem">Escaleras eléctricas · Elevadores · Plataformas de ascenso y descenso · Corredores accesibles — datos STC Metro 2025</div>
 
+    <!-- Controls -->
     <div id="nv-header">
+      <div id="nv-viewbtns">
+        <button class="nv-vbtn nv-active" id="nv-btn-network" onclick="NV.setView('network')">⬡ Network</button>
+        <button class="nv-vbtn" id="nv-btn-radial" onclick="NV.setView('radial')">◎ Radial</button>
+        <button class="nv-vbtn" id="nv-btn-arch" onclick="NV.setView('arch')">⌢ Arch</button>
+      </div>
       <div id="nv-legend">
-        <div class="nv-leg-group">
-          <div class="nv-leg-group-title">Accesibilidad</div>
-          <span class="nv-li" id="nv-leg-AccesoFuncional"   onclick="NV.toggleCat('AccesoFuncional')">  <span class="nv-lc" style="background:#3d7a42"></span>Elemento funciona</span>
-          <span class="nv-li" id="nv-leg-AccesoNoFuncional" onclick="NV.toggleCat('AccesoNoFuncional')"><span class="nv-lc" style="background:#a63025"></span>Fuera de servicio</span>
-          <span class="nv-li" id="nv-leg-SinAccesos"        onclick="NV.toggleCat('SinAccesos')">       <span class="nv-lc" style="background:#9a8d7c"></span>Sin accesos</span>
-        </div>
-        <div class="nv-leg-group">
-          <div class="nv-leg-group-title">Líneas</div>
-          <span class="nv-li" id="nv-leg-1"  onclick="NV.toggleCat('1')"> <span class="nv-lc" style="background:#E4538F"></span>Línea 1</span>
-          <span class="nv-li" id="nv-leg-2"  onclick="NV.toggleCat('2')"> <span class="nv-lc" style="background:#0069A7"></span>Línea 2</span>
-          <span class="nv-li" id="nv-leg-3"  onclick="NV.toggleCat('3')"> <span class="nv-lc" style="background:#928A37"></span>Línea 3</span>
-          <span class="nv-li" id="nv-leg-4"  onclick="NV.toggleCat('4')"> <span class="nv-lc" style="background:#6ABFB0"></span>Línea 4</span>
-          <span class="nv-li" id="nv-leg-5"  onclick="NV.toggleCat('5')"> <span class="nv-lc" style="background:#D4A017"></span>Línea 5</span>
-          <span class="nv-li" id="nv-leg-6"  onclick="NV.toggleCat('6')"> <span class="nv-lc" style="background:#D32F2F"></span>Línea 6</span>
-          <span class="nv-li" id="nv-leg-7"  onclick="NV.toggleCat('7')"> <span class="nv-lc" style="background:#ED6D26"></span>Línea 7</span>
-          <span class="nv-li" id="nv-leg-8"  onclick="NV.toggleCat('8')"> <span class="nv-lc" style="background:#118147"></span>Línea 8</span>
-          <span class="nv-li" id="nv-leg-9"  onclick="NV.toggleCat('9')"> <span class="nv-lc" style="background:#7A4A2A"></span>Línea 9</span>
-          <span class="nv-li" id="nv-leg-12" onclick="NV.toggleCat('12')"><span class="nv-lc" style="background:#C1A832"></span>Línea 12</span>
-          <span class="nv-li" id="nv-leg-A"  onclick="NV.toggleCat('A')"> <span class="nv-lc" style="background:#9B2D8E"></span>Línea A</span>
-          <span class="nv-li" id="nv-leg-B"  onclick="NV.toggleCat('B')"> <span class="nv-lc" style="background:#9E9E9E"></span>Línea B</span>
-        </div>
+        <span class="nv-li" id="nv-leg-AccesoFuncional"    onclick="NV.toggleCat('AccesoFuncional')">   <span class="nv-lc" style="background:#3d7a42"></span>Acceso funcional</span>
+        <span class="nv-li" id="nv-leg-AccesoNoFuncional"  onclick="NV.toggleCat('AccesoNoFuncional')"> <span class="nv-lc" style="background:#a63025"></span>Fuera de servicio</span>
+        <span class="nv-li" id="nv-leg-SinAccesos"         onclick="NV.toggleCat('SinAccesos')">        <span class="nv-lc" style="background:#9a8d7c"></span>Sin accesos</span>
+        <span class="nv-li" id="nv-leg-1"  onclick="NV.toggleCat('1')"> <span class="nv-lc" style="background:#E4538F"></span>L1</span>
+        <span class="nv-li" id="nv-leg-2"  onclick="NV.toggleCat('2')"> <span class="nv-lc" style="background:#0069A7"></span>L2</span>
+        <span class="nv-li" id="nv-leg-3"  onclick="NV.toggleCat('3')"> <span class="nv-lc" style="background:#928A37"></span>L3</span>
+        <span class="nv-li" id="nv-leg-7"  onclick="NV.toggleCat('7')"> <span class="nv-lc" style="background:#ED6D26"></span>L7</span>
+        <span class="nv-li" id="nv-leg-8"  onclick="NV.toggleCat('8')"> <span class="nv-lc" style="background:#118147"></span>L8</span>
+        <span class="nv-li" id="nv-leg-9"  onclick="NV.toggleCat('9')"> <span class="nv-lc" style="background:#7A4A2A"></span>L9</span>
+        <span class="nv-li" id="nv-leg-12" onclick="NV.toggleCat('12')"><span class="nv-lc" style="background:#C1A832"></span>L12</span>
+        <span class="nv-li" id="nv-leg-A"  onclick="NV.toggleCat('A')"> <span class="nv-lc" style="background:#9B2D8E"></span>LA</span>
       </div>
     </div>
 
+    <!-- Canvas -->
     <div id="nv-canvas">
       <svg id="nv-svg">
         <g id="nv-links-g"></g>
@@ -1141,9 +867,13 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
       </svg>
     </div>
 
-    <p id="nv-caption">El tamaño del nodo representa la afluencia de la estación</p>
-    <div id="nv-info">Hover para ver el nodo · Click para detalles</div>
+    <!-- Info bar -->
+    <div id="nv-info">Hover para ver el nodo · Click para detalles · Arrastra · Scroll para zoom</div>
+
+    <!-- Tooltip -->
     <div id="nv-tooltip"></div>
+
+    <!-- Detail popup -->
     <div id="nv-popup">
       <button id="nv-popup-close" onclick="NV.closePopup()">✕</button>
       <div id="nv-popup-content"></div>
@@ -1191,7 +921,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 
   <hr class="rule reveal">
 
-  <!-- ── El caso para actuar ── -->
+  <!-- ── Argumento de cierre ── -->
   <span class="section-label reveal">El caso para actuar</span>
 
   <p class="body-p reveal">
@@ -1199,7 +929,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   </p>
 
   <div class="pull-quote reveal">
-    <p>Por eso, la accesibilidad no puede tratarse como algo opcional o secundario. Es una condición básica que toda estación debería cumplir, porque <span class="pq-accent">el derecho a la movilidad no puede estar condicionado a las capacidades físicas de quien lo ejerce.</span></p>
+    <p>La accesibilidad no puede tratarse como algo opcional o secundario. <span class="pq-accent">El derecho a la movilidad no puede estar condicionado a las capacidades físicas de quien lo ejerce.</span></p>
   </div>
 
   <p class="body-p reveal">
@@ -1208,24 +938,22 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 
   <hr class="rule reveal">
 
-  <!-- ── Afluencia vs accesibilidad ── -->
-  <span class="section-label reveal">Afluencia y accesibilidad por estación</span>
-  <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-bottom:.6rem">¿Las estaciones más concurridas son las más accesibles?</h2>
+  <!-- ── Afluencia y accesibilidad ── -->
+  <span class="section-label reveal">Demanda y cobertura</span>
 
   <p class="body-p reveal">
     Con base en información pública del Sistema de Transporte Colectivo Metro, se identificaron las estaciones con mayor afluencia diaria y se cruzó ese dato con la presencia de elevadores y escaleras eléctricas. El resultado es contundente: varias de las estaciones más demandadas por la ciudadanía no cuentan con infraestructura de accesibilidad completa.
   </p>
 
-  <!-- V3: DOT-PLOT embebido -->
-  <div class="viz-section-inner reveal-wipe">
-    <p class="body-p" style="font-size:.88rem;margin-bottom:.8rem;color:var(--text3)">Cada punto representa una estación, ordenada por línea. La altura indica la afluencia diaria promedio. El color indica si cuenta con elevador y escaleras eléctricas, solo uno, o ninguno.</p>
-    <div id="v3-legend">
-      <span class="v3-li"><span class="v3-dot v3-g"></span>Con elevador y esc. eléctricas</span>
-      <span class="v3-li"><span class="v3-dot v3-r"></span>Sin accesibilidad completa</span>
+  <!-- VISUALIZATION PLACEHOLDER — Afluencia -->
+  <div class="viz-placeholder reveal-wipe">
+    <div class="viz-label">Visualización</div>
+    <div class="viz-title">Afluencia vs. accesibilidad por estación</div>
+    <div class="viz-desc">Cruce entre mayor demanda diaria y presencia de infraestructura de accesibilidad — Datos STC Metro</div>
+    <div class="viz-area">
+      <div class="viz-area-inner">[ visualización ]</div>
     </div>
-    <div id="v3-outer"><svg id="v3-svg" style="display:block;overflow:visible"></svg></div>
   </div>
-  <div id="v3-tip"></div>
 
   <p class="body-p reveal">
     Las estaciones con mayor afluencia se concentran principalmente en zonas periféricas de la ciudad, lo que indica que una parte importante de la demanda del sistema proviene de puntos de conexión entre la periferia y el resto de la urbe. Esto revela algo significativo: la alta demanda no ha sido un criterio suficiente para priorizar el equipamiento accesible.
@@ -1237,7 +965,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 
   <hr class="rule reveal">
 
-  <!-- ── Lo que los datos revelan ── -->
+  <!-- ── Conclusiones ── -->
   <span class="section-label reveal">Lo que los datos revelan</span>
 
   <p class="body-p reveal">
@@ -1269,9 +997,146 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   <p style="margin-top:.5rem"><a href="index.html">← Ver visualización interactiva del sistema</a></p>
 </footer>
 
-<p class="body-p reveal" style="text-align:center;margin-top:2rem;font-weight:700">PUNTO FINAL</p>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// PROGRESS BAR
+// ═══════════════════════════════════════════════
+const prog = document.getElementById('prog');
+function updateProg() {
+  const scrollTop  = window.scrollY;
+  const docHeight  = document.documentElement.scrollHeight - window.innerHeight;
+  const pct        = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  prog.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProg, { passive: true });
 
+// ═══════════════════════════════════════════════
+// NAV — appears after hero
+// ═══════════════════════════════════════════════
+const nav  = document.getElementById('nav');
+const hero = document.getElementById('hero');
+function updateNav() {
+  const heroBottom = hero.getBoundingClientRect().bottom;
+  nav.classList.toggle('show', heroBottom < 0);
+}
+window.addEventListener('scroll', updateNav, { passive: true });
+
+// ═══════════════════════════════════════════════
+// SCROLL REVEAL — IntersectionObserver
+// ═══════════════════════════════════════════════
+const revealOpts = {
+  root: null,
+  threshold: 0,
+  rootMargin: '0px 0px -9% 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      // once revealed, no need to keep watching
+      observer.unobserve(entry.target);
+    }
+  });
+}, revealOpts);
+
+document.querySelectorAll('.reveal, .reveal-wipe').forEach(el => observer.observe(el));
+
+// ═══════════════════════════════════════════════
+// LINE CARDS — stagger on scroll
+// ═══════════════════════════════════════════════
+const cardOpts = {
+  root: null,
+  threshold: 0.05,
+  rootMargin: '0px 0px -5% 0px'
+};
+
+const cardObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const cards = entry.target.querySelectorAll('.line-card');
+      cards.forEach((card, i) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(18px)';
+        card.style.transition = `opacity .6s ${i * .12}s ease, transform .6s ${i * .12}s ease`;
+        // trigger reflow
+        card.getBoundingClientRect();
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      });
+      cardObserver.unobserve(entry.target);
+    }
+  });
+}, cardOpts);
+
+document.querySelectorAll('.line-cards').forEach(el => cardObserver.observe(el));
+
+// ═══════════════════════════════════════════════
+// CLOSING SECTION — reveals
+// ═══════════════════════════════════════════════
+const closingOpts = { root: null, threshold: 0.15 };
+const closingObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      closingObserver.unobserve(entry.target);
+    }
+  });
+}, closingOpts);
+const closingEl = document.getElementById('closing');
+if (closingEl) closingObserver.observe(closingEl);
+
+// ═══════════════════════════════════════════════
+// STAT COUNTERS — animate numbers on entry
+// ═══════════════════════════════════════════════
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+function animateNum(el, target, suffix, duration) {
+  const start = performance.now();
+  const isFloat = target !== Math.floor(target);
+  function frame(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = target * easeOut(progress);
+    el.textContent = (isFloat ? value.toFixed(1) : Math.round(value)) + suffix;
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const numEl = entry.target.querySelector('.stat-num');
+    if (!numEl) return;
+    const text = numEl.textContent.trim();
+    if (text === '+100M') {
+      numEl.textContent = '+0M';
+      animateNum({ set t(v){numEl.textContent = '+' + Math.round(v) + 'M'} }, 100, '', 1200);
+      // simple approach:
+      let v = 0; const target = 100; const dur = 1200; const t0 = performance.now();
+      (function step(now){
+        const p = Math.min((now-t0)/dur, 1);
+        numEl.textContent = '+' + Math.round(target * easeOut(p)) + 'M';
+        if(p<1) requestAnimationFrame(step);
+      })(performance.now());
+    } else if (text === '18.5%') {
+      let v = 0; const target = 18.5; const dur = 1000; const t0 = performance.now();
+      (function step(now){
+        const p = Math.min((now-t0)/dur, 1);
+        numEl.textContent = (target * easeOut(p)).toFixed(1) + '%';
+        if(p<1) requestAnimationFrame(step);
+      })(performance.now());
+    }
+    statObserver.unobserve(entry.target);
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-block').forEach(el => statObserver.observe(el));
+
+</script>
 <script>
 // ═══════════════════════════════════════════════
 // NETWORK VISUALIZATION — NV namespace
@@ -1421,9 +1286,8 @@ const RAW_LINKS = [
 
 // ─── COLOR SCALES ─────────────────────────────────────────────────────────────
 const LINE_COLORS = {
-  '1':'#E4538F','2':'#0069A7','3':'#928A37','4':'#6ABFB0',
-  '5':'#FFCD00','6':'#D32F2F','7':'#ED6D26','8':'#118147',
-  '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'
+  '1':'#E4538F','2':'#0069A7','3':'#928A37','7':'#ED6D26',
+  '8':'#118147','9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E'
 };
 const ACCESS_COLORS = {
   AccesoFuncional:'#3d7a42',AccesoNoFuncional:'#a63025',SinAccesos:'#9a8d7c',Especial:'#9a8d7c'
@@ -1434,7 +1298,7 @@ function nodeColor(d){
 }
 function nodeRadius(d,view){
   if(d.tipo==='Acceso'||d.tipo==='Especial'){
-    if(view==='radial') return 10;
+    if(view==='radial') return 18;
     return d.id==='SinAccesos'?16:14;
   }
   const base = Math.sqrt(d.afluencia/600);
@@ -1476,11 +1340,15 @@ let W = 0, H = 0;
 
 function dims(){
   const el = document.getElementById('nv-canvas');
-  W = el.offsetWidth || el.clientWidth || 700;
-  H = el.offsetHeight || el.clientHeight || 460;
+  W = el.clientWidth; H = el.clientHeight;
 }
 
-// No zoom — radial view is fixed
+// Zoom
+const zoom = d3.zoom().scaleExtent([0.2,4]).on('zoom',e=>{
+  linksG.attr('transform',e.transform);
+  nodesG.attr('transform',e.transform);
+});
+svg.call(zoom);
 
 // ─── TOOLTIP / POPUP ──────────────────────────────────────────────────────────
 const tooltip = document.getElementById('nv-tooltip');
@@ -1489,7 +1357,7 @@ const popupContent = document.getElementById('nv-popup-content');
 let popupOpen = false;
 
 function showTooltip(event,d){
-  const label = ACCESS_LABELS[d.id] || d.id.replace(/_/g,' ');
+  const label = d.id.replace(/_/g,' ');
   tooltip.innerHTML = `<b style='color:#2c2418'>${label}</b><br><span style="color:#6b5e4d;font-size:11px">${d.tipo} ${d.cat!==d.tipo?'· '+d.cat:''}</span>`;
   tooltip.style.opacity='1';
   moveTooltip(event);
@@ -1518,16 +1386,6 @@ const nodes = RAW_NODES.map(d=>({...d}));
 const links = RAW_LINKS.map(d=>({source:d.s,target:d.t,w:d.w}));
 
 // ─── DRAW ELEMENTS ────────────────────────────────────────────────────────────
-const ACCESS_LABELS = {
-  'EE_Funciona':         'Escaleras eléctricas en servicio',
-  'EE_Nofunciona':       'Escaleras eléctricas fuera de servicio',
-  'Elevador_Funciona':   'Elevador en servicio',
-  'Elevador_Nofunciona': 'Elevador fuera de servicio',
-  'Plataformas_Funciona':'Plataformas en servicio',
-  'Corredor_Funciona':   'Corredor en servicio',
-  'Corredor_Nofunciona': 'Corredor fuera de servicio',
-  'SinAccesos':          'Sin accesos'
-};
 let linkSel, nodeSel;
 
 function linkStroke(d){ return Math.max(1.5, d.w * 1.1); }
@@ -1595,8 +1453,11 @@ function buildDOM(){
         .attr('fill', d=>nodeColor(d))
         .attr('stroke', d=>d.tipo==='Acceso'||d.tipo==='Especial'?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.15)')
         .attr('stroke-width',1.5);
-      // Labels are placed by each view's draw function after positioning
-      g.append('text').attr('dy','0.35em').attr('y',d=>nodeRadius(d,currentView)+9).text('');
+      g.append('text').attr('dy','0.35em').attr('y',d=>nodeRadius(d,currentView)+9)
+        .text(d=>{
+          const label = d.id.replace(/_/g,' ');
+          return label.length>14?label.slice(0,13)+'…':label;
+        });
       return g;
     }
   );
@@ -1639,6 +1500,9 @@ function unhighlight(){
 // ─── VIEWS ────────────────────────────────────────────────────────────────────
 function setView(v){
   currentView = v;
+  ['network','radial','arch'].forEach(x=>{
+    document.getElementById('nv-btn-'+x).classList.toggle('active',x===v);
+  });
   closePopup();
   if(simulation) simulation.stop();
 
@@ -1688,31 +1552,29 @@ function ticked(){
 function drawRadial(){
   dims(); buildDOM();
 
+  // Replace lines with paths inside the existing lgrp groups
   linksG.selectAll('g.nv-lgrp line').remove();
-  linksG.selectAll('g.nv-lgrp').append('path')
+  const arcPaths = linksG.selectAll('g.nv-lgrp').append('path')
     .attr('class','nv-link').attr('fill','none')
     .attr('stroke', linkColor)
     .attr('stroke-width', linkStroke)
-    .attr('stroke-opacity', 0.45);
+    .attr('stroke-opacity', 0.5);
 
   const cx = W/2, cy = H/2;
-  // Perfect circle — radius leaves ~30px margin top/bottom for labels
-  const R = Math.min(W * 0.44, H * 0.40);
-  const R1 = R * 0.28; // inner ring for access/type nodes
+  const R1 = Math.min(W,H)*0.12;
+  const R2 = Math.min(W,H)*0.37;
 
   const accessNodes = nodes.filter(d=>d.tipo==='Acceso'||d.tipo==='Especial');
-  const stationNodes = nodes.filter(d=>d.tipo==='Estación')
-    .sort((a,b)=>a.cat.localeCompare(b.cat)||b.afluencia-a.afluencia);
+  const stationNodes = nodes.filter(d=>d.tipo==='Estación').sort((a,b)=>a.cat.localeCompare(b.cat)||b.afluencia-a.afluencia);
 
   accessNodes.forEach((d,i)=>{
     const angle = (i/accessNodes.length)*2*Math.PI - Math.PI/2;
-    d.rx = cx + R1*Math.cos(angle);
-    d.ry = cy + R1*Math.sin(angle);
+    d.rx = cx + R1*Math.cos(angle); d.ry = cy + R1*Math.sin(angle);
   });
   stationNodes.forEach((d,i)=>{
     const angle = (i/stationNodes.length)*2*Math.PI - Math.PI/2;
-    d.rx = cx + R*Math.cos(angle);
-    d.ry = cy + R*Math.sin(angle);
+    const r = R2 + nodeRadius(d,'radial')*0.3;
+    d.rx = cx + r*Math.cos(angle); d.ry = cy + r*Math.sin(angle);
   });
   nodes.forEach(d=>{if(d.rx===undefined){d.rx=cx;d.ry=cy;}});
 
@@ -1724,7 +1586,6 @@ function drawRadial(){
   nodes.forEach(d=>posMap[d.id]={x:d.rx,y:d.ry});
 
   setTimeout(()=>{
-    // Draw curved links
     linksG.selectAll('g.nv-lgrp').each(function(d){
       const sid = typeof d.source==='object'?d.source.id:d.source;
       const tid = typeof d.target==='object'?d.target.id:d.target;
@@ -1735,104 +1596,10 @@ function drawRadial(){
       d3.select(this).select('path').attr('d',`M${s.x},${s.y} Q${mx},${my} ${t.x},${t.y}`);
       d3.select(this).select('.wlabel').attr('x',mx).attr('y',my);
     });
-
-    // Short labels for inner access/type nodes
-    const ACCESS_SHORT = {
-      'EE_Funciona':         'Esc. eléctricas',
-      'EE_Nofunciona':       'Esc. eléctricas',
-      'Elevador_Funciona':   'Elevador',
-      'Elevador_Nofunciona': 'Elevador',
-      'Plataformas_Funciona':'Plataformas',
-      'Corredor_Funciona':   'Corredor',
-      'Corredor_Nofunciona': 'Corredor',
-      'SinAccesos':          'Sin accesos'
-    };
-    const ACCESS_STATUS = {
-      'EE_Funciona':         'en servicio',
-      'EE_Nofunciona':       'fuera de servicio',
-      'Elevador_Funciona':   'en servicio',
-      'Elevador_Nofunciona': 'fuera de servicio',
-      'Plataformas_Funciona':'en servicio',
-      'Corredor_Funciona':   'en servicio',
-      'Corredor_Nofunciona': 'fuera de servicio',
-      'SinAccesos':          ''
-    };
-
-    // Shared placed-box list for collision detection
-    const placed = [];
-    const cW = 4.1, cH = 8;
-
-    function boxFor(absX, absY, text, anchor){
-      const fw = text.length * cW;
-      const bx = anchor==='start' ? absX : anchor==='end' ? absX-fw : absX-fw/2;
-      return {x:bx, y:absY-cH/2, w:fw, h:cH};
-    }
-    function collides(box){
-      return placed.some(p=>
-        box.x<p.x+p.w+2 && box.x+box.w+2>p.x &&
-        box.y<p.y+p.h+2 && box.y+box.h+2>p.y
-      );
-    }
-    function placeLabel(nodeEl, lx, ly, anchor, line1, line2, fontSize){
-      nodeEl.select('text')
-        .attr('x',0).attr('y',0).attr('text-anchor',anchor)
-        .attr('font-size', fontSize+'px')
-        .text('').call(t=>{
-          t.append('tspan').attr('x',lx).attr('dy','0em').text(line1);
-          if(line2) t.append('tspan').attr('x',lx).attr('dy','1.1em').text(line2);
-        });
-    }
-
-    // -- Inner nodes: place labels outward into gap between rings
-    accessNodes.forEach(d=>{
-      const r = nodeRadius(d,'radial');
-      const dx = d.rx-cx, dy = d.ry-cy;
-      const dist = Math.sqrt(dx*dx+dy*dy)||1;
-      const ndx = dx/dist, ndy = dy/dist;
-      const pad = r+7;
-      const lx = ndx*pad, ly = ndy*pad;
-      const line1 = ACCESS_SHORT[d.id]||d.id;
-      const line2 = ACCESS_STATUS[d.id]||'';
-      const anchor = ndx>0.25?'start':ndx<-0.25?'end':'middle';
-      const longer = line1.length >= line2.length ? line1 : line2;
-      const box1 = boxFor(d.rx+lx, d.ry+ly-cH*0.6, longer, anchor);
-      if(!collides(box1)){
-        placed.push(box1);
-        placed.push({...box1, y:box1.y+cH*1.1}); // reserve space for line2
-        placeLabel(
-          nodesG.selectAll('.nv-node').filter(n=>n.id===d.id),
-          lx, ly, anchor, line1, line2, 7
-        );
-      }
-    });
-
-    // -- Outer station nodes: sort by afluencia desc (prominent stations labeled first)
-    const sortedStations = stationNodes.slice().sort((a,b)=>b.afluencia-a.afluencia);
-
-    sortedStations.forEach(d=>{
-      const r = nodeRadius(d,'radial');
-      const dx = d.rx-cx, dy = d.ry-cy;
-      const dist = Math.sqrt(dx*dx+dy*dy)||1;
-      const ndx = dx/dist, ndy = dy/dist;
-      const pad = r+10;
-      const lx = ndx*pad, ly = ndy*pad;
-      // Strip line suffix (_1, _2 … _12, _A, _B) then underscores
-      const name = d.id.replace(/_(\d+|[AB])$/,'').replace(/_/g,' ');
-      const anchor = ndx>0.25?'start':ndx<-0.25?'end':'middle';
-      const box = boxFor(d.rx+lx, d.ry+ly, name, anchor);
-      if(!collides(box)){
-        placed.push(box);
-        nodesG.selectAll('.nv-node').filter(n=>n.id===d.id).select('text')
-          .text('').attr('font-size','8px')
-          .call(t=>t.append('tspan').attr('x',lx).attr('dy','0.35em').attr('y',ly).text(name))
-          .attr('text-anchor',anchor);
-      }
-    });
-
     applyFilters();
   }, 750);
 
-  document.getElementById('nv-info').textContent='Hover para ver el nodo · Click para detalles';
+  document.getElementById('nv-info').textContent='Vista radial: accesos al centro · estaciones por línea';
 }
 
 // ARCH
@@ -1888,1405 +1655,39 @@ function drawArch(){
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('resize',()=>{if(currentView==='radial') setView('radial');});
+window.addEventListener('resize',()=>{if(!nvInitialized) return; if(currentView==='network'){if(simulation){dims();simulation.force('center',d3.forceCenter(W/2,H/2)).restart();}}else{setView(currentView);}});
+
+// Lazy init via IntersectionObserver
+let nvInitialized = false;
+const nvInitObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && !nvInitialized){
+      nvInitialized = true;
+      dims();
+      svg.call(zoom.transform, d3.zoomIdentity);
+      drawNetwork();
+      nvInitObserver.disconnect();
+    }
+  });
+}, {threshold: 0.1});
+const nvSectionEl = document.getElementById('nv-section');
+if(nvSectionEl) nvInitObserver.observe(nvSectionEl);
 
   return {
     setView: setView,
     toggleCat: toggleCat,
     closePopup: closePopup,
     init: function(){
-      dims();
-      if(W > 10){
-        setView('radial');
-      } else {
-        // Layout not ready yet — retry after browser has rendered
-        setTimeout(()=>{ dims(); setView('radial'); }, 150);
+      if(!nvInitialized){
+        nvInitialized = true;
+        dims();
+        svg.call(zoom.transform, d3.zoomIdentity);
+        drawNetwork();
       }
     }
   };
 })();
 </script>
-      </div>
-    </div>
-    <div class="lp" id="linesPanel"><div class="lp-ttl">Líneas</div><div id="leg"></div></div>
-    <svg id="svg"><g id="gM"></g></svg>
-    <div class="zc">
-      <div class="zb" id="zi">+</div>
-      <div class="zb" id="zo">−</div>
-      <div class="zb" id="zf">⊡</div>
-    </div>
-    <div class="wp" id="wp">
-      <span class="wc" id="wcc">✕</span>
-      <h4>⚠ Coordenadas por validar</h4>
-      <ul>
-        <li><b>Lomas_Estrella</b> (L12) — interpolada</li>
-        <li><b>Etiopia</b> (L3) → Etiopía/Plaza Transparencia</li>
-        <li><b>Insugentes_Sur</b> (L12) — typo</li>
-        <li><b>Mexilcalcingo</b> (L12) → Mexicaltzingo</li>
-        <li><b>Nezahuacoyotl</b> (LB) → Nezahualcóyotl</li>
-        <li><b>La_Villa</b> (L6) → La Villa-Basílica</li>
-        <li><b>Santa_Martha</b> (LA) → Santa Marta</li>
-        <li><b>UAM</b> (L8) → UAM-I</li>
-        <li><b>Viveros</b> (L3) → Viveros/Derechos Humanos</li>
-      </ul>
-    </div>
-  </div>
-  <div class="sb">
-    <div class="ss">
-      <div class="st2">Ruta</div>
-      <div class="sr"><div class="sd sds"></div><div class="ac-wrap"><input type="text" id="ss-in" class="ac-input" placeholder="Origen" autocomplete="off"><ul class="ac-list" id="ss-ac"></ul></div></div>
-      <div class="sr"><div class="sd sdt"></div><div class="ac-wrap"><input type="text" id="st-in" class="ac-input" placeholder="Destino" autocomplete="off"><ul class="ac-list" id="st-ac"></ul></div></div>
-      <div class="br"><button class="btn ba" id="bf">Buscar</button><button class="btn bg2" id="bc">Limpiar</button></div>
-    </div>
-    <div class="ss"><div class="tgl" id="tgp"><div class="tk" id="tkp"><div class="tm"></div></div><span class="tl">Solo accesibles ♿</span></div></div>
-    <div class="ss rad-ctrl" id="radPanel">
-      <div class="st2">Filtrar por</div>
-      <div class="rad-filter" id="radFilter">
-        <div class="rfb on" data-f="all">Todos</div>
-        <div class="rfb" data-f="both">Accesible 🛗🪜</div>
-        <div class="rfb" data-f="elev">Elevador 🛗</div>
-        <div class="rfb" data-f="ee">Esc. eléctricas 🪜</div>
-      </div>
-    </div>
-    <div class="ss" style="padding-bottom:0"><div class="st2">Rutas <span id="rcc" style="color:var(--accent)"></span></div></div>
-    <div class="rl" id="rli"><div class="nrt">Selecciona origen y destino</div></div>
-  </div>
-</div>
-<div class="stb"><span>●</span><span id="si">Cargando...</span></div>
 
-<script>
-'use strict';
-const LC={"1":"#E4538F","2":"#0069A7","3":"#928A37","4":"#6ABFB0","5":"#FFCD00","6":"#D32F2F","7":"#ED6D26","8":"#118147","9":"#7A4A2A","12":"#C1A832","A":"#9B2D8E","B":"#9E9E9E"};
-const LN={"1":"L1 Rosa","2":"L2 Azul","3":"L3 Café","4":"L4 Cyan","5":"L5 Amarillo","6":"L6 Rojo","7":"L7 Naranja","8":"L8 Verde","9":"L9 Café","12":"L12 Dorado","A":"LA Morado","B":"LB Gris"};
-const LD=["1","2","3","4","5","6","7","8","9","12","A","B"];
-
-const POI={
-  "AICM (Aeropuerto)":{lat:19.4363,lng:-99.0721},
-  "AIFA (Felipe Ángeles)":{lat:19.7181,lng:-99.0095},
-  "Hospital General":{lat:19.4136,lng:-99.1539},
-  "Hospital 20 de Nov":{lat:19.3720,lng:-99.1710},
-  "Zócalo":{lat:19.4332,lng:-99.1329},
-  "CU (Ciudad Universitaria)":{lat:19.3244,lng:-99.1740}
-};
-
-let NODES=[],EDGES=[],LO={},TF=[];
-let POS={};
-const Z={x:0,y:0,s:1};
-const S={src:null,tgt:null,routes:[],sel:null,hid:new Set(),pcd:false,mode:'intro',sz:false,
-  radCenter:'Zócalo',radMax:30,radNearest:null,radNearestAcc:null,radNearestAccTgt:null,
-  radNearestAccSrc:null,radEffSrc:null,radEffTgt:null,radFilterMode:'all'};
-
-// ═══════ HAVERSINE ═══════
-function hav(lat1,lon1,lat2,lon2){
-  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function bearing(lat1,lon1,lat2,lon2){
-  const dLon=(lon2-lon1)*Math.PI/180;
-  const y=Math.sin(dLon)*Math.cos(lat2*Math.PI/180);
-  const x=Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos(dLon);
-  return (Math.atan2(y,x)*180/Math.PI+360)%360;
-}
-
-async function load(){
-  const [nT,eT]=await Promise.all([fetch('data/nodos.csv').then(r=>r.text()),fetch('data/aristas.csv').then(r=>r.text())]);
-  function csv(t){const ls=t.replace(/\r\n/g,'\n').split('\n').filter(l=>l.trim());const h=ls[0].split(',').map(s=>s.trim());return ls.slice(1).map(l=>{const v=l.split(',');const o={};h.forEach((k,i)=>o[k]=v[i]?.trim()||'');return o})}
-  NODES=csv(nT);EDGES=csv(eT);
-  NODES.forEach(n=>{if(!LO[n.Linea])LO[n.Linea]=[];LO[n.Linea].push(n)});
-  for(const l in LO)LO[l].sort((a,b)=>+a.Orden-+b.Orden);
-  TF=EDGES.filter(e=>e.Tipo==='Transbordo');
-  cL();initUI();render();
-  document.getElementById('linesPanel').classList.toggle('show',S.mode!=='intro');
-  document.getElementById('radPanel').classList.toggle('show',S.mode==='rad');
-  const aY=NODES.filter(n=>n.Accesibilidad==='Si').length;
-  document.getElementById('si').textContent=`${NODES.length} est. · ${aY} accesibles · ${TF.length} transbordos`;
-  // Init intro content on first load — double-rAF ensures layout is computed
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    if(S.mode==='intro'){
-      if(typeof V3!=='undefined') V3.draw();
-      if(typeof NV!=='undefined') NV.init();
-      if(typeof initAccScript!=='undefined') initAccScript();
-    }
-  }));
-}
-
-// ═══════ LAYOUTS ═══════
-const GAP=48,LGAP=65,ML=70,MT=40;
-function cL(){POS={};delete POS._qL;const m=S.mode;if(m==='intro')return;if(m==='sch')lSch();else if(m==='geo')lGeo();else if(m==='col2')lCol(2);else if(m==='col3')lGrid();else if(m==='quad')lQuad();else if(m==='rad')lRad()}
-
-function lSch(){LD.forEach((lid,li)=>{const sts=LO[lid]||[];const y=MT+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:ML+si*GAP,y}})})}
-function lGeo(){
-  let a=90,b=-90,c=0,d=-999;
-  NODES.forEach(n=>{const la=+n.lat,ln=+n.lng;if(la<a)a=la;if(la>b)b=la;if(ln<c)c=ln;if(ln>d)d=ln});
-  const p1=(b-a)*.06,p2=(d-c)*.06;a-=p1;b+=p1;c-=p2;d+=p2;
-  NODES.forEach(n=>{POS[n.id]={x:30+((+n.lng-c)/(d-c))*1300,y:30+((b-+n.lat)/(b-a))*950}});
-}
-function lCol(cols){
-  const pc=Math.ceil(LD.length/cols);const cW=Math.max(...LD.map(l=>(LO[l]||[]).length))*GAP+ML+50;
-  LD.forEach((lid,li)=>{const col=Math.floor(li/pc),row=li%pc;const sts=LO[lid]||[];const y=MT+row*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:ML+col*cW+si*GAP,y}})});
-}
-function lGrid(){
-  const cells=[[],[],[],[]];LD.forEach((lid,i)=>cells[Math.floor(i/3)].push(lid));
-  const mxS=Math.max(...LD.map(l=>(LO[l]||[]).length));const cellW=mxS*GAP+ML+30;const cellH=3*LGAP+30;
-  POS._qL=[];const labels=['BLOQUE 1','BLOQUE 2','BLOQUE 3','BLOQUE 4'];
-  cells.forEach((cLines,ci)=>{const col=ci%2,row=Math.floor(ci/2);const gx=col*cellW+10,gy=row*cellH+10;
-    POS._qL.push({label:labels[ci]+' ('+cLines.map(l=>'L'+l).join(', ')+')',x:gx+5,y:gy+10,mx:gx+cellW-10,my:gy+cellH-10});
-    cLines.forEach((lid,li)=>{const sts=LO[lid]||[];const y=gy+24+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:gx+ML+si*GAP,y}})})});
-}
-function lQuad(){
-  const mLa=19.41,mLn=-99.13;const Q={NW:[],NE:[],SW:[],SE:[]};
-  LD.forEach(lid=>{const sts=LO[lid]||[];let nw=0,ne=0,sw=0,se=0;
-    sts.forEach(n=>{const la=+n.lat,ln=+n.lng;if(la>=mLa&&ln<=mLn)nw++;else if(la>=mLa)ne++;else if(ln<=mLn)sw++;else se++});
-    const mx=Math.max(nw,ne,sw,se);if(mx===nw)Q.NW.push(lid);else if(mx===ne)Q.NE.push(lid);else if(mx===sw)Q.SW.push(lid);else Q.SE.push(lid)});
-  const ql={NW:'PONIENTE · NORTE',NE:'ORIENTE · NORTE',SW:'PONIENTE · SUR',SE:'ORIENTE · SUR'};
-  const qp={NW:{x:0,y:0},NE:{x:1,y:0},SW:{x:0,y:1},SE:{x:1,y:1}};
-  const mxL=Math.max(...Object.values(Q).map(a=>a.length));const qH=mxL*LGAP+50;
-  const mxS2=Math.max(...LD.map(l=>(LO[l]||[]).length));const qW=mxS2*GAP+ML+30;
-  POS._qL=[];
-  ['NW','NE','SW','SE'].forEach(q=>{const gx=qp[q].x*qW+15,gy=qp[q].y*qH+12;
-    POS._qL.push({label:ql[q],x:gx,y:gy,mx:gx+qW-15,my:gy+qH-12});
-    Q[q].forEach((lid,li)=>{const sts=LO[lid]||[];const y=gy+22+li*LGAP;sts.forEach((n,si)=>{POS[n.id]={x:gx+ML+si*GAP,y}})})});
-}
-
-// ═══════ RADIAL LAYOUT ═══════
-function lRad(){
-  const center=POI[S.radCenter]||null;
-  let cLat,cLng;
-  if(center){cLat=center.lat;cLng=center.lng}
-  else{const cn=NODES.find(n=>n.id===S.radCenter);if(!cn)return;cLat=+cn.lat;cLng=+cn.lng}
-
-  // Compute max distance so every station fits inside the circle
-  let maxDist=0;
-  NODES.forEach(n=>{const d=hav(cLat,cLng,+n.lat,+n.lng);if(d>maxDist)maxDist=d});
-  const maxKm=Math.ceil(maxDist)+1;
-  S.radMax=maxKm;
-
-  const CX=500,CY=500,maxR=420;
-  const RINGS=[2,5,10,15,20,25];
-  POS._rad={cx:CX,cy:CY,maxR,maxKm,rings:RINGS.filter(r=>r<=maxKm),cLat,cLng,centerName:S.radCenter};
-
-  // Find nearest station (any) and nearest accessible
-  let minD=Infinity,minDAcc=Infinity;S.radNearest=null;S.radNearestAcc=null;
-  NODES.forEach(n=>{
-    const d=hav(cLat,cLng,+n.lat,+n.lng);
-    if(d<minD){minD=d;S.radNearest=n.id}
-    if(d<minDAcc&&n.Accesibilidad==='Si'){minDAcc=d;S.radNearestAcc=n.id}
-  });
-
-  let inRange=0;
-  NODES.forEach(n=>{
-    const d=hav(cLat,cLng,+n.lat,+n.lng);
-    const ang=bearing(cLat,cLng,+n.lat,+n.lng);
-    const angRad=(ang-90)*Math.PI/180;// rotate so north=up
-    // All stations are within range (maxKm covers all)
-    const r=(d/maxKm)*maxR;
-    POS[n.id]={x:CX+Math.cos(angRad)*r,y:CY+Math.sin(angRad)*r,dist:d};
-    inRange++;
-  });
-
-  // (nearest-station list and walk note removed — info shown in route panel)
-  // No auto-assignment of origin — user must choose
-}
-
-// ═══════ HELPERS ═══════
-function N(id){return NODES.find(n=>n.id===id)}
-function gbn(id){return id.replace(/_(1|2|3|4|5|6|7|8|9|12|A|B)$/,'')}
-function bAdj(pcd){const a={};NODES.forEach(n=>a[n.id]=[]);EDGES.forEach(e=>{if(pcd&&e.Accesible_PCD!=='1')return;if(a[e.source])a[e.source].push(e.target);if(a[e.target])a[e.target].push(e.source)});return a}
-function fR(src,tgt,adj,mg=3){if(!src||!tgt||src===tgt)return[];const dl=Date.now()+3000,q=[[src]],gm={};let tot=0;while(q.length){if(Date.now()>dl||tot>=mg*3)break;const p=q.shift(),c=p[p.length-1];if(c===tgt){const d=p.length-1,gl=Object.keys(gm).length;if(gl>=mg&&!(d in gm))continue;gm[d]=gm[d]||[];if(gm[d].length<3){gm[d].push([...p]);tot++}continue}if(p.length>50)continue;const v=new Set(p);for(const nb of(adj[c]||[]))if(!v.has(nb))q.push([...p,nb])}const r=[];Object.keys(gm).map(Number).sort((a,b)=>a-b).slice(0,mg).forEach((d,gi)=>{gm[d].sort((a,b)=>a.join('').localeCompare(b.join(''))).forEach((p,ai)=>{r.push({path:p,distance:d,group:gi+1,altIdx:ai})})});return r}
-function nr(nd){if(!S.sz)return 5;const v=+nd.Personas_Afectadas||0;return 3+Math.sqrt(v/600)*2.5}
-
-// ═══════ RENDER ═══════
-function render(){
-  const main=document.querySelector('.main');
-  main.classList.toggle('intro',S.mode==='intro');
-  if(S.mode==='intro'){document.getElementById('gM').innerHTML='';return}
-  if(S.mode==='rad'){renderRadial();return}
-  const g=document.getElementById('gM');
-  let mx=0,my=0;for(const k in POS){if(k.startsWith('_'))continue;const p=POS[k];if(p){mx=Math.max(mx,p.x);my=Math.max(my,p.y)}}
-  const W=mx+130,H=my+60;const svg=document.getElementById('svg');
-  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);aZ();
-  const rt=S.sel!==null?S.routes[S.sel]:null;
-  const ps=rt?new Set(rt.path):null;const pe=new Set();
-  if(rt)for(let i=0;i<rt.path.length-1;i++){pe.add(rt.path[i]+'|'+rt.path[i+1]);pe.add(rt.path[i+1]+'|'+rt.path[i])}
-  const isG=S.mode==='geo';let h='';
-  if(POS._qL){POS._qL.forEach(ql=>{
-    h+=`<text x="${ql.x}" y="${ql.y}" fill="var(--text3)" font-size="9" font-weight="700" font-family="var(--mono)" opacity="0.45">${ql.label}</text>`;
-    h+=`<rect x="${ql.x-5}" y="${ql.y-12}" width="${ql.mx-ql.x+10}" height="${ql.my-ql.y+16}" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,3" rx="4" opacity="0.3"/>`;
-  })}
-  for(const lid of LD){if(S.hid.has(lid))continue;const sts=LO[lid]||[];if(!sts.length)continue;const col=LC[lid];
-    for(let i=0;i<sts.length-1;i++){const a=sts[i].id,b=sts[i+1].id;if(!POS[a]||!POS[b])continue;const pa=POS[a],pb=POS[b];const inR=pe.has(a+'|'+b);const na=N(a),nb=N(b);const bA=na&&nb&&na.Accesibilidad==='Si'&&nb.Accesibilidad==='Si';const pD=S.pcd&&!rt&&!bA;const sw=inR?5:(isG?2.5:3.5);const op=rt?(inR?1:0.06):(pD?0.1:1);
-    h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${col}" stroke-width="${sw}" stroke-opacity="${op}" stroke-linecap="round"${pD?' stroke-dasharray="2,2"':''}/>`;
-    }
-    if(!isG&&sts.length){const fp=POS[sts[0].id];if(fp)h+=`<text x="${fp.x-10}" y="${fp.y}" text-anchor="end" fill="${col}" font-size="8" font-weight="700" font-family="var(--mono)" dominant-baseline="central" opacity="${rt?.2:.9}">L${lid}</text>`}
-  }
-  for(const tf of TF){const a=tf.source,b=tf.target;if(!POS[a]||!POS[b])continue;const na=N(a),nb=N(b);if(!na||!nb||S.hid.has(na.Linea)||S.hid.has(nb.Linea))continue;const pa=POS[a],pb=POS[b];const inR=pe.has(a+'|'+b);const bA=na.Accesibilidad==='Si'&&nb.Accesibilidad==='Si';
-    if(rt){if(inR){h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="var(--accent)" stroke-width="2.5" opacity="1"/>`;h+=`<circle cx="${(pa.x+pb.x)/2}" cy="${(pa.y+pb.y)/2}" r="2" fill="var(--accent)"/>`}}
-    else{const cl=S.pcd?(bA?'var(--green)':'var(--red)'):'var(--tcol)';h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${cl}" stroke-width="1" stroke-opacity="${S.pcd?(bA?.4:.1):.25}" stroke-dasharray="3,2"/>`}
-  }
-  for(const nd of NODES){if(!POS[nd.id]||S.hid.has(nd.Linea))continue;const p=POS[nd.id],col=LC[nd.Linea];const isSrc=nd.id===S.src,isTgt=nd.id===S.tgt,ip=ps&&ps.has(nd.id);const acc=nd.Accesibilidad==='Si';const r=nr(nd);
-    const onRoute=ip||isSrc||isTgt;
-    let fl='var(--node-bg)',sk=col,sw=1.5,op=rt?(onRoute?1:.07):1;
-    if(S.pcd&&!rt&&!acc)op=.3;
-    if(isSrc){fl='#1a6cc8';sk='#fff';sw=2.5;op=1}else if(isTgt){fl='var(--green)';sk='#fff';sw=2.5;op=1}else if(ip){fl=col;sk='#fff';op=1}
-    const isTr=nd.Tipo&&nd.Tipo.includes('Transbordo');
-    if(isTr&&!isSrc&&!isTgt&&!ip)h+=`<circle cx="${p.x}" cy="${p.y}" r="${r+2}" fill="none" stroke="${col}" stroke-width="1.2" opacity="${op*.5}"/>`;
-    h+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fl}" stroke="${sk}" stroke-width="${sw}" opacity="${op}" class="nd" data-id="${nd.id}" style="cursor:pointer"/>`;
-    // Labels: only for route stations
-    if(onRoute){
-      const dn=nd.id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
-      const fs=isG?5:(S.mode==='quad'?5.5:6.5);
-      h+=`<text x="${p.x}" y="${p.y+r+4}" text-anchor="start" fill="${isSrc?'#1a6cc8':isTgt?'var(--green)':'var(--lbl)'}" font-size="${fs}" font-family="'DM Sans'" font-weight="600" opacity="0.9" transform="rotate(${isG?28:35} ${p.x} ${p.y+r+4})">${dn}</text>`;
-      // Accessibility icons: minimalist SVG
-      {const bx=p.x+r+2,by=p.y+4;
-      if(nd.Elevador==='Si')h+=svgIconElev(bx,by);else if(nd.EE==='Si')h+=svgIconEE(bx,by);else if(acc)h+=svgIconAcc(bx,by);}
-    }
-  }
-  g.innerHTML=h;bindNodes();
-}
-
-// ═══════ SVG ACCESSIBILITY ICON ═══════
-// Based on Flaticon 6030966 by DinosoftLabs — scaled to ~8×9 px
-function svgWheelchair(x,y,col){
-  const c=col||'#444';
-  // viewBox: 67.55 × 75.87 → scale 0.085 ≈ 5.7 × 6.4 px
-  const sc=0.085;
-  // Center of viewBox after scale: (67.55/2*sc, 75.87/2*sc) = (2.87, 3.22)
-  const tx=(x-2.87).toFixed(2), ty=(y-3.22).toFixed(2);
-  return `<g transform="translate(${tx},${ty}) scale(${sc})" opacity="0.85">
-    <circle cx="35.83" cy="6.77" r="6.77" fill="${c}"/>
-    <path fill="${c}" d="M52.39,44.44c-.83-.76-1.7-1.08-2.72-1.1h-8.51s0-9.82,0-9.82h10.24c1.6-.17,2.71-1.51,2.62-3s-1.25-2.69-2.81-2.69l-10.03-.02-.07-5.76c-.04-3.38-3.03-5.88-6.27-5.77s-5.93,2.63-5.93,5.98l-.02,23.21c0,2.96,2.33,5.31,5.28,5.32h12.75c.37,0,.93.22,1.22.48l13.79,12.13c1.43,1.26,3.43,1.21,4.68-.1s1.27-3.36-.08-4.71l-14.14-14.14Z"/>
-    <path fill="${c}" d="M8.88,41.95c-3.98,9.67.58,20.52,9.81,24.73s20.57.4,25.2-8.96c.97-1.96,3.18-2.8,5.11-1.82s2.51,3.33,1.5,5.31c-6.04,11.74-19.59,17.42-32.06,13.35S-1.7,58.13.32,45.06c1.7-10.97,10.17-19.83,21.11-21.97,1.57-.31,2.94.6,3.59,1.93.55,1.12.7,2.28.08,3.51-.41.82-1.29,1.64-2.49,1.91-6.14,1.4-11.28,5.54-13.74,11.51Z"/>
-  </g>`;
-}
-function svgIconAcc(x,y){return svgWheelchair(x,y);}
-function svgIconElev(x,y){return svgWheelchair(x,y);}
-function svgIconEE(x,y){return svgWheelchair(x,y);}
-
-// ═══════ RADIAL RENDER ═══════
-function renderRadial(){
-  const rd=POS._rad;if(!rd)return;
-  const g=document.getElementById('gM');const svg=document.getElementById('svg');
-  const W=1020,H=1020;svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);aZ();
-  const {cx,cy,maxR,maxKm,rings,centerName}=rd;
-  const rt=S.sel!==null?S.routes[S.sel]:null;
-  const ps=rt?new Set(rt.path):null;
-  let h='';
-
-  // ── Grid background ──
-  rings.forEach((km,i)=>{
-    const r=(km/maxKm)*maxR;
-    const isLast=i===rings.length-1;
-    h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#888" stroke-width="${isLast?1.1:0.7}" stroke-dasharray="${isLast?'none':'6,4'}" opacity="${isLast?0.22:0.18}"/>`;
-    h+=`<rect x="${cx+4}" y="${cy-r-6}" width="${String(km+' km').length*4+4}" height="9" rx="2" fill="var(--bg)" opacity="0.7"/>`;
-    h+=`<text x="${cx+6}" y="${cy-r+2}" fill="#888" font-size="7" font-family="var(--mono)" font-weight="500" opacity="0.7">${km} km</text>`;
-  });
-  h+=`<line x1="${cx}" y1="${cy-maxR-20}" x2="${cx}" y2="${cy+maxR+20}" stroke="var(--border)" stroke-width="0.5" opacity="0.18"/>`;
-  h+=`<line x1="${cx-maxR-20}" y1="${cy}" x2="${cx+maxR+20}" y2="${cy}" stroke="var(--border)" stroke-width="0.5" opacity="0.18"/>`;
-  h+=`<text x="${cx}" y="${cy-maxR-10}" text-anchor="middle" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">N</text>`;
-  h+=`<text x="${cx}" y="${cy+maxR+16}" text-anchor="middle" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">S</text>`;
-  h+=`<text x="${cx+maxR+12}" y="${cy+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">E</text>`;
-  h+=`<text x="${cx-maxR-16}" y="${cy+3}" fill="var(--text3)" font-size="7" font-family="var(--mono)" opacity="0.4">O</text>`;
-
-  // ── Center ──
-  h+=`<circle cx="${cx}" cy="${cy}" r="2.5" fill="#888" opacity="0.85"/>`;
-  h+=`<circle cx="${cx}" cy="${cy}" r="5.5" fill="none" stroke="#888" stroke-width="0.7" opacity="0.28"/>`;
-  const cnShort=centerName.length>20?centerName.slice(0,18)+'…':centerName;
-  h+=`<text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#888" font-size="6" font-weight="600" font-family="var(--mono)" opacity="0.65">${cnShort}</text>`;
-
-  // ── Same-line connecting lines — quieter (point 2) ──
-  {const byLine={};NODES.forEach(n=>{if(!POS[n.id]||S.hid.has(n.Linea))return;if(!byLine[n.Linea])byLine[n.Linea]=[];byLine[n.Linea].push(n.id)});
-  const sortByAngle=ids=>[...ids].sort((a,b)=>{const pa=POS[a],pb=POS[b];return Math.atan2(pa.y-cy,pa.x-cx)-Math.atan2(pb.y-cy,pb.x-cx)});
-  Object.entries(byLine).forEach(([lid,ids])=>{const col2=LC[lid];const sorted=sortByAngle(ids);sorted.forEach((id,i)=>{if(i===0)return;const prev=sorted[i-1];const pa=POS[prev],pb=POS[id];if(!pa||!pb)return;h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${col2}" stroke-width="0.45" opacity="0.11"/>`;})});}
-
-  // ── Nodes: build into separate layer strings ──
-  // Layer order: spokes → labels → route lines → nodes
-  // This guarantees route lines always appear above labels, nodes above everything (clickable)
-  const lblBoxes=[];
-  const labeledNames=new Set();
-  let spokesH='', nodesH='', labelsH='', routeH='';
-
-  function radLbl(p2,r2,dn,force,fSz){
-    const dx2=p2.x-cx,dy2=p2.y-cy,dist2=Math.sqrt(dx2*dx2+dy2*dy2)||1;
-    const ndx=dx2/dist2,ndy=dy2/dist2;
-    const pad=r2+8;
-    const lx=p2.x+ndx*pad,ly=p2.y+ndy*pad;
-    const anchor=ndx>0.25?'start':ndx<-0.25?'end':'middle';
-    const charPx=(fSz||6)*0.62;
-    const fw=dn.length*charPx;
-    const fh=(fSz||6)+1;
-    const bx=anchor==='start'?lx:anchor==='end'?lx-fw:lx-fw/2;
-    const box={x1:bx-2,y1:ly-fh-1,x2:bx+fw+2,y2:ly+2};
-    const col2=lblBoxes.some(b=>box.x1<b.x2&&box.x2>b.x1&&box.y1<b.y2&&box.y2>b.y1);
-    if(col2&&!force)return null;
-    lblBoxes.push(box);
-    return{lx,ly,anchor,fw,fh,charPx};
-  }
-
-  // Pass 1: spokes (into spokesH) + circles (into nodesH)
-  for(const nd of NODES){
-    if(!POS[nd.id]||S.hid.has(nd.Linea))continue;
-    const p=POS[nd.id],col=LC[nd.Linea];
-    const hasElev=nd.Elevador==='Si',hasEE=nd.EE==='Si';
-    const isSrc=nd.id===S.src,isTgt2=nd.id===S.tgt,ip=ps&&ps.has(nd.id);
-    const onRoute=ip||isTgt2||isSrc;
-    let r=S.sz?(3+Math.sqrt((+nd.Personas_Afectadas||0)/600)*2.5):3;
-    let fl='var(--node-bg)',sk=col,sw=1.2,op=rt?(onRoute?1:.06):0.72;
-    if(!rt){const flt=S.radFilterMode;const matchF=flt==='all'||(flt==='both'&&(hasElev||hasEE))||(flt==='elev'&&hasElev)||(flt==='ee'&&hasEE);if(!matchF)op*=0.08}
-    if(isSrc){fl='#1a6cc8';sk='#fff';sw=2.5;r=7;op=1}
-    else if(isTgt2){fl='var(--green)';sk='#fff';sw=2.5;r=8;op=1}
-    else if(ip){fl=col;sk='#fff';sw=2;op=1}
-    if(!rt) spokesH+=`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${col}" stroke-width="0.4" opacity="0.07"/>`;
-    nodesH+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fl}" stroke="${sk}" stroke-width="${sw}" opacity="${op}" class="nd" data-id="${nd.id}" style="cursor:pointer"/>`;
-  }
-
-  // Pass 2: labels into labelsH — only route nodes
-  if(rt){
-    const labelNodes=[...NODES].filter(nd=>{
-      if(!POS[nd.id]||S.hid.has(nd.Linea)) return false;
-      return nd.id===S.src||nd.id===S.tgt||ps.has(nd.id);
-    });
-    labelNodes.sort((a,b)=>{
-      const rank=id=>(id===S.src||id===S.tgt)?0:1;
-      return rank(a.id)-rank(b.id);
-    });
-    for(const nd of labelNodes){
-      const p=POS[nd.id];
-      const isSrc=nd.id===S.src,isTgt2=nd.id===S.tgt;
-      const acc=nd.Accesibilidad==='Si';
-      let r=S.sz?(3+Math.sqrt((+nd.Personas_Afectadas||0)/600)*2.5):3;
-      if(isSrc)r=7; else if(isTgt2)r=8;
-      const dn=nd.id.replace(/_(\d+|[AB])$/,'').replace(/_/g,' ');
-      const isKey=isSrc||isTgt2;
-      const fillCol=isSrc?'#1a6cc8':isTgt2?'var(--green)':'var(--lbl)';
-      const fW=isKey?500:300;
-      const fSize=isKey?7.5:6;
-      const alreadyLabeled=labeledNames.has(dn)&&!isKey;
-      if(!alreadyLabeled){
-        const lp=radLbl(p,r,dn,isKey,fSize);
-        if(lp){
-          labeledNames.add(dn);
-          labelsH+=`<rect x="${lp.anchor==='start'?lp.lx-2:lp.anchor==='end'?lp.lx-lp.fw-2:lp.lx-lp.fw/2-2}" y="${lp.ly-lp.fh-1}" width="${lp.fw+4}" height="${lp.fh+3}" rx="1.5" fill="var(--bg)" opacity="0.88"/>`;
-          labelsH+=`<text x="${lp.lx}" y="${lp.ly}" text-anchor="${lp.anchor}" fill="${fillCol}" font-size="${fSize}" font-family="'DM Sans'" font-weight="${fW}">${dn}</text>`;
-          if(p.dist!=null&&isKey){
-            const dStr=p.dist.toFixed(1)+' km';
-            const dw=dStr.length*3.4;
-            labelsH+=`<rect x="${lp.anchor==='start'?lp.lx-2:lp.anchor==='end'?lp.lx-dw-2:lp.lx-dw/2-2}" y="${lp.ly+1}" width="${dw+4}" height="8" rx="1.5" fill="var(--bg)" opacity="0.7"/>`;
-            labelsH+=`<text x="${lp.lx}" y="${lp.ly+8}" text-anchor="${lp.anchor}" fill="var(--text3)" font-size="5" font-family="var(--mono)" opacity="0.7">${dStr}</text>`;
-          }
-        }
-      }
-      if(acc) labelsH+=svgWheelchair(p.x+r+2,p.y+4,'#888');
-    }
-  }
-
-  // ── Route lines into routeH — rendered AFTER labels so lines are always on top ──
-  if(rt&&rt.path.length>1){
-    for(let i=0;i<rt.path.length-1;i++){
-      const a=rt.path[i],b=rt.path[i+1];
-      const pa=POS[a],pb=POS[b];if(!pa||!pb)continue;
-      const na=N(a);
-      routeH+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${na?LC[na.Linea]:'var(--accent)'}" stroke-width="3" stroke-linecap="round" opacity="0.95"/>`;
-    }
-  }
-
-  // ── Off-system segment: dashed line + labeled text with background ──
-  if(rt&&S.pcd){
-    const srcNd=N(S.src);const tgtNd=N(S.tgt);
-    const offLabels=[];
-    function offSegment(pA,pB){
-      if(!pA||!pB)return;
-      routeH+=`<line x1="${pA.x}" y1="${pA.y}" x2="${pB.x}" y2="${pB.y}" stroke="var(--text)" stroke-width="1.4" stroke-dasharray="1.5,4" stroke-linecap="round" opacity="0.6"/>`;
-      const mx=(pA.x+pB.x)/2,my=(pA.y+pB.y)/2;
-      offLabels.push({mx,my});
-    }
-    if(srcNd&&srcNd.Accesibilidad!=='Si'&&S.radNearestAccSrc&&S.radNearestAccSrc!==S.src)
-      offSegment(POS[S.src],POS[S.radNearestAccSrc]);
-    if(tgtNd&&tgtNd.Accesibilidad!=='Si'&&S.radNearestAccTgt&&S.radNearestAccTgt!==S.tgt)
-      offSegment(POS[S.tgt],POS[S.radNearestAccTgt]);
-    // Render off-system labels last — always on top of everything
-    let topH='';
-    const lbl='fuera del sistema del metro';const lw=lbl.length*3.4;
-    offLabels.forEach(({mx,my})=>{
-      topH+=`<rect x="${mx-lw/2-4}" y="${my-14}" width="${lw+8}" height="10" rx="2" fill="var(--bg)" opacity="0.95"/>`;
-      topH+=`<text x="${mx}" y="${my-6}" text-anchor="middle" fill="var(--text)" font-size="5.5" font-family="var(--mono)" font-weight="600" opacity="0.9">${lbl}</text>`;
-    });
-    g.innerHTML=h+spokesH+labelsH+routeH+nodesH+topH;
-    bindNodes();
-    return;
-  }
-
-  // Final render: grid + spokes + labels + route lines + nodes (top layer = clickable)
-  g.innerHTML=h+spokesH+labelsH+routeH+nodesH;
-  bindNodes();
-}
-
-function bindNodes(){
-  document.getElementById('gM').querySelectorAll('.nd').forEach(el=>{
-    el.addEventListener('click',e=>{e.stopPropagation();clN(el.dataset.id)});
-    el.addEventListener('mouseenter',e=>sT(e,el.dataset.id));el.addEventListener('mousemove',e=>mT(e));el.addEventListener('mouseleave',hT)});
-}
-
-// ═══════ PAN & ZOOM ═══════
-function aZ(){document.getElementById('gM').setAttribute('transform',`translate(${Z.x},${Z.y}) scale(${Z.s})`)}
-(function(){const cv=document.getElementById('cv'),svg=document.getElementById('svg');let dr=false,sx,sy,zx,zy;
-  svg.addEventListener('mousedown',e=>{if(e.target.classList.contains('nd'))return;dr=true;sx=e.clientX;sy=e.clientY;zx=Z.x;zy=Z.y});
-  window.addEventListener('mousemove',e=>{if(!dr)return;Z.x=zx+(e.clientX-sx);Z.y=zy+(e.clientY-sy);aZ()});
-  window.addEventListener('mouseup',()=>dr=false);
-  cv.addEventListener('wheel',e=>{if(document.querySelector('.main.intro'))return;e.preventDefault();const r=svg.getBoundingClientRect();const mx2=e.clientX-r.left,my2=e.clientY-r.top;const d=e.deltaY>0?.9:1.1;const ns=Math.max(.1,Math.min(6,Z.s*d));Z.x=mx2-(mx2-Z.x)*(ns/Z.s);Z.y=my2-(my2-Z.y)*(ns/Z.s);Z.s=ns;aZ()},{passive:false});
-  document.getElementById('zi').addEventListener('click',()=>{Z.s=Math.min(6,Z.s*1.3);aZ()});
-  document.getElementById('zo').addEventListener('click',()=>{Z.s=Math.max(.1,Z.s/1.3);aZ()});
-  document.getElementById('zf').addEventListener('click',()=>{Z.x=0;Z.y=0;Z.s=1;aZ()});
-})();
-
-// ═══════ INTERACTION ═══════
-function clN(id){
-  if(S.mode==='rad'){
-    S.tgt=id;if(acTgt)acTgt.set(id);calc();return;
-  }
-  if(!S.src){S.src=id;if(acSrc)acSrc.set(id)}
-  else if(!S.tgt&&id!==S.src){S.tgt=id;if(acTgt)acTgt.set(id);calc();return}
-  else{S.src=id;S.tgt=null;S.routes=[];S.sel=null;if(acSrc)acSrc.set(id);if(acTgt)acTgt.clear();rRL()}
-  render();
-}
-function calc(){
-  S.radNearestAccTgt=null;S.radNearestAccSrc=null;S.radEffSrc=null;S.radEffTgt=null;
-  if(S.src&&S.tgt){
-    let effSrc=S.src,effTgt=S.tgt;
-    if(S.mode==='rad'){
-      // Always compute nearest accessible to destination (for display regardless of pcd)
-      const tgtNd=N(S.tgt);
-      if(tgtNd){
-        let minD=Infinity;
-        NODES.forEach(n=>{if(n.Accesibilidad!=='Si')return;const d=hav(+tgtNd.lat,+tgtNd.lng,+n.lat,+n.lng);if(d<minD){minD=d;S.radNearestAccTgt=n.id}});
-      }
-      if(S.pcd){
-        // Origin: use it if accessible; otherwise find nearest accessible to it
-        const srcNd=N(S.src);
-        if(srcNd&&srcNd.Accesibilidad==='Si'){
-          effSrc=S.src;
-          S.radNearestAccSrc=S.src;
-        } else if(srcNd){
-          let minD=Infinity;
-          NODES.forEach(n=>{if(n.Accesibilidad!=='Si')return;const d=hav(+srcNd.lat,+srcNd.lng,+n.lat,+n.lng);if(d<minD){minD=d;S.radNearestAccSrc=n.id}});
-          if(S.radNearestAccSrc)effSrc=S.radNearestAccSrc;
-        }
-        // Destination: use it if accessible; otherwise use nearest accessible
-        const tgtNd2=N(S.tgt);
-        if(tgtNd2&&tgtNd2.Accesibilidad==='Si'){effTgt=S.tgt}
-        else if(S.radNearestAccTgt){effTgt=S.radNearestAccTgt}
-      }
-      S.radEffSrc=effSrc;S.radEffTgt=effTgt;
-    }
-    // In radial mode with pcd, intermediate edges are unrestricted (only endpoints snapped)
-    const a=bAdj(S.pcd&&S.mode!=='rad');
-    S.routes=fR(effSrc,effTgt,a);S.sel=S.routes.length?0:null;
-  }
-  rRL();render();
-}
-
-function sT(e,id){const nd=N(id);if(!nd)return;const t=document.getElementById('tip');
-  const dn=id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
-  const hasElev=nd.Elevador==='Si',hasEE=nd.EE==='Si',acc=nd.Accesibilidad==='Si';
-  let h=`<div class="tn">${dn}</div>`;
-  h+=`<div class="tr2"><span class="tk3">Línea</span><span class="tv" style="color:${LC[nd.Linea]}">${LN[nd.Linea]}</span></div>`;
-  // Accessibility features — prominent block
-  h+=`<div style="margin:5px 0 3px;padding:4px 6px;background:${acc?'rgba(61,122,66,.12)':'rgba(166,48,37,.07)'};border-radius:4px;border-left:2px solid ${acc?'var(--green)':'var(--red)'}">`;
-  h+=`<div style="font-size:10px;font-weight:700;color:${acc?'var(--green)':'var(--red)'}">♿ ${acc?'Estación accesible':'Sin accesibilidad total'}</div>`;
-  if(hasElev) h+=`<div style="font-size:9px;color:var(--text2);margin-top:2px">🛗 Elevador disponible</div>`;
-  if(hasEE)   h+=`<div style="font-size:9px;color:var(--text2);margin-top:2px">🪜 Escaleras eléctricas</div>`;
-  if(!hasElev&&!hasEE&&acc) h+=`<div style="font-size:9px;color:var(--text3);margin-top:2px">Sin elevador ni escaleras eléctricas</div>`;
-  h+=`</div>`;
-  const pa=+nd.Personas_Afectadas;if(pa)h+=`<div class="tr2"><span class="tk3" style="font-size:8px;line-height:1.3">Personas con discapacidad o limitación motriz · radio 1km</span><span class="tv">${pa.toLocaleString()}</span></div>`;
-  if(S.mode==='rad'&&POS[nd.id]?.dist!=null)h+=`<div class="tr2"><span class="tk3">Distancia</span><span class="tv">${POS[nd.id].dist.toFixed(2)} km</span></div>`;
-  t.innerHTML=h;t.style.left=(e.clientX+10)+'px';t.style.top=(e.clientY-6)+'px';t.classList.add('show')}
-function mT(e){const t=document.getElementById('tip');t.style.left=(e.clientX+10)+'px';t.style.top=(e.clientY-6)+'px'}
-function hT(){document.getElementById('tip').classList.remove('show')}
-
-function rRL(){const c=document.getElementById('rli'),n=document.getElementById('rcc');
-  if(!S.src||!S.tgt){c.innerHTML='<div class="nrt">Selecciona origen y destino</div>';n.textContent='';return}
-  if(!S.routes.length){c.innerHTML=`<div class="nrt" style="color:var(--red)">${S.pcd?'Sin ruta accesible ♿':'Sin ruta'}</div>`;n.textContent='0';return}
-  n.textContent=`(${S.routes.length})`;let h='';
-  const nm=id=>id?id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,''):'—';
-
-  // ── Radial accessibility info box ──
-  if(S.mode==='rad'){
-    const srcNd=N(S.src);const tgtNd=N(S.tgt);
-    const srcIsAcc=srcNd&&srcNd.Accesibilidad==='Si';
-    const tgtIsAcc=tgtNd&&tgtNd.Accesibilidad==='Si';
-    const accSrcId=S.radNearestAccSrc;const accTgtId=S.radNearestAccTgt;
-    const accSrcNd=accSrcId?N(accSrcId):null;const accTgtNd=accTgtId?N(accTgtId):null;
-    h+=`<div class="rad-ee-box"><div class="rad-ee-title">Accesibilidad de acceso</div>`;
-    if(S.pcd){
-      // Origin row
-      if(srcIsAcc){
-        h+=`<div class="rad-ee-row"><span class="rad-ee-dot" style="background:var(--green)"></span><span class="rad-ee-lbl">Origen:</span><span class="rad-ee-val" style="color:var(--green);font-weight:700">${nm(S.src)} ✓</span></div>`;
-      } else {
-        h+=`<div class="rad-ee-row"><span class="rad-ee-dot" style="background:var(--orange)"></span><span class="rad-ee-lbl">Origen:</span><span class="rad-ee-val" style="color:var(--orange)">${nm(S.src)}</span></div>`;
-        if(accSrcId&&accSrcId!==S.src){
-          h+=`<div class="rad-ee-ext">`;
-          h+=`<span class="rad-ee-ext-line">┆</span>`;
-          h+=`<div class="rad-ee-ext-body"><div class="rad-ee-ext-tag">fuera del sistema del metro</div>`;
-          h+=`<div class="rad-ee-ext-dest">Siguiente est. accesible:<br><strong style="color:var(--green)">${nm(accSrcId)}</strong></div></div></div>`;
-        }
-      }
-      // Destination row
-      if(tgtIsAcc){
-        h+=`<div class="rad-ee-row" style="margin-top:4px"><span class="rad-ee-dot" style="background:var(--green)"></span><span class="rad-ee-lbl">Destino:</span><span class="rad-ee-val" style="color:var(--green);font-weight:700">${nm(S.tgt)} ✓</span></div>`;
-      } else {
-        h+=`<div class="rad-ee-row" style="margin-top:4px"><span class="rad-ee-dot" style="background:var(--orange)"></span><span class="rad-ee-lbl">Destino:</span><span class="rad-ee-val" style="color:var(--orange)">${nm(S.tgt)}</span></div>`;
-        if(accTgtId&&accTgtId!==S.tgt){
-          h+=`<div class="rad-ee-ext">`;
-          h+=`<span class="rad-ee-ext-line">┆</span>`;
-          h+=`<div class="rad-ee-ext-body"><div class="rad-ee-ext-tag">fuera del sistema del metro</div>`;
-          h+=`<div class="rad-ee-ext-dest">Siguiente est. accesible:<br><strong style="color:var(--green)">${nm(accTgtId)}</strong></div></div></div>`;
-        }
-      }
-    } else {
-      const showAcc=id=>id?`<span class="rad-ee-val" style="color:var(--green)">${nm(id)}</span>`:`<span class="rad-ee-val" style="color:var(--text3)">—</span>`;
-      h+=`<div class="rad-ee-row"><span class="rad-ee-lbl">Entrada acc.:</span>${showAcc(accSrcId||S.src)}</div>`;
-      h+=`<div class="rad-ee-row"><span class="rad-ee-lbl">Salida acc.:</span>${showAcc(accTgtId||S.tgt)}</div>`;
-    }
-    h+=`</div>`;
-  }
-
-  // ── Route cards — typography hierarchy (point 7) ──
-  const hiSrc=S.radEffSrc||S.src;const hiTgt=S.radEffTgt||S.tgt;
-  S.routes.forEach((r,i)=>{h+=`<div class="rc${S.sel===i?' sel':''}" data-i="${i}"><div class="rlb">Ruta ${i+1} · ${r.distance} est.${S.pcd?' ♿':''}</div><div class="rp">`;
-    r.path.forEach((nid,pi)=>{
-      if(pi>0){const pv=r.path[pi-1],pn=N(pv),cn=N(nid);if(gbn(pv)===gbn(nid)&&pn&&cn&&pn.Linea!==cn.Linea)h+='<span class="rt3">⇌</span>';else h+='<span class="ra">→</span>'}
-      const isSt=nid===hiSrc,isTt=nid===hiTgt;
-      const cls=isSt?' rs':isTt?' rt':'';
-      const stNm=nid.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
-      const nd2=N(nid);const lineCol=nd2?LC[nd2.Linea]:'#888';
-      // Accessibility: small SVG icon inline (only elevator/EE, skip if none)
-      let accMark='';
-      if(nd2&&nd2.Elevador==='Si')accMark='<span class="rn-icon" title="Elevador">▲</span>';
-      else if(nd2&&nd2.EE==='Si')accMark='<span class="rn-icon" title="Esc.Eléctricas">≋</span>';
-      else if(nd2&&nd2.Accesibilidad==='Si')accMark='<span class="rn-icon" title="Accesible">○</span>';
-      h+=`<span class="rn${cls}" style="border-left:2px solid ${lineCol}" title="L${nd2?nd2.Linea:''}">${stNm}${accMark}</span>`;
-    });
-    h+='</div></div>'});
-  c.innerHTML=h;c.querySelectorAll('.rc').forEach(cd=>{cd.addEventListener('click',()=>{S.sel=+cd.dataset.i;rRL();render()})})}
-
-// ═══════ AUTOCOMPLETE ═══════
-let acSrc=null,acTgt=null;
-function initAC(inputId,listId,stateKey){
-  const input=document.getElementById(inputId);
-  const list=document.getElementById(listId);
-  const all=[];LD.forEach(lid=>(LO[lid]||[]).forEach(n=>all.push(n)));
-  function show(q){
-    list.innerHTML='';
-    const qt=q.toLowerCase().trim();
-    if(!qt){list.classList.remove('show');return}
-    const ms=all.filter(n=>n.id.replace(/_/g,' ').toLowerCase().includes(qt)).slice(0,12);
-    if(!ms.length){list.classList.remove('show');return}
-    ms.forEach(n=>{
-      const li=document.createElement('li');li.className='ac-item';
-      const nm=n.id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');
-      li.innerHTML=`<span class="ac-dot" style="background:${LC[n.Linea]}"></span><span class="ac-nm">${nm}</span><span class="ac-meta">L${n.Linea}${n.Accesibilidad==='Si'?' ♿':''}</span>`;
-      li.addEventListener('mousedown',e=>{e.preventDefault();
-        input.value=nm;S[stateKey]=n.id;list.classList.remove('show');
-        if(S.src&&S.tgt)calc();else{S.routes=[];S.sel=null;rRL();render()}
-      });
-      list.appendChild(li);
-    });
-    list.classList.add('show');
-  }
-  input.addEventListener('input',()=>show(input.value));
-  input.addEventListener('focus',()=>{if(input.value)show(input.value)});
-  input.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('show'),150));
-  return{
-    set(id){if(!id){input.value='';return}const nd=NODES.find(n=>n.id===id);if(nd){const nm=id.replace(/_/g,' ').replace(/ (1|2|3|4|5|6|7|8|9|12|A|B)$/,'');input.value=nm;}},
-    clear(){input.value='';list.classList.remove('show');}
-  };
-}
-
-// ═══════ UI ═══════
-function initUI(){
-  const all=[];LD.forEach(lid=>(LO[lid]||[]).forEach(n=>all.push(n)));
-
-  // Autocomplete for origin and destination
-  acSrc=initAC('ss-in','ss-ac','src');
-  acTgt=initAC('st-in','st-ac','tgt');
-
-  // Lines panel — left side of map
-  const lp=document.getElementById('linesPanel');
-  const lg=document.getElementById('leg');
-  LD.forEach(lid=>{const el=document.createElement('div');el.className='li';el.dataset.l=lid;el.innerHTML=`<div class="lsw" style="background:${LC[lid]}"></div><span>L${lid}</span>`;
-    el.addEventListener('click',()=>{if(S.hid.has(lid)){S.hid.delete(lid);el.classList.remove('dim')}else{S.hid.add(lid);el.classList.add('dim')}render()});lg.appendChild(el)});
-
-  function switchView(v){
-    document.querySelectorAll('#vp .p[data-v]').forEach(x=>x.classList.remove('on'));
-    document.querySelectorAll('#ovMenu .ov-opt').forEach(x=>x.classList.remove('on'));
-    const tab=document.querySelector(`#vp .p[data-v="${v}"]`);
-    if(tab)tab.classList.add('on');
-    else{const opt=document.querySelector(`.ov-opt[data-v="${v}"]`);if(opt)opt.classList.add('on');document.getElementById('ovBtn').classList.add('on');}
-    S.mode=v;Z.x=0;Z.y=0;Z.s=1;
-    document.getElementById('radPanel').classList.toggle('show',S.mode==='rad');
-    lp.classList.toggle('show',S.mode!=='intro');
-    S.src=null;S.tgt=null;S.routes=[];S.sel=null;
-    S.radNearestAccTgt=null;S.radNearestAccSrc=null;S.radEffSrc=null;S.radEffTgt=null;
-    if(acSrc)acSrc.clear();if(acTgt)acTgt.clear();
-    document.getElementById('ovMenu').classList.remove('show');
-    cL();rRL();render();
-    if(v==='intro'){
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        if(typeof V3!=='undefined') V3.draw();
-        if(typeof NV!=='undefined') NV.init();
-        if(typeof initAccScript!=='undefined') initAccScript();
-      }));
-    }
-  }
-  document.querySelectorAll('#vp .p[data-v]').forEach(p=>{p.addEventListener('click',()=>switchView(p.dataset.v))});
-  // "Otras vistas" dropdown
-  const ovBtn=document.getElementById('ovBtn');const ovMenu=document.getElementById('ovMenu');
-  ovBtn.addEventListener('click',e=>{e.stopPropagation();ovMenu.classList.toggle('show')});
-  document.querySelectorAll('.ov-opt').forEach(opt=>{opt.addEventListener('click',()=>switchView(opt.dataset.v))});
-  document.addEventListener('click',e=>{if(!e.target.closest('.ov-wrap'))ovMenu.classList.remove('show')});
-
-  document.getElementById('ps').addEventListener('click',function(){S.sz=!S.sz;this.classList.toggle('on',S.sz);render()});
-  document.getElementById('pt').addEventListener('click',function(){document.body.classList.toggle('light');const isL=document.body.classList.contains('light');this.classList.toggle('on',isL);this.textContent=isL?'🌙 Oscuro':'☀ Claro';render()});
-  document.getElementById('pw').addEventListener('click',()=>document.getElementById('wp').classList.toggle('show'));
-  document.getElementById('wcc').addEventListener('click',()=>document.getElementById('wp').classList.remove('show'));
-  document.getElementById('tgp').addEventListener('click',()=>{S.pcd=!S.pcd;document.getElementById('tkp').classList.toggle('on',S.pcd);if(S.src&&S.tgt)calc();else render()});
-  document.getElementById('bf').addEventListener('click',calc);
-  document.getElementById('bc').addEventListener('click',()=>{
-    S.src=null;S.tgt=null;S.routes=[];S.sel=null;
-    S.radNearestAccTgt=null;S.radNearestAccSrc=null;S.radEffSrc=null;S.radEffTgt=null;
-    if(acSrc)acSrc.clear();if(acTgt)acTgt.clear();rRL();render()});
-  document.querySelectorAll('#radFilter .rfb').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('#radFilter .rfb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');S.radFilterMode=btn.dataset.f;render()})});
-
-  // ── Fullscreen ──
-  const pfs=document.getElementById('pfs');
-  pfs.addEventListener('click',()=>{
-    if(!document.fullscreenElement){
-      document.documentElement.requestFullscreen().catch(()=>{});
-      pfs.textContent='✕ Salir pantalla completa';pfs.classList.add('on');
-    }else{
-      document.exitFullscreen().catch(()=>{});
-      pfs.textContent='⛶ Pantalla completa';pfs.classList.remove('on');
-    }
-  });
-  document.addEventListener('fullscreenchange',()=>{
-    if(!document.fullscreenElement){pfs.textContent='⛶ Pantalla completa';pfs.classList.remove('on');}
-  });
-
-  // ── Export menu toggle ──
-  const pdl=document.getElementById('pdl'),dlMenu=document.getElementById('dlMenu');
-  pdl.addEventListener('click',e=>{e.stopPropagation();dlMenu.classList.toggle('show');pdl.classList.toggle('on',dlMenu.classList.contains('show'))});
-  document.addEventListener('click',()=>{dlMenu.classList.remove('show');pdl.classList.remove('on')});
-
-  // ── Build resolved SVG string for export ──
-  function buildExportSvg(){
-    const svg=document.getElementById('svg');
-    const g=document.getElementById('gM');
-    const w=+svg.getAttribute('width')||1020;
-    const h=+svg.getAttribute('height')||1020;
-
-    // Resolve CSS custom properties from body (handles dark/light mode correctly)
-    const cs=getComputedStyle(document.body);
-    const varNames=['--bg','--panel','--card','--border','--text','--text2','--text3',
-      '--accent','--green','--orange','--red','--node-bg','--lbl','--tcol','--mono','--sans'];
-    const vars={};
-    varNames.forEach(v=>{vars[v]=cs.getPropertyValue(v).trim()||getComputedStyle(document.documentElement).getPropertyValue(v).trim()});
-
-    const bgColor=vars['--bg']||(document.body.classList.contains('light')?'#F4F3E9':'#040404');
-    const transform=g.getAttribute('transform')||'';
-
-    // Clone inner content and replace all var(--xxx) with computed values
-    let inner=g.innerHTML;
-    inner=inner.replace(/var\((--[\w-]+)\)/g,(_,name)=>vars[name]||'');
-
-    // Font embed: reference Google Fonts so SVG viewers with internet render correctly
-    const fontUrl='https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700';
-    const defs=`<defs><style>@import url("${fontUrl}");</style></defs>`;
-
-    const svgOut=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${defs}<rect width="${w}" height="${h}" fill="${bgColor}"/><g transform="${transform}">${inner}</g></svg>`;
-    return {svgOut,w,h};
-  }
-
-  // ── Export SVG ──
-  document.getElementById('dlSvg').addEventListener('click',()=>{
-    dlMenu.classList.remove('show');pdl.classList.remove('on');
-    const {svgOut}=buildExportSvg();
-    const blob=new Blob([svgOut],{type:'image/svg+xml;charset=utf-8'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-    a.download=`metro-cdmx-${S.mode}.svg`;a.click();URL.revokeObjectURL(a.href);
-  });
-
-  // ── Export PNG ──
-  document.getElementById('dlPng').addEventListener('click',()=>{
-    dlMenu.classList.remove('show');pdl.classList.remove('on');
-    const {svgOut,w,h}=buildExportSvg();
-    const scale=2;
-    // Encode as data URI — use encodeURIComponent to handle Unicode/special chars
-    const dataUri='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgOut);
-    const img=new Image();
-    img.onload=()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=w*scale;canvas.height=h*scale;
-      const ctx=canvas.getContext('2d');
-      // Fill background explicitly on canvas in case SVG background is missed
-      ctx.fillStyle=document.body.classList.contains('light')?'#F4F3E9':'#040404';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.scale(scale,scale);
-      ctx.drawImage(img,0,0);
-      const a=document.createElement('a');a.href=canvas.toDataURL('image/png');
-      a.download=`metro-cdmx-${S.mode}.png`;a.click();
-    };
-    img.onerror=()=>alert('Error al generar PNG. Intenta con SVG.');
-    img.src=dataUri;
-  });
-}
-
-load().catch(e=>{document.getElementById('si').textContent='Error: '+e.message;console.error(e)});
-</script>
-
-<script>
-
-// ═══════════════════════════════════════════════
-// V3 — Dot-plot: afluencia + accesibilidad
-// ═══════════════════════════════════════════════
-const V3 = (function(){
-  'use strict';
-
-  // ─── DATA ───────────────────────────────────
-  // [id, linea, afluencia_diaria, elevador_bool, ee_bool]
-  const RAW = [
-    // L1 — geografico: Observatorio → Pantitlán
-    ['Observatorio','1',3852,1,0],['Tacubaya','1',1810,1,1],['Juanacatlan','1',663,1,0],
-    ['Chapultepec','1',28346,1,0],['Sevilla','1',12673,1,1],['Insurgentes','1',21349,1,0],
-    ['Cuauhtemoc','1',8504,1,1],['Balderas','1',16122,1,1],['Salto_del_Agua','1',11552,1,1],
-    ['Isabel_la_Catolica','1',13393,0,1],['Pino_Suarez','1',24531,1,1],['Merced','1',34708,1,0],
-    ['Candelaria','1',16886,0,0],['Moctezuma','1',16633,1,1],['Balbuena','1',7460,1,1],
-    ['Boulevard_Puerto_Aereo','1',16507,1,0],['Gomez_Farias','1',19936,0,1],
-    ['Zaragoza','1',23108,0,0],['San_Lazaro','1',19326,0,0],['Pantitlan','1',31559,0,0],
-    // L2 — Cuatro Caminos → Tasqueña
-    ['Cuatro_Caminos','2',96300,1,1],['Panteones','2',10210,0,0],['Tacuba','2',29416,0,1],
-    ['Normal','2',28126,0,1],['Colegio_Militar','2',13224,0,1],['Popotla','2',8069,0,1],
-    ['Cuitlahuac','2',13402,0,1],['San_Cosme','2',18490,0,0],['Revolucion','2',25745,1,1],
-    ['Hidalgo','2',25817,0,1],['Bellas_Artes','2',26238,0,1],['Allende','2',27088,0,1],
-    ['Zocalo','2',36840,0,1],['Pino_Suarez','2',30103,1,1],['San_Antonio_Abad','2',16348,0,1],
-    ['Chabacano','2',21997,1,1],['Viaducto','2',14965,0,1],['Xola','2',17434,0,1],
-    ['Villa_de_Cortes','2',15149,0,1],['Nativitas','2',17004,0,1],['Portales','2',17563,0,1],
-    ['Ermita','2',13399,1,1],['General_Anaya','2',18454,0,1],['Tasquena','2',53150,0,1],
-    // L3 — Indios Verdes → Universidad
-    ['Indios_Verdes','3',88700,0,0],['Deportivo_18_de_Marzo','3',25596,0,0],
-    ['Potrero','3',12559,0,0],['La_Raza','3',27620,1,0],['Tlatelolco','3',14573,0,0],
-    ['Guerrero','3',7402,0,1],['Hidalgo','3',15622,1,0],['Juarez','3',13118,1,1],
-    ['Balderas','3',11223,1,1],['Centro_Medico','3',15374,1,1],['Hospital_General','3',16072,1,1],
-    ['Ninos_Heroes','3',17416,0,0],['Etiopia','3',21450,1,0],['Eugenia','3',11543,0,0],
-    ['Division_del_Norte','3',12609,0,0],['Zapata','3',15584,0,0],['Coyoacan','3',24616,0,0],
-    ['Viveros','3',17238,0,0],['Miguel_Angel_de_Quevedo','3',29455,0,1],
-    ['Copilco','3',30148,1,1],['Universidad','3',51704,0,0],
-    // L4 — Martín Carrera → Santa Anita
-    ['Martin_Carrera','4',20581,0,0],['Talisman','4',3023,0,0],['Bondojito','4',5098,0,0],
-    ['Consulado','4',3186,0,1],['Canal_del_Norte','4',6710,0,0],['Morelos','4',6267,0,1],
-    ['Candelaria','4',7899,0,0],['Fray_Servando','4',7857,0,1],['Jamaica','4',6365,0,1],
-    ['Santa_Anita','4',1774,0,1],
-    // L5 — Politécnico → Pantitlán
-    ['Politecnico','5',24499,0,0],['Instituto_del_Petroleo','5',5001,0,0],
-    ['La_Raza','5',8492,1,0],['Misterios','5',6649,0,0],['Valle_Gomez','5',3919,0,0],
-    ['Autobuses_del_Norte','5',18178,1,0],['Consulado','5',4238,0,0],
-    ['Eduardo_Molina','5',6072,0,0],['Aragon','5',6233,0,0],['Oceania','5',7398,0,0],
-    ['Terminal_Aerea','5',14673,0,0],['Hangares','5',4438,0,0],['Pantitlan','5',45674,0,0],
-    // L6 — El Rosario → Martín Carrera
-    ['El_Rosario','6',13946,1,0],['Tezozomoc','6',5107,0,0],['Azcapotzalco','6',6777,0,0],
-    ['Vallejo','6',6606,0,0],['Norte_45','6',5287,0,0],['Ferreria','6',18299,0,0],
-    ['Instituto_del_Petroleo','6',2663,0,0],['Lindavista','6',13902,0,0],
-    ['Deportivo_18_de_Marzo','6',1354,0,1],['La_Villa','6',10624,0,1],
-    ['Martin_Carrera','6',21836,0,1],
-    // L7 — El Rosario → Barranca del Muerto
-    ['El_Rosario','7',27148,1,0],['Aquiles_Serdan','7',11814,0,1],['Camarones','7',12042,0,1],
-    ['Refineria','7',8793,0,1],['Tacuba','7',7218,0,1],['San_Joaquin','7',22851,0,1],
-    ['Polanco','7',33665,0,1],['Auditorio','7',31020,0,1],['Constituyentes','7',13317,0,1],
-    ['Tacubaya','7',6232,0,1],['San_Pedro_de_los_Pinos','7',10384,0,1],
-    ['San_Antonio','7',11012,0,1],['Mixcoac','7',16555,0,1],['Barranca_del_Muerto','7',31595,0,1],
-    // L8 — Garibaldi → Constitución de 1917
-    ['Garibaldi','8',16562,0,1],['Bellas_Artes','8',17018,0,1],['San_Juan_de_Letran','8',22171,0,0],
-    ['Salto_del_Agua','8',12294,0,1],['Doctores','8',9810,0,0],['Obrera','8',11297,0,0],
-    ['Chabacano','8',3537,1,1],['La_Viga','8',6304,0,0],['Santa_Anita','8',4086,0,0],
-    ['Coyuya','8',23632,1,0],['Iztacalco','8',15351,1,0],['Apatlaco','8',11246,0,0],
-    ['Aculco','8',7579,0,0],['Escuadron_201','8',17940,0,0],['Atlalilco','8',12675,1,0],
-    ['Iztapalapa','8',9271,0,0],['Cerro_de_la_Estrella','8',9919,0,0],
-    ['UAM','8',21068,0,0],['Constitucion_de_1917','8',91959,1,0],
-    // L9 — Tacubaya → Pantitlán
-    ['Tacubaya','9',59437,0,1],['Patriotismo','9',16366,0,0],['Chilpancingo','9',36930,0,1],
-    ['Centro_Medico','9',13152,1,1],['Lazaro_Cardenas','9',10562,0,0],
-    ['Chabacano','9',7676,0,1],['Jamaica','9',10752,0,1],['Mixiuhca','9',19407,0,0],
-    ['Velodromo','9',7943,1,1],['Ciudad_Deportiva','9',6220,1,1],['Puebla','9',25593,0,1],
-    ['Pantitlan','9',44820,0,1],
-    // L12 — Mixcoac → Tláhuac (todos tienen ambos)
-    ['Mixcoac','12',14371,1,1],['Insugentes_Sur','12',31297,1,1],['Eje_Central','12',10706,1,1],
-    ['Parque_de_los_Venados','12',9537,1,1],['Zapata','12',12415,1,1],
-    ['Hospital_20_de_Noviembre','12',9571,1,1],['Mexilcalcingo','12',15094,1,1],
-    ['Ermita','12',8347,1,1],['Atlalilco','12',11948,1,1],['San_Andres_Tomatlan','12',9441,1,1],
-    ['Culhuacan','12',14912,1,1],['Lomas_Estrella','12',8563,1,1],['Calle_11','12',11716,1,1],
-    ['Periferico_Oriente','12',30853,1,1],['Tezonco','12',20502,1,1],['Olivos','12',14581,1,1],
-    ['Nopalera','12',21407,1,1],['Zapotitlan','12',11848,1,1],['Tlaltenco','12',4640,1,1],
-    ['Tlahuac','12',53267,1,1],
-    // LA — Pantitlán → Santa Marta
-    ['Pantitlan','A',30336,1,0],['Agricola_Oriental','A',10147,0,0],['Penon_Viejo','A',11557,0,0],
-    ['Guelatao','A',17376,0,0],['Tepalcates','A',23232,1,0],['Canal_de_San_Juan','A',11160,0,0],
-    ['Los_Reyes','A',18729,0,0],['La_Paz','A',39432,1,0],['Acatitla','A',13803,0,0],
-    ['Santa_Martha','A',35324,1,0],
-    // LB — Buenavista → Impulsora
-    ['Buenavista','B',47576,1,0],['Guerrero','B',6080,0,1],['Morelos','B',4488,0,1],
-    ['San_Lazaro','B',14243,1,1],['Romero_Rubio','B',13985,0,0],
-    ['Ricargo_Flores_Magon','B',5717,0,0],['Tepito','B',18802,0,0],['Lagunilla','B',18201,0,0],
-    ['Garibaldi','B',6416,0,1],['Oceania','B',7646,0,0],['Deportivo_Oceania','B',12085,0,0],
-    ['Bosque_de_Aragon','B',5263,0,0],['Villa_de_Aragon','B',12738,0,0],
-    ['Ciudad_Azteca','B',41220,1,0],['Olimpica','B',14653,0,0],['Ecatepec','B',21467,1,0],
-    ['Muzquiz','B',23939,0,0],['Rio_de_los_Remedios','B',15086,0,0],
-    ['Plaza_Aragon','B',15760,0,0],['Nezahuacoyotl','B',18232,0,0],['Impulsora','B',19741,0,0]
-  ];
-
-  const LINE_COLORS = {
-    '1':'#E4538F','2':'#0069A7','3':'#928A37','4':'#6ABFB0',
-    '5':'#FFCD00','6':'#D32F2F','7':'#ED6D26','8':'#118147',
-    '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'
-  };
-
-  function accCat(e,ee){
-    if(e&&ee) return 'both';
-    if(e||ee) return 'one';
-    return 'none';
-  }
-  function accColor(e,ee){
-    const c=accCat(e,ee);
-    return c==='both'?'#3d7a42':c==='one'?'#c07320':'#a63025';
-  }
-  function fmtName(id){
-    return id.replace(/_/g,' ');
-  }
-  function fmtNum(n){
-    return n.toLocaleString('es-MX');
-  }
-
-  // Lines to show (no B)
-  const LINE_ORDER = ['1','2','3','4','5','6','7','8','9','12','A','B'];
-  const byLine = {};
-  LINE_ORDER.forEach(l=>{ byLine[l]=[]; });
-  RAW.forEach(d=>{ if(byLine[d[1]]) byLine[d[1]].push(d); });
-
-  // ─── RENDER ─────────────────────────────────
-  let tip = null;
-
-  function draw(){
-    const svg = document.getElementById('v3-svg');
-    if(!svg) return;
-    tip = document.getElementById('v3-tip');
-
-    const outer = document.getElementById('v3-outer');
-    const W = Math.max(outer ? outer.offsetWidth : 580, 400);
-    const H = 320;
-    const PAD = {top:28, right:16, bottom:54, left:50};
-
-    svg.setAttribute('width', W);
-    svg.setAttribute('height', H);
-    svg.style.width  = W + 'px';
-    svg.style.height = H + 'px';
-
-    const innerW = W - PAD.left - PAD.right;
-    const innerH = H - PAD.top - PAD.bottom;
-
-    // X: band per line
-    const nLines  = LINE_ORDER.length;
-    const bandW   = innerW / nLines;
-    function lineX(l){ return PAD.left + LINE_ORDER.indexOf(l) * bandW + bandW / 2; }
-
-    // Y scale
-    const allAfl = RAW.map(d=>d[2]);
-    const yMax   = Math.ceil(Math.max(...allAfl) / 10000) * 10000;
-    function yPx(v){ return PAD.top + innerH - (v / yMax) * innerH; }
-
-    // Deterministic jitter within band
-    function jitter(idxInLine, total){
-      const spread = Math.min(bandW * 0.42, 22);
-      if(total <= 1) return 0;
-      return (idxInLine / (total - 1) - 0.5) * 2 * spread;
-    }
-
-    let html = '';
-
-    // ── Grid lines ──
-    [0,20000,40000,60000,80000,100000].filter(t=>t<=yMax).forEach(t=>{
-      const y = yPx(t);
-      const label = t === 0 ? '0' : (t/1000)+'k';
-      html += `<line x1="${PAD.left}" y1="${y}" x2="${W-PAD.right}" y2="${y}"
-        stroke="var(--border)" stroke-width="${t===0?1:.5}" opacity="${t===0?1:.5}"
-        stroke-dasharray="${t===0?'':'4,3'}"/>`;
-      html += `<text x="${PAD.left-5}" y="${y+3.5}" text-anchor="end"
-        font-family="var(--mono)" font-size="8" fill="var(--text3)">${label}</text>`;
-    });
-
-    // ── Y axis label ──
-    html += `<text transform="rotate(-90)" x="${-(PAD.top+innerH/2)}" y="11"
-      text-anchor="middle" font-family="var(--mono)" font-size="7.5" fill="var(--text3)"
-      letter-spacing=".05em">AFLUENCIA DIARIA</text>`;
-
-    // ── X axis: line labels + vertical guide ──
-    const yB = PAD.top + innerH;
-    LINE_ORDER.forEach(l=>{
-      const cx  = lineX(l);
-      const lc  = LINE_COLORS[l] || '#888';
-      // light vertical band
-      html += `<rect x="${cx-bandW/2}" y="${PAD.top}" width="${bandW}" height="${innerH}"
-        fill="${lc}" opacity=".04"/>`;
-      // separator line
-      if(LINE_ORDER.indexOf(l)>0){
-        html += `<line x1="${cx-bandW/2}" y1="${PAD.top}" x2="${cx-bandW/2}" y2="${yB}"
-          stroke="var(--border)" stroke-width=".6" opacity=".5"/>`;
-      }
-      // line number label
-      html += `<text x="${cx}" y="${yB+14}" text-anchor="middle"
-        font-family="var(--mono)" font-size="9.5" font-weight="700"
-        fill="${lc}">${l}</text>`;
-    });
-
-    // X axis title
-    html += `<text x="${PAD.left + innerW/2}" y="${yB+32}" text-anchor="middle"
-      font-family="var(--mono)" font-size="8" fill="var(--text3)"
-      letter-spacing=".1em">LÍNEAS</text>`;
-
-    // ── Compute dot positions first, then decide labels ──
-    const dotPos = []; // {x, y, id, linea, afl, elev, ee, col}
-    LINE_ORDER.forEach(l=>{
-      const stations = byLine[l];
-      stations.forEach((d, idx)=>{
-        const [id, linea, afl, elev, ee] = d;
-        dotPos.push({
-          x: +(lineX(l) + jitter(idx, stations.length)).toFixed(1),
-          y: +yPx(afl).toFixed(1),
-          id, linea, afl, elev, ee,
-          col: accColor(elev, ee)
-        });
-      });
-    });
-
-    // ── Dots ──
-    dotPos.forEach(p=>{
-      html += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="${p.col}" opacity=".82"
-        class="v3-pt"
-        data-id="${p.id}" data-l="${p.linea}" data-afl="${p.afl}" data-e="${p.elev}" data-ee="${p.ee}"
-        style="cursor:pointer"/>`;
-    });
-
-    // ── Station labels (collision-aware) ──
-    // Sort by afluencia desc so top stations get labeled first
-    const labelFontSize = 7;
-    const labelH = labelFontSize + 2;
-    const charW  = labelFontSize * 0.55;
-    const placed = []; // [{lx1,ly1,lx2,ly2}]
-
-    function overlaps(lx1,ly1,lx2,ly2){
-      return placed.some(r=> lx1<r.lx2 && lx2>r.lx1 && ly1<r.ly2 && ly2>r.ly1);
-    }
-
-    [...dotPos].sort((a,b)=>b.afl-a.afl).forEach(p=>{
-      const name  = fmtName(p.id);
-      const tw    = name.length * charW;
-      // try right of dot, then left
-      let lx = p.x + 6, ly = p.y + labelH/2;
-      // keep inside chart
-      if(lx + tw > W - PAD.right) lx = p.x - 6 - tw;
-      if(ly - labelH < PAD.top)   ly = PAD.top + labelH;
-      if(ly > yB)                 ly = yB - 2;
-
-      const box = {lx1:lx-1, ly1:ly-labelH, lx2:lx+tw+1, ly2:ly+2};
-      if(!overlaps(box.lx1,box.ly1,box.lx2,box.ly2)){
-        placed.push(box);
-        html += `<text x="${lx}" y="${ly}" font-family="var(--sans)"
-          font-size="${labelFontSize}" fill="var(--text2)" pointer-events="none"
-          opacity=".85">${name}</text>`;
-      }
-    });
-
-    svg.innerHTML = html;
-
-    // ── Events ──
-    svg.querySelectorAll('.v3-pt').forEach(el=>{
-      el.addEventListener('mouseenter', function(e){
-        const id   = this.getAttribute('data-id');
-        const linea= this.getAttribute('data-l');
-        const afl  = +this.getAttribute('data-afl');
-        const elev = +this.getAttribute('data-e');
-        const ee   = +this.getAttribute('data-ee');
-        const cat  = accCat(elev,ee);
-
-        let accLine = '';
-        if(cat==='both'){
-          accLine = `<span class="v3-ta-g">✓ Elevador y escaleras eléctricas</span>`;
-        } else if(cat==='one'){
-          accLine = elev
-            ? `<span class="v3-ta-o">✓ Elevador</span><br><span style="color:var(--text3)">✗ Sin escaleras eléctricas</span>`
-            : `<span class="v3-ta-o">✓ Escaleras eléctricas</span><br><span style="color:var(--text3)">✗ Sin elevador</span>`;
-        } else {
-          accLine = `<span class="v3-ta-r">✗ Sin equipamiento de accesibilidad</span>`;
-        }
-
-        tip.innerHTML = `<strong>${fmtName(id)}</strong>
-          <span class="v3-tl">Línea ${linea}</span>
-          <span style="font-size:.7rem;color:var(--text2)">${fmtNum(afl)} personas / día</span><br>
-          ${accLine}`;
-        tip.style.opacity = '1';
-        this.setAttribute('r','6');
-        this.style.opacity = '1';
-        moveTip(e);
-      });
-      el.addEventListener('mousemove', moveTip);
-      el.addEventListener('mouseleave', function(){
-        tip.style.opacity = '0';
-        this.setAttribute('r','4');
-        this.style.opacity = '.82';
-      });
-    });
-  }
-
-  function moveTip(e){
-    if(!tip) return;
-    const x = e.clientX + 14;
-    const y = e.clientY - 12;
-    const tw = 215;
-    tip.style.left = Math.min(x, window.innerWidth - tw - 10) + 'px';
-    tip.style.top  = Math.max(y, 10) + 'px';
-  }
-
-  // Draw immediately (DOM already ready — script is at bottom of body)
-  // Re-draw also when switching to intro view
-  draw();
-
-  return { draw };
-})();
-
-</script>
-<script>
-// ═══ Metro Accesibilidad — narrative scripts ═══
-function initAccScript() {
-  if(document.getElementById('introPanel').__accInit) return;
-  document.getElementById('introPanel').__accInit = true;
-// ═══════════════════════════════════════════════
-// PROGRESS BAR
-// ═══════════════════════════════════════════════
-const prog = document.getElementById('acc-prog');
-function updateProg() {
-  const panel = document.getElementById('introPanel');
-  if(!panel) return;
-  const scrollTop  = panel.scrollTop;
-  const docHeight  = panel.scrollHeight - panel.clientHeight;
-  const pct        = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-  prog.style.width = pct + '%';
-}
-document.getElementById('introPanel')?.addEventListener('scroll', updateProg, { passive: true });
-
-// ═══════════════════════════════════════════════
-// NAV — appears after hero
-// ═══════════════════════════════════════════════
-
-// nav removed (handled by index.html header)
-
-// ═══════════════════════════════════════════════
-// SCROLL REVEAL — scroll-based (reliable inside panel)
-// ═══════════════════════════════════════════════
-const panel = document.getElementById('introPanel');
-
-function checkReveals() {
-  const ph = panel.clientHeight;
-  const cutoff = ph * 0.91; // 91% of panel height = trigger zone
-  document.querySelectorAll('.reveal:not(.in), .reveal-wipe:not(.in)').forEach(el => {
-    const r = el.getBoundingClientRect();
-    const pTop = panel.getBoundingClientRect().top;
-    const elTop = r.top - pTop;    // element top relative to panel top
-    const elBot = r.bottom - pTop; // element bottom relative to panel top
-    if (elTop < cutoff && elBot > 0) {
-      el.classList.add('in');
-    }
-  });
-}
-
-panel.addEventListener('scroll', checkReveals, { passive: true });
-// Initial check after a brief delay to allow layout
-requestAnimationFrame(() => requestAnimationFrame(checkReveals));
-
-// ═══════════════════════════════════════════════
-// LINE CARDS — stagger when container scrolls in
-// ═══════════════════════════════════════════════
-const animatedCards = new Set();
-
-function checkCards() {
-  const ph = panel.clientHeight;
-  const pRect = panel.getBoundingClientRect();
-  document.querySelectorAll('.line-cards').forEach(container => {
-    if (animatedCards.has(container)) return;
-    const r = container.getBoundingClientRect();
-    if (r.top - pRect.top < ph && r.bottom - pRect.top > 0) {
-      animatedCards.add(container);
-      const cards = container.querySelectorAll('.line-card');
-      cards.forEach((card, i) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(18px)';
-        card.style.transition = `opacity .6s ${i * .12}s ease, transform .6s ${i * .12}s ease`;
-        card.getBoundingClientRect(); // reflow
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      });
-    }
-  });
-}
-
-panel.addEventListener('scroll', checkCards, { passive: true });
-requestAnimationFrame(() => requestAnimationFrame(checkCards));
-
-// ═══════════════════════════════════════════════
-// STAT COUNTERS — animate numbers on scroll into view
-// ═══════════════════════════════════════════════
-function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-const animatedStats = new Set();
-
-function checkStats() {
-  const ph = panel.clientHeight;
-  const pRect = panel.getBoundingClientRect();
-  document.querySelectorAll('.stat-block').forEach(el => {
-    if (animatedStats.has(el)) return;
-    const r = el.getBoundingClientRect();
-    const elTop = r.top - pRect.top;
-    if (elTop < ph * 0.85 && r.bottom - pRect.top > 0) {
-      animatedStats.add(el);
-      const numEl = el.querySelector('.stat-num');
-      if (!numEl) return;
-      const text = numEl.textContent.trim();
-      if (text === '+100M') {
-        const t0 = performance.now(); const dur = 1200;
-        (function step(now){
-          const p = Math.min((now-t0)/dur,1);
-          numEl.textContent = '+' + Math.round(100 * easeOut(p)) + 'M';
-          if(p<1) requestAnimationFrame(step);
-        })(performance.now());
-      } else if (text === '18.5%') {
-        const t0 = performance.now(); const dur = 1000;
-        (function step(now){
-          const p = Math.min((now-t0)/dur,1);
-          numEl.textContent = (18.5 * easeOut(p)).toFixed(1) + '%';
-          if(p<1) requestAnimationFrame(step);
-        })(performance.now());
-      }
-    }
-  });
-}
-
-panel.addEventListener('scroll', checkStats, { passive: true });
-requestAnimationFrame(() => requestAnimationFrame(checkStats));
-
-// ═══════════════════════════════════════════════
-// ROUTE SCROLLYTELLING — radial polar view
-// ═══════════════════════════════════════════════
-(function(){
-  const LC2={'1':'#E4538F','2':'#0069A7','3':'#928A37','4':'#6ABFB0',
-    '5':'#FFCD00','6':'#D32F2F','7':'#ED6D26','8':'#118147',
-    '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'};
-
-  const R1=[
-    {id:'Pantitlan_5',    nm:'Pantitlán',        ln:'5',lat:19.415359,lng:-99.072132,acc:false,tp:'origin'},
-    {id:'Hangares',       nm:'Hangares',          ln:'5',lat:19.424142,lng:-99.087496,acc:false},
-    {id:'Terminal_Aerea', nm:'Terminal Aérea',    ln:'5',lat:19.433734,lng:-99.087667,acc:false},
-    {id:'Oceania_5',      nm:'Oceanía',           ln:'5',lat:19.445672,lng:-99.087238,acc:false},
-    {id:'Aragon',         nm:'Aragón',            ln:'5',lat:19.451236,lng:-99.095886,acc:false},
-    {id:'Eduardo_Molina', nm:'Eduardo Molina',    ln:'5',lat:19.451378,lng:-99.105434,acc:false},
-    {id:'Consulado_5',    nm:'Consulado',         ln:'5',lat:19.457893,lng:-99.113932,acc:false},
-    {id:'Valle_Gomez',    nm:'Valle Gómez',       ln:'5',lat:19.458742,lng:-99.119296,acc:false},
-    {id:'Misterios',      nm:'Misterios',         ln:'5',lat:19.463315,lng:-99.130797,acc:false},
-    {id:'La_Raza_5',      nm:'La Raza',           ln:'3',lat:19.470153,lng:-99.136891,acc:false,tp:'transfer'},
-    {id:'Tlatelolco',     nm:'Tlatelolco',        ln:'3',lat:19.454979,lng:-99.142814,acc:false},
-    {id:'Guerrero_3',     nm:'Guerrero',          ln:'3',lat:19.445146,lng:-99.145389,acc:false},
-    {id:'Hidalgo_3',      nm:'Hidalgo',           ln:'3',lat:19.437295,lng:-99.147105,acc:false},
-    {id:'Juarez',         nm:'Juárez',            ln:'3',lat:19.433167,lng:-99.147792,acc:true},
-    {id:'Balderas_3',     nm:'Balderas',          ln:'3',lat:19.42744, lng:-99.149036,acc:true},
-    {id:'Ninos_Heroes',   nm:'Niños Héroes',     ln:'3',lat:19.419508,lng:-99.150581,acc:false},
-    {id:'Hospital_General',nm:'Hospital General',ln:'3',lat:19.413578,lng:-99.153886,acc:true,tp:'dest'},
-  ];
-  const R1_CAPS=[
-    'Pantitlán (L5) y Hospital General (L3): 17 estaciones, dos líneas. ¿Cuántas son accesibles para personas con discapacidad motriz?',
-    'Hangares — sin elevador ni accesibilidad certificada.',
-    'Terminal Aérea — sin accesibilidad. Atiende a quienes llegan al aeropuerto.',
-    'Oceanía — sin accesibilidad. Transbordo con las Líneas 9 y B.',
-    'Aragón — sin accesibilidad.',
-    'Eduardo Molina — sin accesibilidad.',
-    'Consulado — sin accesibilidad. Una de las estaciones con mayor afluencia de la Línea 5.',
-    'Valle Gómez — sin accesibilidad.',
-    'Misterios — sin accesibilidad.',
-    'La Raza — transbordo a la Línea 3. Tiene elevador, pero no accesibilidad completa. Nueve estaciones recorridas. Ninguna es accesible.',
-    'Tlatelolco — sin accesibilidad. Ya en la Línea 3.',
-    'Guerrero — sin accesibilidad.',
-    'Hidalgo — tiene elevador, sin accesibilidad certificada.',
-    'Juárez — primera estación plenamente accesible de esta ruta.',
-    'Balderas — accesible.',
-    'Niños Héroes — sin accesibilidad. Una estación antes del destino.',
-    'Hospital General — destino. Accesible. En 17 estaciones, solo 3 son plenamente accesibles: Juárez, Balderas y Hospital General.',
-  ];
-
-  // Radial projection: polar coords centered on Pantitlán
-  const CX=440,CY=270;
-  const OLAT=19.415359,OLON=-99.072132;
-  const PX_PER_KM=21;
-  const MAX_KM=11;
-
-  function polar(lat,lng){
-    const d=hav(OLAT,OLON,lat,lng);
-    const b=bearing(OLAT,OLON,lat,lng);
-    const br=b*Math.PI/180;
-    return {x:CX+d*PX_PER_KM*Math.sin(br), y:CY-d*PX_PER_KM*Math.cos(br), d, b};
-  }
-
-  // Label offset based on bearing from center
-  function lblOff(b,r){
-    const nb=((b%360)+360)%360;
-    const off=r+9;
-    if(nb>=315||nb<45)  return {dx:0,   dy:-off,    ta:'middle'};
-    if(nb>=45&&nb<135)  return {dx:off+2,dy:4,       ta:'start'};
-    if(nb>=135&&nb<225) return {dx:0,   dy:off+5,    ta:'middle'};
-    return                     {dx:-off-2,dy:4,       ta:'end'};
-  }
-
-  // Pre-compute positions
-  R1.forEach((st,i)=>{
-    if(i===0){st.px=CX;st.py=CY;st.dist=0;st.bear=0;}
-    else{const p=polar(st.lat,st.lng);st.px=p.x;st.py=p.y;st.dist=p.d;st.bear=p.b;}
-  });
-  const N_ST=R1.length;
-
-  function buildSVG(){
-    let h='';
-
-    // Axis reference lines (faint)
-    h+=`<line x1="${CX}" y1="${CY-MAX_KM*PX_PER_KM}" x2="${CX}" y2="${CY+MAX_KM*PX_PER_KM}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    h+=`<line x1="${CX-MAX_KM*PX_PER_KM}" y1="${CY}" x2="${CX+MAX_KM*PX_PER_KM}" y2="${CY}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-
-    // Distance rings
-    [2,4,6,8,10].forEach((km,i)=>{
-      const r=(km*PX_PER_KM).toFixed(1);
-      const isLast=i===4;
-      h+=`<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="#888" stroke-width="${isLast?1.0:0.6}" stroke-dasharray="${isLast?'none':'5,4'}" opacity="${isLast?0.2:0.13}"/>`;
-      h+=`<text x="${CX+7}" y="${(CY-km*PX_PER_KM+9).toFixed(1)}" fill="#888" font-size="6.5" font-family="'Space Mono',monospace" opacity="0.45">${km} km</text>`;
-    });
-
-    // Compass labels
-    const rMax=MAX_KM*PX_PER_KM;
-    h+=`<text x="${CX}" y="${(CY-rMax-5).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">N</text>`;
-    h+=`<text x="${CX}" y="${(CY+rMax+13).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">S</text>`;
-    h+=`<text x="${(CX+rMax+7).toFixed(1)}" y="${CY+4}" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">E</text>`;
-    h+=`<text x="${(CX-rMax-7).toFixed(1)}" y="${CY+4}" text-anchor="end" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">O</text>`;
-
-    // Background NODES (within MAX_KM)
-    if(typeof NODES!=='undefined'){
-      NODES.forEach(n=>{
-        if(!n.lat||!n.lng)return;
-        const d=hav(OLAT,OLON,+n.lat,+n.lng);
-        if(d>MAX_KM)return;
-        const p=polar(+n.lat,+n.lng);
-        h+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${LC2[n.Linea]||'#888'}" stroke="var(--bg)" stroke-width="0.5" opacity="0.14"/>`;
-      });
-    }
-
-    // Center dot (origin anchor)
-    h+=`<circle cx="${CX}" cy="${CY}" r="2.5" fill="#888" opacity="0.35"/>`;
-    h+=`<circle cx="${CX}" cy="${CY}" r="5.5" fill="none" stroke="#888" stroke-width="0.7" opacity="0.2"/>`;
-
-    // Route segments (initially hidden)
-    R1.forEach((st,i)=>{
-      if(i===0)return;
-      const prev=R1[i-1];
-      h+=`<line class="rs-seg" data-i="${i}" x1="${prev.px.toFixed(1)}" y1="${prev.py.toFixed(1)}" x2="${st.px.toFixed(1)}" y2="${st.py.toFixed(1)}" stroke="${LC2[st.ln]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="transition:opacity .42s ease"/>`;
-    });
-
-    // Route station nodes + labels
-    R1.forEach((st,i)=>{
-      const x=st.px.toFixed(1),y=st.py.toFixed(1);
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const lc=LC2[st.ln];
-      const r=isO||isD?7:isT?6:5;
-      const initOp=isO?'1':isD?'0.2':'0';
-      // Transfer ring
-      if(isT)h+=`<circle class="rs-ring" data-i="${i}" cx="${x}" cy="${y}" r="${(r+4.5).toFixed(1)}" fill="none" stroke="${lc}" stroke-width="1.1" opacity="0" style="transition:opacity .42s ease"/>`;
-      // Node (interactive)
-      h+=`<circle class="rs-node" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${isO?lc:isD?'none':st.acc?'var(--green)':'none'}" stroke="${lc}" stroke-width="${isO?0:2}" opacity="${initOp}" style="cursor:pointer;transition:opacity .42s ease,fill .42s ease" onmouseenter="sT(event,'${st.id}')" onmousemove="mT(event)" onmouseleave="hT()"/>`;
-      // Label
-      const lo=isO?{dx:0,dy:16,ta:'middle'}:lblOff(st.bear,r);
-      const lFill=isD?'var(--green)':(st.acc&&!isO)?'var(--green)':'var(--text)';
-      const lOp=isO?'1':isD?'0.22':'0';
-      h+=`<text class="rs-label" data-i="${i}" x="${(st.px+lo.dx).toFixed(1)}" y="${(st.py+lo.dy).toFixed(1)}" text-anchor="${lo.ta}" fill="${lFill}" font-size="${isO||isD?7:5.8}" font-family="'DM Sans',sans-serif" font-weight="${isO||isD?700:400}" opacity="${lOp}" style="transition:opacity .42s ease,fill .42s ease;pointer-events:none">${st.nm}</text>`;
-      // Badge for key stations
-      if(isO||isD||isT){
-        const btxt=isT?'L5→L3':`L${st.ln}`;
-        const bx=(st.px+lo.dx).toFixed(1),by=(st.py+lo.dy+(lo.dy<0?-8:8)).toFixed(1);
-        h+=`<text class="rs-badge" data-i="${i}" x="${bx}" y="${by}" text-anchor="${lo.ta}" fill="${lc}" font-size="5.2" font-family="'Space Mono',monospace" opacity="${isO?'0.75':isD?'0.22':'0'}" style="transition:opacity .42s ease;pointer-events:none">${btxt}</text>`;
-      }
-    });
-
-    return h;
-  }
-
-  function updateSVG(svgEl,step){
-    const destFinal=step>=N_ST-2;
-    R1.forEach((st,i)=>{
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const revealed=isO||(i<=step+1&&step>=0);
-      const seg=svgEl.querySelector(`.rs-seg[data-i="${i}"]`);
-      if(seg)seg.style.opacity=i<=step+1?'0.92':'0';
-      const ring=svgEl.querySelector(`.rs-ring[data-i="${i}"]`);
-      if(ring)ring.style.opacity=revealed?'0.5':'0';
-      const node=svgEl.querySelector(`.rs-node[data-i="${i}"]`);
-      if(node){
-        if(isO){node.style.opacity='1';}
-        else if(isD){node.setAttribute('fill',destFinal?'var(--green)':'none');node.style.opacity=destFinal?'1':'0.2';}
-        else{node.setAttribute('fill',revealed?(st.acc?'var(--green)':'none'):'none');node.style.opacity=revealed?'1':'0';}
-      }
-      const lbl=svgEl.querySelector(`.rs-label[data-i="${i}"]`);
-      if(lbl){
-        if(isO)lbl.style.opacity='1';
-        else if(isD){lbl.setAttribute('fill','var(--green)');lbl.style.opacity=destFinal?'1':'0.22';}
-        else{lbl.setAttribute('fill',st.acc?'var(--green)':'var(--text)');lbl.style.opacity=revealed?'1':'0';}
-      }
-      const badge=svgEl.querySelector(`.rs-badge[data-i="${i}"]`);
-      if(badge){
-        if(isO)badge.style.opacity='0.75';
-        else if(isD)badge.style.opacity=destFinal?'0.75':'0.22';
-        else if(isT)badge.style.opacity=revealed?'0.75':'0';
-      }
-    });
-  }
-
-  function setCaption(el,txt){
-    if(el.textContent===txt)return;
-    el.style.opacity='0';
-    setTimeout(()=>{el.textContent=txt;el.style.opacity='1';},200);
-  }
-
-  function init(){
-    const story=document.getElementById('rs-story-1');
-    const sticky=document.getElementById('rs-sticky-1');
-    const svgEl=document.getElementById('rs-svg-1');
-    const gEl=document.getElementById('rs-g-1');
-    const capEl=document.getElementById('rs-cap-text-1');
-    if(!story||!svgEl||!capEl)return;
-    if(gEl)gEl.innerHTML=buildSVG();else svgEl.innerHTML=buildSVG();
-    let cur=-2;
-    function go(step){
-      if(step===cur)return;cur=step;
-      updateSVG(svgEl,step);
-      setCaption(capEl,R1_CAPS[Math.max(0,Math.min(step+1,R1_CAPS.length-1))]);
-    }
-    go(-1);
-    panel.addEventListener('scroll',()=>{
-      const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
-      const spacer=(pR.top-sR.top)-(sticky?sticky.offsetHeight:400);
-      go(Math.max(-1,Math.min(N_ST-2,Math.floor(spacer/100))));
-    },{passive:true});
-  }
-  init();
-
-})();
-}
-</script>
 </body>
 </html>
