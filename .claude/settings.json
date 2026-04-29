@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(awk 'NR>=1040 && NR<=1060' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=38 && NR<=45' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=109 && NR<=120' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=1200 && NR<=1212 && /<\\\\/div>/{print NR\": \"$0}' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=591 && NR<=602' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=605 && NR<=630' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=647 && NR<=672' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Bash(awk 'NR>=753 && NR<=772' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")"
+    ]
+  }
+}

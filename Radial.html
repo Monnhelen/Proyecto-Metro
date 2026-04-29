@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ejercicio Metro CDMX — Mapa de Accesibilidad</title>
+<title>Metro CDMX — Vista Radial</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
@@ -34,7 +34,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .p:hover{border-color:var(--accent);color:var(--text)}
 .p.on{background:rgba(25,57,255,.1);border-color:var(--accent);color:var(--accent)}
 .p.warn{border-color:var(--orange);color:var(--orange);font-size:.5rem}
-.main{display:flex;flex:1;overflow:hidden}
+.main{display:flex;flex:1;overflow:hidden;}
 .cv{flex:1;overflow:hidden;position:relative;background:var(--bg);transition:background .3s}
 .cv svg{display:block;cursor:grab}.cv svg:active{cursor:grabbing}
 .sb{width:270px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
@@ -182,22 +182,11 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
   <div class="logo"><span>◆</span> METRO CDMX</div>
   <div class="hg" id="vp">
     <a href="intro.html" class="p" style="text-decoration:none">◀ Intro</a>
-    <a href="radial.html" class="p" style="text-decoration:none">⊙ Radial</a>
-    <div class="ov-wrap">
-      <div class="p" id="ovBtn">Otras vistas ▾</div>
-      <div class="ov-menu" id="ovMenu">
-        <div class="ov-opt" data-v="sch">Esquemático</div>
-        <div class="ov-opt" data-v="geo">Mapa Metro</div>
-        <div class="ov-opt" data-v="col2">2 Columnas</div>
-        <div class="ov-opt" data-v="col3">2×2 Grid</div>
-        <div class="ov-opt" data-v="quad">Cuadrantes</div>
-      </div>
-    </div>
+    <a href="index.html" class="p" style="text-decoration:none">⊙ Mapa</a>
   </div>
   <div class="hs"></div>
   <div class="hg">
     <div class="p" id="ps">⊙ Afluencia</div>
-    <div class="p on" id="pt">🌙 Oscuro</div>
     <div class="p warn" id="pw">⚠ Coords</div>
   </div>
   <div class="hg-right">
@@ -213,7 +202,7 @@ body.light .ac-list{box-shadow:0 4px 14px rgba(0,0,0,.12)}
 </header>
 <div class="main">
   <div class="cv" id="cv">
-    <div class="lp" id="linesPanel"><div class="lp-ttl">Líneas</div><div id="leg"></div></div>
+
     <svg id="svg"><g id="gM"></g></svg>
     <div class="zc">
       <div class="zb" id="zi">+</div>
@@ -277,7 +266,7 @@ const POI={
 let NODES=[],EDGES=[],LO={},TF=[];
 let POS={};
 const Z={x:0,y:0,s:1};
-const S={src:null,tgt:null,routes:[],sel:null,hid:new Set(),pcd:false,mode:'sch',sz:false,
+const S={src:null,tgt:null,routes:[],sel:null,hid:new Set(),pcd:false,mode:'rad',sz:false,
   radCenter:'Zócalo',radMax:30,radNearest:null,radNearestAcc:null,radNearestAccTgt:null,
   radNearestAccSrc:null,radEffSrc:null,radEffTgt:null,radFilterMode:'all'};
 
@@ -302,8 +291,9 @@ async function load(){
   for(const l in LO)LO[l].sort((a,b)=>+a.Orden-+b.Orden);
   TF=EDGES.filter(e=>e.Tipo==='Transbordo');
   cL();initUI();render();
-  document.getElementById('linesPanel').classList.add('show');
-  document.getElementById('radPanel').classList.toggle('show',S.mode==='rad');
+  // Fit all stations centered on initial load
+  (function(){const cv=document.getElementById('cv');const W=cv.offsetWidth,H=cv.offsetHeight;const rd=POS._rad;if(!rd)return;Z.s=1.3;Z.x=W/2-rd.cx*Z.s;Z.y=H/2-rd.cy*Z.s;aZ()})();
+  document.getElementById('radPanel').classList.add('show');
   const aY=NODES.filter(n=>n.Accesibilidad==='Si').length;
   document.getElementById('si').textContent=`${NODES.length} est. · ${aY} accesibles · ${TF.length} transbordos`;
 }
@@ -489,10 +479,37 @@ function renderRadial(){
   const cnShort=centerName.length>20?centerName.slice(0,18)+'…':centerName;
   h+=`<text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#888" font-size="6" font-weight="600" font-family="var(--mono)" opacity="0.65">${cnShort}</text>`;
 
-  // ── Same-line connecting lines — quieter (point 2) ──
-  {const byLine={};NODES.forEach(n=>{if(!POS[n.id]||S.hid.has(n.Linea))return;if(!byLine[n.Linea])byLine[n.Linea]=[];byLine[n.Linea].push(n.id)});
-  const sortByAngle=ids=>[...ids].sort((a,b)=>{const pa=POS[a],pb=POS[b];return Math.atan2(pa.y-cy,pa.x-cx)-Math.atan2(pb.y-cy,pb.x-cx)});
-  Object.entries(byLine).forEach(([lid,ids])=>{const col2=LC[lid];const sorted=sortByAngle(ids);sorted.forEach((id,i)=>{if(i===0)return;const prev=sorted[i-1];const pa=POS[prev],pb=POS[id];if(!pa||!pb)return;h+=`<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="${col2}" stroke-width="0.45" opacity="0.11"/>`;})});}
+  // ── Same-line connecting lines — sequential order from LO ──
+  Object.entries(LO).forEach(([lid,stations])=>{
+    if(S.hid.has(lid))return;
+    const col2=LC[lid];
+    for(let i=0;i<stations.length-1;i++){
+      const pa=POS[stations[i].id],pb=POS[stations[i+1].id];
+      if(!pa||!pb)continue;
+      h+=`<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${col2}" stroke-width="2.5" stroke-linecap="round" opacity="0.52"/>`;
+    }
+  });
+
+  // ── Line number badges at terminals ──
+  const imgFolder=encodeURIComponent('Número de línea de Metro');
+  const sz=8;
+  let badgesH='';
+  Object.entries(LO).forEach(([lid,stations])=>{
+    if(S.hid.has(lid)||!stations.length)return;
+    const ext=lid==='7'?'svg':'png';
+    const src=`${imgFolder}/Linea_${lid}.${ext}`;
+    const place=p=>{
+      if(!p)return;
+      const dx=p.x-cx,dy=p.y-cy,dist=Math.sqrt(dx*dx+dy*dy)||1;
+      const off=16;
+      const ix=(p.x+dx/dist*off-sz/2).toFixed(1);
+      const iy=(p.y+dy/dist*off-sz/2).toFixed(1);
+      badgesH+=`<image href="${src}" x="${ix}" y="${iy}" width="${sz}" height="${sz}" style="pointer-events:none" opacity="0.92"/>`;
+    };
+    place(POS[stations[0].id]);
+    const last=stations[stations.length-1];
+    if(last&&last.id!==stations[0].id)place(POS[last.id]);
+  });
 
   // ── Nodes: build into separate layer strings ──
   // Layer order: spokes → labels → route lines → nodes
@@ -606,13 +623,13 @@ function renderRadial(){
       topH+=`<rect x="${mx-lw/2-4}" y="${my-14}" width="${lw+8}" height="10" rx="2" fill="var(--bg)" opacity="0.95"/>`;
       topH+=`<text x="${mx}" y="${my-6}" text-anchor="middle" fill="var(--text)" font-size="5.5" font-family="var(--mono)" font-weight="600" opacity="0.9">${lbl}</text>`;
     });
-    g.innerHTML=h+spokesH+labelsH+routeH+nodesH+topH;
+    g.innerHTML=h+spokesH+labelsH+routeH+badgesH+nodesH+topH;
     bindNodes();
     return;
   }
 
-  // Final render: grid + spokes + labels + route lines + nodes (top layer = clickable)
-  g.innerHTML=h+spokesH+labelsH+routeH+nodesH;
+  // Final render: grid + spokes + labels + route lines + badges + nodes (top layer = clickable)
+  g.innerHTML=h+spokesH+labelsH+routeH+badgesH+nodesH;
   bindNodes();
 }
 
@@ -631,7 +648,7 @@ function aZ(){document.getElementById('gM').setAttribute('transform',`translate(
   cv.addEventListener('wheel',e=>{if(document.querySelector('.main.intro'))return;e.preventDefault();const r=svg.getBoundingClientRect();const mx2=e.clientX-r.left,my2=e.clientY-r.top;const d=e.deltaY>0?.9:1.1;const ns=Math.max(.1,Math.min(6,Z.s*d));Z.x=mx2-(mx2-Z.x)*(ns/Z.s);Z.y=my2-(my2-Z.y)*(ns/Z.s);Z.s=ns;aZ()},{passive:false});
   document.getElementById('zi').addEventListener('click',()=>{Z.s=Math.min(6,Z.s*1.3);aZ()});
   document.getElementById('zo').addEventListener('click',()=>{Z.s=Math.max(.1,Z.s/1.3);aZ()});
-  document.getElementById('zf').addEventListener('click',()=>{Z.x=0;Z.y=0;Z.s=1;aZ()});
+  document.getElementById('zf').addEventListener('click',()=>{const W=cv.offsetWidth,H=cv.offsetHeight;const rd=POS._rad;if(rd){Z.s=1.3;Z.x=W/2-rd.cx*Z.s;Z.y=H/2-rd.cy*Z.s;}else{Z.x=0;Z.y=0;Z.s=1;}aZ()});
 })();
 
 // ═══════ INTERACTION ═══════
@@ -805,11 +822,7 @@ function initUI(){
   acSrc=initAC('ss-in','ss-ac','src');
   acTgt=initAC('st-in','st-ac','tgt');
 
-  // Lines panel — left side of map
-  const lp=document.getElementById('linesPanel');
-  const lg=document.getElementById('leg');
-  LD.forEach(lid=>{const el=document.createElement('div');el.className='li';el.dataset.l=lid;el.innerHTML=`<div class="lsw" style="background:${LC[lid]}"></div><span>L${lid}</span>`;
-    el.addEventListener('click',()=>{if(S.hid.has(lid)){S.hid.delete(lid);el.classList.remove('dim')}else{S.hid.add(lid);el.classList.add('dim')}render()});lg.appendChild(el)});
+  const lp={classList:{add:()=>{},remove:()=>{},toggle:()=>{}}}; // stub — linesPanel removed
 
   function switchView(v){
     document.querySelectorAll('#vp .p[data-v]').forEach(x=>x.classList.remove('on'));
@@ -823,20 +836,13 @@ function initUI(){
     S.src=null;S.tgt=null;S.routes=[];S.sel=null;
     S.radNearestAccTgt=null;S.radNearestAccSrc=null;S.radEffSrc=null;S.radEffTgt=null;
     if(acSrc)acSrc.clear();if(acTgt)acTgt.clear();
-    document.getElementById('ovMenu').classList.remove('show');
+    const _om=document.getElementById('ovMenu');if(_om)_om.classList.remove('show');
     cL();rRL();render();
   }
   document.querySelectorAll('#vp .p[data-v]').forEach(p=>{p.addEventListener('click',()=>switchView(p.dataset.v))});
-  // Set initial active state
-  {const initOpt=document.querySelector(`.ov-opt[data-v="${S.mode}"]`);if(initOpt){initOpt.classList.add('on');document.getElementById('ovBtn').classList.add('on');}}
-  // "Otras vistas" dropdown
-  const ovBtn=document.getElementById('ovBtn');const ovMenu=document.getElementById('ovMenu');
-  ovBtn.addEventListener('click',e=>{e.stopPropagation();ovMenu.classList.toggle('show')});
-  document.querySelectorAll('.ov-opt').forEach(opt=>{opt.addEventListener('click',()=>switchView(opt.dataset.v))});
-  document.addEventListener('click',e=>{if(!e.target.closest('.ov-wrap'))ovMenu.classList.remove('show')});
+  // No "Otras vistas" dropdown in radial.html
 
   document.getElementById('ps').addEventListener('click',function(){S.sz=!S.sz;this.classList.toggle('on',S.sz);render()});
-  document.getElementById('pt').addEventListener('click',function(){document.body.classList.toggle('light');const isL=document.body.classList.contains('light');this.classList.toggle('on',isL);this.textContent=isL?'🌙 Oscuro':'☀ Claro';render()});
   document.getElementById('pw').addEventListener('click',()=>document.getElementById('wp').classList.toggle('show'));
   document.getElementById('wcc').addEventListener('click',()=>document.getElementById('wp').classList.remove('show'));
   document.getElementById('tgp').addEventListener('click',()=>{S.pcd=!S.pcd;document.getElementById('tkp').classList.toggle('on',S.pcd);if(S.src&&S.tgt)calc();else render()});
