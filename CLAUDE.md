@@ -26,11 +26,12 @@ The four active pages link to each other via a shared top-nav:
 | `Radial.html` | Standalone radial + arch view of the network | Dark (default) / Light toggle |
 | `mapa-accesibilidad.html` | Geographic map with accessibility/ridership overlays | Always light |
 
-Two additional standalone files exist but are not part of the main navigation:
+Additional files not part of the main navigation:
+- `intro2.html` — alternate/in-progress version of the intro page; do not treat as canonical
 - `metro-accesibilidad.html` — older long-form article with D3 dot-plot (`#v3-svg`)
 - `network_metro_cdmx.html` — older standalone network graph (Network / Radial / Arch views)
 
-`Versiones anteriores/` contains archived prior versions — do not edit these.
+`Versiones anteriores/` and `Corregir/` contain archived/reference material — do not edit these.
 
 ## Key Files and Their Roles
 
@@ -51,7 +52,7 @@ Auto-generated file (~18 MB). Contains two JS constants:
 - `BASEMAP_MANZANAS` — GeoJSON FeatureCollection of CDMX city blocks (manzanas)
 - `BASEMAP_MUN15` — GeoJSON FeatureCollection of Estado de México municipalities
 
-**Do not edit by hand.** Regenerate using `convert_shapefiles.py` if the source shapefiles change:
+**Do not edit by hand** and is excluded from git via `.gitignore`. Regenerate using `convert_shapefiles.py` if the source shapefiles change:
 ```bash
 pip install pyshp
 python3 convert_shapefiles.py
@@ -93,6 +94,14 @@ Light/dark theming is done via `body.light` class on the `<body>` element. Files
 - `tipo_metro_cdmx` — official STC Metro typeface, used for display headings in `intro.html`. Served from `Tipografías/Metro/Web Fonts/tipometrocdmx_regular_macroman/` (woff2 + woff). Four weights available: Regular, Bold, Light, and their italics.
 
 **Line colors** are hardcoded in JS objects (not CSS). Line 1 = pink (`#E4538F`), Line 2 = blue (`#0069A7`), etc., following official STC colors.
+
+## Static Assets
+
+- `cargando/` — PNG images for individual Metro stations (one per station, named by station slug). Used as thumbnails or loading visuals in `intro.html`.
+- `Foto/` — Hero/editorial photography.
+- `SVG/` — Vector icons and line-symbol assets.
+- `Iconografía/` — Accessibility and UI iconography.
+- `Número de línea de Metro/` — Official Metro line-number badge assets.
 
 ## CSS Conventions
 
