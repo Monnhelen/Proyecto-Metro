@@ -38,6 +38,8 @@ Additional files not part of the main navigation:
 ### `intro.html`
 The main editorial page. Uses **Leaflet 1.9.4** for geographic rendering (not D3 SVG), loaded on top of `basemap_data.js`. Also embeds the D3 dot-plot visualization (`#v3-svg`) and editorial hero section with `Foto/imglargaaaa.jpg`. Uses the custom `tipo_metro_cdmx` typeface for display headings (referenced as `var(--metro)`).
 
+Contains the **scrollytelling route stories** (see architecture section below).
+
 ### `index.html`
 The most complex file. D3.js v7.8.5 force-layout network graph. **All station and edge data is inlined in the JS** — no fetch calls, no dependency on `data/*.csv` at runtime. Features: dark/light theme toggle, sidebar with station search + route finder + radial proximity analysis, overlay modes (Accessibility / Ridership / Radial), SVG/PNG export.
 
@@ -59,6 +61,68 @@ python3 convert_shapefiles.py
 ```
 The script reads shapefiles from `Mapa/` (absolute paths hardcoded in the script) and overwrites `basemap_data.js`.
 
+`basemap_data_simple.js` and `basemap_data_v2.js` are lighter variants produced by `simplify_basemap.py` (rounds coordinates to 4 decimal places and applies Douglas-Peucker simplification, reducing file size from ~68 MB to ~5-10 MB). Unlike `basemap_data.js`, these lighter variants **are** tracked in git.
+
+A third geographic constant, `BASEMAP_GEO`, is inlined directly in `intro.html` (~line 2699) as a compact GeoJSON FeatureCollection of the 16 CDMX alcaldías (borough boundaries). It is not in `basemap_data.js` and must be edited by hand if boundaries change.
+
+## Scrollytelling Architecture (`intro.html`)
+
+The three route stories in `intro.html` use a shared scroll-lock pattern driven by a `makeRoute()` factory function.
+
+### DOM structure
+Each route story follows this pattern:
+```html
+<section id="rs-story-N" class="rs-story">
+  <div class="rs-sticky">          <!-- sticky map panel -->
+    <div id="rs-map-N">...</div>   <!-- Leaflet map -->
+    <div id="rs-overlay-N" class="rs-overlay">
+      <!-- .rs-note-card elements (phases-based routes only) -->
+      <!-- .rs-cap-card elements (non-phases routes) -->
+    </div>
+  </div>
+  <div class="rs-spacer">          <!-- scroll space; one .rs-step per scroll step -->
+    <div class="rs-step" data-step="0"></div>
+    ...
+  </div>
+</section>
+```
+
+An IIFE at script-end reorders stories into `#rs-stage` as `[rs-story-3, rs-story-2, rs-story-1]` and hides stories 2 and 1 via `translateX(100%)`. A slide transition controller (another IIFE) watches `panel.style.overflowY` for the `'hidden'→''` transition (route completion signal) and animates a horizontal slide to the next story.
+
+### `makeRoute(o)` factory
+Called once per route with an options object. Key parameters:
+- `stations` — array of station objects `{id, lat, lng, line, accessible, elevator, ee}`
+- `caps` — array of caption strings (indexed by step, non-phases routes)
+- `phases` — array of phase control objects (route 3 only; absent → legacy per-station scroll behavior)
+- `phaseData` — array of caption/note data loaded from CSV (route 3 only; `o.phases` and `o.phaseData` are separate concerns)
+- `offSystem` — `{from, to}` objects for off-system origin/destination markers
+- `fitToStations`, `fitPadding` — map bounds behavior
+
+Inside `makeRoute`, `go(step)` renders station markers up to `step`, drawing the route polyline and animating dots. The scroll listener calls `go()` directly (non-phases) or `runPhase(idx)` (phases).
+
+### Phases system (route 3 only)
+When `o.phases` is present, `runPhase(idx)` controls:
+- Which `.rs-note-card` is visible (`ph.note` index, or `-1` for none)
+- Visibility of off-system from/to markers (`ph.showOffFrom`, `ph.showOffTo`)
+- Whether to call `go(ph.goStep)` directly or fire a burst animation (`ph.burst: {from, to, interval}`)
+
+`o.phaseData[idx]` (populated from `captions.csv` story=3 rows) provides the caption/note text for each phase; `_showPhaseCap()` applies it. The two arrays are kept separate so phase geometry (inline) and phase text (CSV) can be edited independently.
+
+Route completion for phases routes: `pi >= o.phases.length - 1`.
+Route completion for non-phases routes: `Math.floor(spacer/100) >= N - 2` (where N = station count).
+
+### Caption data
+All three routes read caption text from **`data/captions.csv`** at startup via `fetch`. Schema:
+```
+story, index, caption_text, caption_bg, caption_opacity, note_text, note_bg, note_opacity, note_x, note_y
+```
+`story` matches the route number (1, 2, or 3). Routes 1 and 2 use `caption_text`/`note_text` to drive the `.rs-cap-card` display. Route 3 rows feed into `phaseData` (assigned to `_phaseData3` after parse); the note cards for route 3 are also backed by inline `rs-note-card` HTML but their text is overridden at runtime by `phaseData`.
+
+A parse fallback (`catch`) calls `_initRoutes()` with empty arrays so the page still works if CSV fetch fails.
+
+### Debug overlay
+`intro.html` injects a fixed debug panel at startup (hidden by default). Press **D** to toggle it; **Shift+X** to clear the log. It displays current phase/step state and a copy-able event log — useful when diagnosing scroll or phase-transition issues without adding `console.log` statements.
+
 ## Data Files (`data/`)
 
 - **`nodos.csv`** — Station nodes: `id, Linea, Orden, Tipo, Elevador, EE, Accesibilidad, Personas_Afectadas, lat, lng`
@@ -70,7 +134,17 @@ The script reads shapefiles from `Mapa/` (absolute paths hardcoded in the script
   - `Tipo`: Secuencial (along a line) or Transbordo (between lines)
   - `Accesible_PCD`: 1/0
 
-`index.html` inlines this data directly in JS rather than fetching at runtime. If you update the CSVs, you must also update the inlined data in `index.html`.
+- **`captions.csv`** — Caption text for route stories 1 and 2 (fetched at runtime by `intro.html`). Schema described above.
+
+`index.html` inlines `nodos.csv` and `aristas.csv` data directly in JS rather than fetching at runtime. If you update the CSVs, you must also update the inlined data in `index.html`.
+
+## Utility Scripts
+
+- **`compress_images.js`** — Compresses images in `cargando/` to WebP using `sharp`. Run `npm install` first (installs `sharp`), then `node compress_images.js`. Backs up originals with `.orig` extension.
+
+- **`simplify_basemap.py`** — Reads `basemap_data.js`, rounds coordinates to 4 decimal places, applies Douglas-Peucker simplification (tolerance `0.0002`), and writes a smaller variant. Run standalone: `python3 simplify_basemap.py`.
+
+- **`convert_shapefiles.py`** — Generates `basemap_data.js` from source shapefiles in `Mapa/`. Paths are hardcoded; run only when shapefiles change.
 
 ## Design System
 

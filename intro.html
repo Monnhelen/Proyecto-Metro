@@ -40,12 +40,30 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 /* ── V3: Dot-plot afluencia + accesibilidad ── */
 .viz-section-inner{margin:1.5rem -2rem 2rem;padding:1.5rem 2rem 1rem;overflow-x:auto}
 #v3-section{margin-top:20px}
-#v3-legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin:8px 0 10px;align-items:center}
-.v3-li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.48rem;color:var(--text2);letter-spacing:.05em;user-select:none}
+#v3-legend{display:flex;gap:8px 18px;flex-wrap:nowrap;margin:16px 0 4px;align-items:center}
+.v3-footnote{font-family:var(--sans);font-size:.68rem;font-weight:400;color:var(--text2);margin:0 0 10px}
+.rs-leg-footnote{font-family:var(--sans);font-size:.68rem;font-weight:400;color:var(--text2);margin:6px 0 0}
+.v3-legend-label{font-family:var(--sans);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 8px;display:block}
+.v3-li{display:flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.72rem;font-weight:600;color:var(--accent);user-select:none}
+.v3-li-sub{font-weight:400}
 .v3-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .v3-g{background:#2a985a}.v3-o{background:#ff9933}.v3-r{background:#cc0033}
-.v3-li{color:var(--text2)}
+@keyframes v3Ring{0%{transform:scale(1);opacity:.7}60%{transform:scale(2.4);opacity:0}100%{transform:scale(2.4);opacity:0}}
+.v3-ring{transform-origin:6px 6px}
+@keyframes v3PulseDot{0%,100%{transform:scale(1)}45%{transform:scale(2.6)}}
+.v3-pulsing{transform-box:fill-box;transform-origin:center;animation:v3PulseDot .55s ease-in-out}
+.dark-section .body-p{color:var(--text)}
+.dark-section .line-card-text{color:var(--text)}
 #v3-outer{overflow:hidden;padding-bottom:4px;margin:0 -2px;cursor:default}
+#foto-galeria{margin:0 0 4rem;position:relative;width:100%;padding:0 18rem;box-sizing:border-box}
+.gal-viewport{overflow:hidden;width:100%}
+.gal-track{display:flex;transition:transform 1.2s ease-in-out}
+.gal-item{flex:0 0 50%;box-sizing:border-box;padding:0 8px}
+.gal-item img{width:100%;height:auto;display:block;border-radius:12px}
+.gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:var(--bg);border:1px solid var(--border);color:var(--ink);width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;line-height:1;z-index:2;transition:opacity .2s;padding:0}
+.gal-btn:hover{opacity:.6}
+#gal-prev{left:calc(18rem - 44px)}
+#gal-next{right:calc(18rem - 44px)}
 #v3-svg{display:block}
 @keyframes v3DotIn{
   from{transform:translateY(-18px);opacity:0}
@@ -117,7 +135,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   flex-direction:column;
   justify-content:flex-start;
   padding:0;
-  background-image:url('Foto/fotocrema.webp');
+  background-image:url('Foto/fotocrema.jpg');
   background-size:110%;
   background-position:50% 30%;
   background-repeat:no-repeat;
@@ -147,7 +165,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   width:60%;
   margin-left:auto;
   margin-right:auto;
-  padding:120px 0 0;
+  padding:10px 0 0;
   text-align:center;
 }
 
@@ -155,6 +173,14 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   #hero-content{ width:90%;margin:0 auto;padding:60px 24px; }
 }
 
+.hero-logo{
+  height:75px;
+  width:auto;
+  display:block;
+  margin:0 auto 0.6rem;
+  opacity:0;
+  animation:fadeUp .35s .05s forwards;
+}
 .hero-kicker{
   font-family:var(--sans);
   font-size:.62rem;
@@ -162,9 +188,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   letter-spacing:.18em;
   text-transform:uppercase;
   color:rgba(4,4,4,0.5);
-  margin-bottom:.7rem;
+  margin-top:1.2rem;
+  margin-bottom:0;
   opacity:0;
-  animation:fadeUp .35s .3s forwards;
+  animation:fadeUp .35s .35s forwards;
 }
 
 .hero-hl{
@@ -181,13 +208,13 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 }
 .hero-hl em{
   font-style:normal;
-  color:var(--accent);
+  color:var(--orange);
 }
 
 .hero-deck{
   font-family:var(--sans);
-  font-size:clamp(1.2rem,2.2vw,1.55rem);
-  font-weight:400;
+  font-size:clamp(1.3rem,2.4vw,1.7rem);
+  font-weight:300;
   line-height:1.35;
   color:#040404;
   max-width:100%;
@@ -513,14 +540,14 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 }
 .rs-legend{
   display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;
-  margin-top:1rem;
+  margin-top:1.6rem;
 }
 .rs-leg-item{
   display:flex;align-items:center;gap:.45rem;
-  font-family:var(--mono);font-size:.62rem;font-weight:400;
-  letter-spacing:.05em;text-transform:uppercase;
-  color:var(--text);
+  font-family:var(--sans);font-size:.72rem;font-weight:600;
+  color:var(--accent);
 }
+.rs-leg-sub{font-weight:400}
 .rs-spacer{pointer-events:none;}
 .rs-step{height:900px;}
 
@@ -826,7 +853,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   .rs-caption{ left:.8rem; right:.8rem; bottom:.5rem; font-size:.75rem }
   .rs-step{ height:600px }
   .rs-legend{ gap:.4rem .8rem }
-  .rs-leg-item{ font-size:.55rem }
+  .rs-leg-item{ font-size:.62rem }
   [id^="rs-cap-text"]{ font-size:.75rem }
 
   /* ── Closing / footer ── */
@@ -949,9 +976,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <canvas id="hero-metro-canvas"></canvas>
 
   <div id="hero-content">
-    <p class="hero-kicker">Periodismo de Datos, 2026</p>
-    <h1 class="hero-hl">ACCESO AL METRO<br>DE LA CIUDAD DE MÉXICO</h1>
-    <p class="hero-deck">Un obstáculo para el 18% de la población</p>
+    <img src="Logos/2203634.png" class="hero-logo" alt="centro.">
+    <h1 class="hero-hl">ACCESO AL <em>METRO</em><br>DE LA CIUDAD DE MÉXICO:</h1>
+    <p class="hero-deck">Un obstáculo para 1.7 millones de personas</p>
+    <p class="hero-kicker">Por Mónica Dámazo, 2026</p>
   </div>
   <p class="hero-scroll-cue">Desliza hacia abajo</p>
 </section>
@@ -1152,9 +1180,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación no accesible</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
+          <p class="rs-leg-footnote">*Solo cuenta con escalera eléctrica o elevador</p>
         </div>
         <div class="rs-canvas-wrap">
           <div id="rs-map-1" class="rs-map"></div>
@@ -1188,9 +1217,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación no accesible</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
+          <p class="rs-leg-footnote">*Solo cuenta con escalera eléctrica o elevador</p>
         </div>
         <div class="rs-canvas-wrap">
           <div id="rs-map-2" class="rs-map"></div>
@@ -1223,9 +1253,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación no accesible</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
+          <p class="rs-leg-footnote">*Solo cuenta con escalera eléctrica o elevador</p>
         </div>
         <div class="rs-canvas-wrap">
           <div id="rs-map-3" class="rs-map"></div>
@@ -1249,11 +1280,11 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     </div>
 
   <div style="text-align:center;margin:2rem 0 1rem">
-    <a href="radial.html" style="display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;padding:12px 28px;background:var(--accent);color:#fff;border-radius:4px;text-decoration:none;letter-spacing:.04em;text-transform:uppercase">⊙ Explorar el Mapa Radial →</a>
+    <a href="radial.html" style="display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;padding:12px 28px;background:var(--accent);color:#fff;border-radius:4px;text-decoration:none;letter-spacing:.04em;text-transform:uppercase">Planea tu ruta</a>
   </div>
 
   <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
-
+<div class="dark-section">
   <!-- ── Exclusión ── -->
   <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
     <p class="body-p reveal" style="margin:0;">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
@@ -1319,7 +1350,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 
   <!-- ── Afluencia vs accesibilidad ── -->
-  <span class="section-label reveal">Afluencia y accesibilidad por estación</span>
+
   <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-bottom:.6rem">¿Las estaciones más concurridas son las más accesibles?</h2>
 
   <p class="body-p reveal">
@@ -1337,12 +1368,13 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
   <!-- V3: DOT-PLOT embebido -->
   <div id="v3-section" class="viz-section-inner reveal-wipe">
-    <p class="body-p" style="font-size:.88rem;margin-bottom:.8rem;color:var(--text3)">Cada punto representa una estación, ordenada por línea. La altura indica la afluencia diaria promedio. El color indica si cuenta con elevador y escaleras eléctricas, solo uno, o ninguno.</p>
+    <p class="v3-legend-label">Selecciona una categoría para filtrar</p>
     <div id="v3-legend">
-      <span class="v3-li"><span class="v3-dot v3-g"></span>Con elevador y escaleras eléctricas</span>
-      <span class="v3-li"><span class="v3-dot v3-o"></span>Sólo con un elemento de accesibilidad</span>
-      <span class="v3-li"><span class="v3-dot v3-r"></span>Sin elemento de accesibilidad</span>
+      <span class="v3-li"><svg width="12" height="12" aria-hidden="true" overflow="visible"><circle class="v3-ring" cx="6" cy="6" r="5.5" fill="none" stroke="#2a985a" stroke-width="2"/><circle class="v3-leg-dot" cx="6" cy="6" r="5.5" fill="#2a985a"/></svg>Estación accesible</span>
+      <span class="v3-li"><svg width="12" height="12" aria-hidden="true" overflow="visible"><circle class="v3-ring" cx="6" cy="6" r="5.5" fill="none" stroke="#ff9933" stroke-width="2"/><circle class="v3-leg-dot" cx="6" cy="6" r="5.5" fill="#ff9933"/></svg>Estación parcialmente accesible*</span>
+      <span class="v3-li"><svg width="12" height="12" aria-hidden="true" overflow="visible"><circle class="v3-ring" cx="6" cy="6" r="5.5" fill="none" stroke="#cc0033" stroke-width="2"/><circle class="v3-leg-dot" cx="6" cy="6" r="5.5" fill="#cc0033"/></svg>Estación sin accesibilidad</span>
     </div>
+    <p class="v3-footnote">*Solo cuenta con escalera eléctrica o elevador</p>
     <div id="v3-outer"><svg id="v3-svg" style="display:block;overflow:visible"></svg></div>
   </div>
   <div id="v3-tip"></div>
@@ -1356,11 +1388,52 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     Esta infraestructura debe ser una condición básica y obligatoria en cada estación. Una ciudad inclusiva solo es posible si se comprende que todos tenemos características físicas distintas, pero el mismo derecho a un desarrollo digno.
   </p>
 
+</div><!-- /dark-section -->
 </main>
 
 
-<p class="body-p reveal" style="text-align:center;margin-top:2rem;font-weight:700">PUNTO FINAL</p>
-
+<section id="foto-galeria">
+  <div class="gal-viewport">
+    <div class="gal-track" id="gal-track">
+      <div class="gal-item"><img src="Foto/IMG_4787.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4822.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4826.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4850.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4866.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4891.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+      <div class="gal-item"><img src="Foto/IMG_4833.jpg" alt="Foto Metro CDMX" loading="lazy"></div>
+    </div>
+  </div>
+  <button class="gal-btn" id="gal-prev">&#8249;</button>
+  <button class="gal-btn" id="gal-next">&#8250;</button>
+</section>
+<script>
+(function(){
+  var track=document.getElementById('gal-track');
+  var total=7,visible=2,STEP=2;
+  var max=total-visible;
+  var positions=[];
+  for(var i=0;i<=max;i+=STEP) positions.push(i);
+  if(positions[positions.length-1]<max) positions.push(max);
+  var pi=0,autoTimer,pauseTimer;
+  function goTo(idx){
+    track.style.transform='translateX(-'+(positions[idx]*(100/visible))+'%)';
+    pi=idx;
+  }
+  function next(){if(pi>=positions.length-1){clearInterval(autoTimer);return;}goTo(pi+1);}
+  function prev(){if(pi<=0)return;goTo(pi-1);}
+  function startAuto(){autoTimer=setInterval(next,12000);}
+  function pauseAuto(){
+    clearInterval(autoTimer);
+    clearTimeout(pauseTimer);
+    pauseTimer=setTimeout(startAuto,6000);
+  }
+  document.getElementById('gal-next').addEventListener('click',function(){next();pauseAuto();});
+  document.getElementById('gal-prev').addEventListener('click',function(){prev();pauseAuto();});
+  goTo(0);
+  startAuto();
+})();
+</script>
 
 <script>
 // ═══════════════════════════════════════════════
@@ -2236,7 +2309,7 @@ const V3 = (function(){
 
     const outer = document.getElementById('v3-outer');
     const W = Math.max(outer ? outer.offsetWidth : 580, 400);
-    const H = 320;
+    const H = 460;
     const PAD = {top:28, right:16, bottom:54, left:50};
 
     svg.setAttribute('width', W);
@@ -2274,12 +2347,12 @@ const V3 = (function(){
         stroke="var(--border)" stroke-width="${t===0?1:.5}" opacity="${t===0?1:.5}"
         stroke-dasharray="${t===0?'':'4,3'}"/>`;
       html += `<text x="${PAD.left-5}" y="${y+3.5}" text-anchor="end"
-        font-family="var(--mono)" font-size="10" fill="var(--text3)">${label}</text>`;
+        font-family="var(--mono)" font-size="10" fill="var(--text)">${label}</text>`;
     });
 
     // ── Y axis label ──
     html += `<text transform="rotate(-90)" x="${-(PAD.top+innerH/2)}" y="11"
-      text-anchor="middle" font-family="var(--mono)" font-size="7.5" fill="var(--text3)"
+      text-anchor="middle" font-family="var(--mono)" font-size="7.5" fill="var(--text)"
       letter-spacing=".05em">AFLUENCIA DIARIA</text>`;
 
     // ── X axis: line labels + vertical guide ──
@@ -2300,7 +2373,7 @@ const V3 = (function(){
 
     // X axis title
     html += `<text x="${PAD.left + innerW/2}" y="${yB+32}" text-anchor="middle"
-      font-family="var(--mono)" font-size="8" fill="var(--text3)"
+      font-family="var(--mono)" font-size="8" fill="var(--text)"
       letter-spacing=".1em">LÍNEAS</text>`;
 
     // ── Compute dot positions first, then decide labels ──
@@ -2425,6 +2498,75 @@ const V3 = (function(){
   return { draw };
 })();
 
+</script>
+
+<script>
+// ─── V3 legend filter ─────────────────────────────────────────────
+(function(){
+  var CATS   = ['both','one','none'];
+  var COLORS = {both:'#2a985a', one:'#ff9933', none:'#cc0033'};
+  var active = null;
+
+  function dotCat(el){
+    var e=+el.getAttribute('data-e'), ee=+el.getAttribute('data-ee');
+    return (e&&ee)?'both':(e||ee)?'one':'none';
+  }
+
+  function applyFilter(cat){
+    document.querySelectorAll('#v3-svg .v3-pt').forEach(function(d){
+      var dc=dotCat(d);
+      if(!cat||dc===cat){ d.style.fill=COLORS[dc]; d.style.opacity='.82'; }
+      else               { d.style.fill='#ccc';    d.style.opacity='0.2'; }
+    });
+  }
+
+  var sty=document.createElement('style');
+  sty.textContent='.v3-pt{transition:opacity .3s ease,fill .3s ease}#v3-legend .v3-li{cursor:pointer;transition:opacity .2s ease}';
+  document.head.appendChild(sty);
+
+  document.querySelectorAll('#v3-legend .v3-li').forEach(function(item,idx){
+    item.addEventListener('click',function(){
+      var cat=CATS[idx];
+      var all=document.querySelectorAll('#v3-legend .v3-li');
+      if(active===cat){
+        active=null;
+        all.forEach(function(i){i.style.opacity='1';i.style.fontWeight='';});
+        applyFilter(null);
+      } else {
+        active=cat;
+        all.forEach(function(i,j){
+          i.style.opacity=CATS[j]===cat?'1':'0.35';
+          i.style.fontWeight=CATS[j]===cat?'600':'';
+        });
+        applyFilter(cat);
+      }
+    });
+  });
+
+})();
+
+// ── Sequential legend ring: green → orange → red on viewport entry ─
+(function(){
+  var DUR=1800, GAP=2000, INIT=400;
+  var fired=false;
+
+  function run(){
+    if(fired) return; fired=true;
+    var rings=document.querySelectorAll('#v3-legend .v3-ring');
+    rings.forEach(function(ring,i){
+      setTimeout(function(){
+        ring.style.animation='v3Ring '+DUR+'ms ease-out 1 forwards';
+      }, INIT + i*GAP);
+    });
+  }
+
+  var legend=document.getElementById('v3-legend');
+  if(!legend) return;
+  var obs=new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting){ obs.disconnect(); run(); }
+  },{threshold:0.8,root:document.getElementById('introPanel')});
+  obs.observe(legend);
+})();
 </script>
 
 <script>
