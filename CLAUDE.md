@@ -36,7 +36,9 @@ Additional files not part of the main navigation:
 ## Key Files and Their Roles
 
 ### `intro.html`
-The main editorial page. Uses **Leaflet 1.9.4** for geographic rendering (not D3 SVG), loaded on top of `basemap_data.js`. Also embeds the D3 dot-plot visualization (`#v3-svg`) and editorial hero section with `Foto/imglargaaaa.jpg`. Uses the custom `tipo_metro_cdmx` typeface for display headings (referenced as `var(--metro)`).
+The main editorial page. Uses **Leaflet 1.9.4** for geographic rendering (not D3 SVG). Also embeds the D3 dot-plot visualization (`#v3-svg`) and editorial hero section with `Foto/imglargaaaa.jpg`. Uses the custom `tipo_metro_cdmx` typeface for display headings (referenced as `var(--metro)`).
+
+Lazy-loads **`basemap_data_simple.js`** (the ~5 MB simplified variant, not the 68 MB `basemap_data.js`) after the initial render, so the Leaflet basemap appears slightly after page load.
 
 Contains the **scrollytelling route stories** (see architecture section below).
 
@@ -60,6 +62,8 @@ pip install pyshp
 python3 convert_shapefiles.py
 ```
 The script reads shapefiles from `Mapa/` (absolute paths hardcoded in the script) and overwrites `basemap_data.js`.
+
+**`Mapa/`** contains the GIS source data used to generate the basemaps: shapefiles for CDMX manzanas (`poligono_manzanas_cdmx/`), CDMX boroughs (`poligonos_alcaldias_cdmx/`), Estado de México municipalities (`dest22gw_c/`), and CDMX colonias — plus a QGIS project file (`MapaCiudaddeMex.qgz`) for visual inspection.
 
 `basemap_data_simple.js` and `basemap_data_v2.js` are lighter variants produced by `simplify_basemap.py` (rounds coordinates to 4 decimal places and applies Douglas-Peucker simplification, reducing file size from ~68 MB to ~5-10 MB). Unlike `basemap_data.js`, these lighter variants **are** tracked in git.
 
@@ -172,12 +176,16 @@ Light/dark theming is done via `body.light` class on the `<body>` element. Files
 ## Static Assets
 
 - `cargando/` — PNG images for individual Metro stations (one per station, named by station slug). Used as thumbnails or loading visuals in `intro.html`.
-- `Foto/` — Hero/editorial photography.
-- `SVG/` — Vector icons and line-symbol assets.
-- `Iconografía/` — Accessibility and UI iconography.
+- `Foto/` — Hero/editorial photography (large JPGs + WebP variants).
+- `SVG/` — `Ruta1.svg`, `Ruta2.svg`, `Ruta3.svg` — vector route line symbols used in the editorial.
+- `Iconografía/` — Accessibility and UI iconography, organized by line (`Línea 1/` … `Línea B/`) and `SIN NOMBRES/` (unlabeled variants).
 - `Número de línea de Metro/` — Official Metro line-number badge assets.
+- `Lineas/` — Per-line metadata assets.
+- `Logos/` — Metro system logo.
 
 ## CSS Conventions
+
+All CSS is **inlined in each HTML file** — there are no external `.css` files in the project.
 
 - `index.html`: CSS is minified to single-line rules (compressed style).
 - `metro-accesibilidad.html`: Spaced-out CSS with `/* ═══ section ═══ */` section comments.

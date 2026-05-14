@@ -637,62 +637,55 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 #nv-header{
   display:flex;
-  align-items:flex-start;
-  flex-wrap:wrap;
-  gap:.6rem .8rem;
+  flex-direction:column;
+  align-items:center;
+  gap:.35rem;
   margin-bottom:.8rem;
 }
 #nv-legend{
   display:flex;
-  gap:.8rem 1.2rem;
-  flex-wrap:wrap;
 }
 .nv-leg-group{
   display:flex;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
   align-items:center;
-  gap:3px 4px;
-  padding:4px 8px;
-}
-.nv-leg-group-title{
-  width:100%;
-  font-family:var(--mono);
-  font-size:.4rem;
-  color:var(--text3);
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  padding-bottom:2px;
-  margin-bottom:1px;
+  gap:4px 12px;
 }
 .nv-li{
   display:flex;
   align-items:center;
-  gap:4px;
-  font-family:var(--mono);
-  font-size:.42rem;
-  color:var(--text3);
+  gap:.5rem;
+  font-family:var(--sans);
+  font-size:.72rem;
+  font-weight:600;
+  color:var(--accent);
   cursor:pointer;
-  padding:2px 6px;
-  border-radius:10px;
-  border:1px solid transparent;
   user-select:none;
-  transition:all .18s;
-  letter-spacing:.03em;
+  transition:opacity .18s;
 }
-.nv-li:hover{
-  border-color:var(--border);
-  background:var(--panel);
-  color:var(--text2);
-}
-.nv-li.off{
-  opacity:.3;
-  text-decoration:line-through;
-}
+.nv-li:hover{opacity:.7}
+.nv-li.off{opacity:.3;text-decoration:line-through}
 .nv-lc{
-  width:8px;height:8px;
-  border-radius:50%;
+  width:20px;height:4px;
+  border-radius:1px;
   flex-shrink:0;
 }
+#nv-size-legend{display:flex;flex-direction:row;align-items:center;gap:10px}
+.nv-size-title{font-family:var(--sans);font-size:.72rem;font-weight:600;color:var(--accent)}
+.nv-size-svg-lbl{font-family:'DM Sans',var(--sans);font-size:6px;font-weight:600;fill:#000}
+.nv-hint{font-family:var(--sans);font-size:.58rem;color:var(--text3);margin:.2rem 0 0;letter-spacing:.12em;text-transform:uppercase}
+#nv-summary{margin-top:1.4rem;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+#nv-summary-table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.7rem}
+#nv-summary-table th{font-family:var(--sans);font-size:.6rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text);padding:.75rem 1.1rem;border-bottom:1px solid var(--border);text-align:left}
+#nv-summary-table th:not(:first-child){text-align:center;border-left:1px solid var(--border)}
+#nv-summary-table th.col-func{color:#2a985a}
+#nv-summary-table th.col-nofunc{color:#cc0033}
+#nv-summary-table td{padding:.6rem 1.1rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;font-weight:400}
+#nv-summary-table td:not(:first-child){text-align:center;border-left:1px solid var(--border)}
+#nv-summary-table tr:last-child td{border-bottom:none}
+#nv-summary-table .col-dash{color:var(--text3)}
+.nv-summary-foot{margin:.4rem 0 0;padding:0;font-family:var(--sans);font-size:.6rem;color:#000;font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-align:center;line-height:1.7}
+.nv-foot-n{font-size:.6rem;font-weight:700;color:#000;margin-right:.18em}
 #nv-caption{
   font-family:var(--mono);
   font-size:.42rem;
@@ -734,15 +727,13 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   pointer-events:none;
   opacity:0;
 }
-#nv-info{
-  font-family:var(--mono);
-  font-size:.42rem;
-  color:var(--text3);
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  padding:.4rem 0 0;
-  text-align:center;
+.nv-node text{
+  paint-order:stroke fill;
+  stroke:rgba(255,255,255,0.78);
+  stroke-width:4px;
+  stroke-linejoin:round;
 }
+#nv-info{display:none}
 #nv-tooltip{
   position:fixed;
   background:var(--panel);
@@ -761,9 +752,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 }
 #nv-popup{
   position:fixed;
-  right:20px;
-  top:70px;
-  width:280px;
+  width:300px;
   max-height:calc(100vh - 90px);
   overflow-y:auto;
   background:var(--panel);
@@ -773,19 +762,39 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   z-index:600;
   box-shadow:0 8px 36px rgba(44,36,24,.18);
   display:none;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(0,0,0,.32) transparent;
 }
-#nv-popup-close{
-  position:sticky;top:0;float:right;
-  background:var(--red);border:none;
-  color:#fff;width:20px;height:20px;
-  border-radius:50%;cursor:pointer;
-  font-size:12px;line-height:20px;
-  text-align:center;margin:-4px -4px 8px 8px;
-}
+#nv-popup::-webkit-scrollbar{width:5px}
+#nv-popup::-webkit-scrollbar-track{background:rgba(0,0,0,.06);border-radius:3px}
+#nv-popup::-webkit-scrollbar-thumb{background:rgba(0,0,0,.32);border-radius:3px}
+#nv-popup::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.52)}
+#nv-popup-close{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:1.1rem;line-height:1;color:#888;padding:2px 5px;z-index:2;display:none}
+#nv-popup-close:hover{color:#333}
+#nv-popup.is-pinned #nv-popup-close{display:block}
+#nv-popup.is-pinned{border-color:rgba(0,0,0,.25);box-shadow:0 8px 36px rgba(44,36,24,.28)}
 #nv-popup-content{clear:both;font-family:var(--sans);font-size:.76rem}
-#nv-popup-content *{color:var(--text)!important;border-color:var(--border)!important}
-#nv-popup-content b{color:var(--ink)!important}
+#nv-popup-content:not(.has-ficha) *{color:var(--text)!important;border-color:var(--border)!important}
+#nv-popup-content:not(.has-ficha) b{color:var(--ink)!important}
 #nv-popup-content table{width:100%}
+.nv-ficha{font-family:var(--sans)}
+.nv-ficha-top{display:flex;gap:10px;align-items:flex-start;margin-bottom:4px}
+.nv-ficha-icon{width:110px;height:110px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.nv-ficha-hd{flex:1;min-width:0}
+.nv-ficha-name{font-family:var(--metro);font-size:1.3rem;line-height:1.1;color:#1a1a1a;margin-bottom:6px;text-transform:uppercase}
+.nv-ficha-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.nv-ficha-lbl{font-size:.68rem;color:#5a5a5a}
+.nv-ficha-badge{font-size:.62rem;font-weight:700;color:#fff!important;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.nv-ficha-hr{border:none;border-top:1px solid rgba(4,4,4,.12);margin:8px 0}
+.nv-ficha-section{font-size:.6rem;font-weight:700;letter-spacing:.14em;color:#5a5a5a;margin-bottom:6px}
+.nv-ficha-acc{font-size:.72rem;color:#1a1a1a;margin-bottom:6px}
+.nv-ficha-acc b{color:#1a1a1a!important;font-weight:700;display:block;margin-bottom:3px}
+.nv-ficha-acc-cols{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.nv-ficha-acc-col{display:flex;align-items:center;gap:5px}
+.nv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nv-dot-g{background:#22a85b}
+.nv-dot-r{background:#cc0033}
+.nv-ficha-afluencia{font-size:.7rem;color:#5a5a5a}
 
 /* ═══════════════════════════════════════════════
    RESPONSIVE — MOBILE (≤ 600px)
@@ -833,7 +842,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   #nv-canvas{ height:360px }
   #nv-legend{ display:none }
   #nv-header{ margin-bottom:.4rem }
-  #nv-popup{ right:8px; top:56px; width:calc(100vw - 16px); max-height:55vh }
+  #nv-popup{ left:8px!important; right:auto!important; top:56px!important; width:calc(100vw - 16px); max-height:55vh }
 
   /* ── Route scrollytelling ── */
   .rs-sticky{ padding:.7rem .8rem 0 }
@@ -863,6 +872,25 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 }
 
+/* ── NV radial entry animation ── */
+.nv-anim-hint{
+  position:absolute;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:3px 7px;
+  font-family:var(--sans);
+  font-size:.50rem;
+  color:var(--text3);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .4s ease;
+  white-space:nowrap;
+  z-index:10;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  transform:translate(-50%,-100%) translateY(-12px);
+}
 </style>
 <link rel="preload" as="image" href="cargando/agricolao.png">
 <link rel="preload" as="image" href="cargando/auditorio.png">
@@ -1286,10 +1314,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
 <div class="dark-section">
   <!-- ── Exclusión ── -->
-  <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
+  <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:stretch; margin:1.6rem 0;">
     <p class="body-p reveal" style="margin:0;">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
     <img src="Foto/IMG_4780-chica.webp" alt="Metro CDMX accesibilidad" loading="lazy"
-         style="width:100%; height:100%; object-fit:cover; display:block;">
+         style="width:100%; height:100%; object-fit:cover; display:block; border-radius:12px;">
   </div>
 
   <div class="line-cards reveal">
@@ -1314,20 +1342,34 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   </div>
 
   <!-- ═══ VISUALIZACIÓN: RED DE ACCESIBILIDAD ═══ -->
-  <div class="viz-embed reveal-wipe" id="nv-section">
-
-    <div class="viz-title" style="font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Elementos de accesibilidad por línea</div>
+  <div class="viz-embed reveal-wipe" id="nv-section" style="padding-top:.5rem">
 
     <div id="nv-header">
       <div id="nv-legend">
         <div class="nv-leg-group">
-          <div class="nv-leg-group-title">Accesibilidad</div>
-          <span class="nv-li" id="nv-leg-AccesoFuncional"   onclick="NV.toggleCat('AccesoFuncional')">  <span class="nv-lc" style="background:#22c55e"></span>Elemento funciona</span>
-          <span class="nv-li" id="nv-leg-AccesoNoFuncional" onclick="NV.toggleCat('AccesoNoFuncional')"><span class="nv-lc" style="background:#ef4444"></span>Fuera de servicio</span>
-          <span class="nv-li" id="nv-leg-SinAccesos"        onclick="NV.toggleCat('SinAccesos')">       <span class="nv-lc" style="background:#9a8d7c"></span>Sin accesos</span>
+          <span class="nv-li" id="nv-leg-AccesoFuncional"   onclick="NV.toggleCat('AccesoFuncional')"  ><span class="nv-lc" style="background:#2a985a"></span>Funcionando</span>
+          <span class="nv-li" id="nv-leg-AccesoNoFuncional" onclick="NV.toggleCat('AccesoNoFuncional')"><span class="nv-lc" style="background:#cc0033"></span>Fuera de servicio</span>
+          <span class="nv-li" id="nv-leg-SinAccesos"        onclick="NV.toggleCat('SinAccesos')"       ><span class="nv-lc" style="background:#2a2a2a"></span>Sin elementos de accesibilidad</span>
         </div>
-
       </div>
+      <div id="nv-size-legend">
+        <div class="nv-size-title">Afluencia diaria promedio</div>
+        <!-- radios exactos de la fórmula sqrt(afl/600): 100k→12.91, 50k→9.13, 25k→6.45
+             cx=13, bottom at y=26; los círculos son idénticos en tamaño a los nodos de la gráfica -->
+        <svg width="34" height="27" style="overflow:visible;display:block">
+          <circle cx="13" cy="13.09" r="12.91" fill="#9a8d7c" opacity=".45" stroke="#6b6058" stroke-width="1.5"/>
+          <circle cx="13" cy="16.87" r="9.13"  fill="#9a8d7c" opacity=".45" stroke="#6b6058" stroke-width="1.5"/>
+          <circle cx="13" cy="19.55" r="6.45"  fill="#9a8d7c" opacity=".45" stroke="#6b6058" stroke-width="1.5"/>
+          <!-- líneas horizontales desde cx al extremo superior de cada círculo -->
+          <line x1="13" y1="0.18" x2="32" y2="0.18" stroke="#000" stroke-width="1"/>
+          <line x1="13" y1="7.74" x2="32" y2="7.74" stroke="#000" stroke-width="1"/>
+          <line x1="13" y1="13.1" x2="32" y2="13.1" stroke="#000" stroke-width="1"/>
+          <text x="34" y="5"  text-anchor="start" class="nv-size-svg-lbl">100,000 personas</text>
+          <text x="34" y="13" text-anchor="start" class="nv-size-svg-lbl">50,000 personas</text>
+          <text x="34" y="20" text-anchor="start" class="nv-size-svg-lbl">25,000 personas</text>
+        </svg>
+      </div>
+      <p class="nv-hint">Posiciónate sobre la estación para obtener más información</p>
     </div>
 
     <div id="nv-canvas">
@@ -1338,13 +1380,47 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
       </svg>
     </div>
 
-    <p id="nv-caption">El tamaño del nodo representa la afluencia de la estación</p>
     <div id="nv-info">Hover para ver el nodo · Click para detalles</div>
     <div id="nv-tooltip"></div>
     <div id="nv-popup">
-      <button id="nv-popup-close" onclick="NV.closePopup()">✕</button>
+      <button id="nv-popup-close" title="Cerrar">×</button>
       <div id="nv-popup-content"></div>
     </div>
+
+    <div id="nv-summary">
+      <table id="nv-summary-table">
+        <thead>
+          <tr>
+            <th>Elemento de accesibilidad</th>
+            <th class="col-func">En funcionamiento</th>
+            <th class="col-nofunc">Fuera de servicio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Elevadores</td>
+            <td>46 estaciones</td>
+            <td>7 estaciones</td>
+          </tr>
+          <tr>
+            <td>Plataformas de elevación</td>
+            <td>9 estaciones</td>
+            <td class="col-dash">—</td>
+          </tr>
+          <tr>
+            <td>Escaleras eléctricas</td>
+            <td>43 estaciones</td>
+            <td>12 estaciones</td>
+          </tr>
+          <tr>
+            <td>Corredores de accesibilidad</td>
+            <td>1 estación</td>
+            <td>1 estación</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nv-summary-foot"><span class="nv-foot-n">18</span> de las estaciones analizadas no cuentan con ningún elemento de accesibilidad</p>
 
   </div><!-- /nv-section -->
 
@@ -1589,7 +1665,7 @@ const LINE_COLORS = {
   '9':'#7B4F3A','12':'#BEA14A','A':'#8B4996','B':'#B1B3B3'
 };
 const ACCESS_COLORS = {
-  AccesoFuncional:'#2a985a',AccesoNoFuncional:'#cc0033',SinAccesos:'#9a8d7c',Especial:'#9a8d7c'
+  AccesoFuncional:'#2a985a',AccesoNoFuncional:'#cc0033',SinAccesos:'#2a2a2a',Especial:'#2a2a2a'
 };
 function nodeColor(d){
   if(d.tipo==='Estación') return '#b8b8b0';
@@ -1742,6 +1818,8 @@ const tooltip = document.getElementById('nv-tooltip');
 const popup = document.getElementById('nv-popup');
 const popupContent = document.getElementById('nv-popup-content');
 let popupOpen = false;
+let popupPinned = false;
+let popupData = null;
 
 function showTooltip(event,d){
   const label = ACCESS_LABELS[d.id] || d.id.replace(/_/g,' ');
@@ -1756,10 +1834,178 @@ function moveTooltip(event){
 }
 function hideTooltip(){tooltip.style.opacity='0';}
 
-function showPopup(d){
-  popupContent.innerHTML = d.html;
-  popup.style.display = 'block';
-  popupOpen = true;
+const ALL_STATION_DATA={
+  // ── Línea 1 ───────────────────────────────────────────
+  'Balderas_1':     {name:'Balderas',                  cat:'1', icon:'balderas.png',           elevF:1, elevO:0,eeF:9, eeO:0, afl:16122, tf:'3'},
+  'Chapultepec':    {name:'Chapultepec',               cat:'1', icon:'chapultepec.png',        elevF:3, elevO:0,eeF:0, eeO:0, afl:28346, tf:null},
+  'Cuauhtemoc':     {name:'Cuauhtémoc',                cat:'1', icon:'cuauhtemoc.png',         elevF:2, elevO:0,eeF:2, eeO:0, afl:8504,  tf:null},
+  'Insurgentes':    {name:'Insurgentes',               cat:'1', icon:'insurgentes.png',        elevF:2, elevO:0,eeF:0, eeO:0, afl:21349, tf:null},
+  'Juanacatlan':    {name:'Juanacatlán',               cat:'1', icon:'juanacatlan.png',        elevF:2, elevO:0,eeF:0, eeO:0, afl:6663,  tf:null},
+  'Observatorio':   {name:'Observatorio',              cat:'1', icon:'observatorio.png',       elevF:4, elevO:0,eeF:0, eeO:0, afl:3852,  tf:null},
+  'Pino_Suarez_1':  {name:'Pino Suárez',               cat:'1', icon:'pinosuarez.png',         elevF:1, elevO:0,eeF:4, eeO:0, afl:24531, tf:'2'},
+  'Salto_del_Agua_1':{name:'Salto del Agua',           cat:'1', icon:'saltodelagua.png',       elevF:2, elevO:0,eeF:2, eeO:0, afl:11552, tf:'8'},
+  'Sevilla':        {name:'Sevilla',                   cat:'1', icon:'sevilla.png',            elevF:2, elevO:0,eeF:2, eeO:0, afl:12673, tf:null},
+  'Tacubaya':       {name:'Tacubaya',                  cat:'1', icon:'tacubaya.png',           elevF:3, elevO:0,eeF:4, eeO:0, afl:1810,  tf:'7'},
+  // ── Línea 2 ───────────────────────────────────────────
+  'Bellas_Artes_2': {name:'Bellas Artes',              cat:'2', icon:'bellasartes.png',        elevF:0, elevO:0,eeF:2, eeO:0, afl:26238, tf:'8'},
+  'Chabacano_2':    {name:'Chabacano',                 cat:'2', icon:'chabacano.png',          elevF:3, elevO:1,eeF:5, eeO:1, afl:21997, tf:'8'},
+  'Cuatro_Caminos': {name:'Cuatro Caminos',            cat:'2', icon:'cuatrocaminos.png',      elevF:1, elevO:1,eeF:2, eeO:2, afl:96300, tf:null},
+  'Hidalgo_2':      {name:'Hidalgo',                   cat:'2', icon:'hidalgo.png',            elevF:0, elevO:0,eeF:2, eeO:2, afl:25817, tf:'3'},
+  'Pino_Suarez_2':  {name:'Pino Suárez',               cat:'2', icon:'pinosuarez.png',         elevF:4, elevO:0,eeF:4, eeO:0, afl:30103, tf:'1'},
+  'Tacuba_2':       {name:'Tacuba',                    cat:'2', icon:'tacuba.png',             elevF:0, elevO:0,eeF:2, eeO:0, afl:29416, tf:'7'},
+  // ── Línea 3 ───────────────────────────────────────────
+  'Balderas_3':     {name:'Balderas',                  cat:'3', icon:'balderas.png',           elevF:3, elevO:0,eeF:3, eeO:0, afl:11223, tf:'1'},
+  'Centro_Medico_3':{name:'Centro Médico',             cat:'3', icon:'centromedico.png',       elevF:2, elevO:0,eeF:4, eeO:0, afl:15374, tf:'9'},
+  'Hidalgo_3':      {name:'Hidalgo',                   cat:'3', icon:'hidalgo.png',            elevF:6, elevO:0,eeF:0, eeO:0, afl:15622, tf:'2'},
+  'Hospital_General':{name:'Hospital General',         cat:'3', icon:'hospitalgeneral.png',    elevF:2, elevO:0,eeF:2, eeO:0, afl:16072, tf:null},
+  // ── Línea 7 ───────────────────────────────────────────
+  'Camarones':      {name:'Camarones',                 cat:'7', icon:'camarones.png',          elevF:0, elevO:0,eeF:15,eeO:1, afl:12042, tf:null},
+  'Tacuba_7':       {name:'Tacuba',                    cat:'7', icon:'tacuba.png',             elevF:0, elevO:0,eeF:13,eeO:2, afl:7218,  tf:'2'},
+  // ── Línea 8 ───────────────────────────────────────────
+  'Aculco':         {name:'Aculco',                    cat:'8', icon:'aculco.png',             elevF:0, elevO:0,eeF:0, eeO:0, afl:7579,  tf:null},
+  'Apatlaco':       {name:'Apatlaco',                  cat:'8', icon:'apatlaco.png',           elevF:0, elevO:0,eeF:0, eeO:0, afl:11246, tf:null},
+  'Atlalilco_8':    {name:'Atlalilco',                 cat:'8', icon:'atlatilco.png',          elevF:2, elevO:0,eeF:0, eeO:0, afl:12675, tf:'12'},
+  'Bellas_Artes_8': {name:'Bellas Artes',              cat:'8', icon:'bellasartes.png',        elevF:0, elevO:0,eeF:5, eeO:0, afl:17018, tf:'2'},
+  'Cerro_de_la_Estrella':{name:'Cerro de la Estrella',cat:'8', icon:'cerro.png',              elevF:0, elevO:0,eeF:0, eeO:0, afl:9919,  tf:null},
+  'Chabacano_8':    {name:'Chabacano',                 cat:'8', icon:'chabacano.png',          elevF:2, elevO:0,eeF:3, eeO:0, afl:3537,  tf:'2'},
+  'Constitucion_de_1917':{name:'Constitución de 1917',cat:'8', icon:'constitucion.png',       elevF:2, elevO:0,eeF:0, eeO:0, afl:91959, tf:null},
+  'Coyuya':         {name:'Coyuya',                    cat:'8', icon:'coyuya.png',             elevF:2, elevO:1,eeF:0, eeO:0, afl:23632, tf:null},
+  'Doctores':       {name:'Doctores',                  cat:'8', icon:'doctores.png',           elevF:0, elevO:0,eeF:0, eeO:0, afl:9810,  tf:null},
+  'Escuadron_201':  {name:'Escuadrón 201',             cat:'8', icon:'escuadron.png',          elevF:0, elevO:0,eeF:0, eeO:0, afl:17940, tf:null},
+  'Garibaldi_8':    {name:'Garibaldi',                 cat:'8', icon:'garibaldi.png',          elevF:0, elevO:0,eeF:4, eeO:0, afl:16562, tf:null},
+  'Iztacalco':      {name:'Iztacalco',                 cat:'8', icon:'iztacalco.png',          elevF:0, elevO:0,eeF:0, eeO:0, afl:15351, tf:null},
+  'Iztapalapa':     {name:'Iztapalapa',                cat:'8', icon:'iztapalapa.png',         elevF:0, elevO:0,eeF:0, eeO:0, afl:9271,  tf:null},
+  'La_Viga':        {name:'La Viga',                   cat:'8', icon:'viga.png',               elevF:0, elevO:0,eeF:0, eeO:0, afl:6304,  tf:null},
+  'Obrera':         {name:'Obrera',                    cat:'8', icon:'obrera.png',             elevF:0, elevO:0,eeF:0, eeO:0, afl:11297, tf:null},
+  'Salto_del_Agua_8':{name:'Salto del Agua',           cat:'8', icon:null,                     elevF:0, elevO:0,eeF:4, eeO:1, afl:12294, tf:'1'},
+  'San_Juan_de_Letran':{name:'San Juan de Letrán',     cat:'8', icon:'sanjuan.png',            elevF:0, elevO:0,eeF:0, eeO:0, afl:22171, tf:null},
+  'Santa_Anita':    {name:'Santa Anita',               cat:'8', icon:'santanita.png',          elevF:0, elevO:0,eeF:0, eeO:0, afl:4086,  tf:null},
+  'UAM':            {name:'UAM',                       cat:'8', icon:'uam.png',                elevF:0, elevO:0,eeF:0, eeO:0, afl:21068, tf:null},
+  // ── Línea 9 ───────────────────────────────────────────
+  'Centro_Medico_9':{name:'Centro Médico',             cat:'9', icon:'centromedico.png',       elevF:2, elevO:0,eeF:5, eeO:1, platF:4,platO:0, afl:13152, tf:'3'},
+  'Chabacano_9':    {name:'Chabacano',                 cat:'9', icon:'chabacano.png',          elevF:0, elevO:0,eeF:4, eeO:0, afl:7676,  tf:'2'},
+  // ── Línea 12 ──────────────────────────────────────────
+  'Atlalilco_12':   {name:'Atlalilco',                 cat:'12',icon:'atlatilco.png',          elevF:1, elevO:1,eeF:7, eeO:0, platF:4,platO:0,corrF:7,corrO:1, afl:11948, tf:'8'},
+  'Calle_11':       {name:'Calle 11',                  cat:'12',icon:'calle11.png',            elevF:2, elevO:0,eeF:3, eeO:5, platF:4,platO:0, afl:11716, tf:null},
+  'Culhuacan':      {name:'Culhuacán',                 cat:'12',icon:'culhuacan.png',          elevF:2, elevO:0,eeF:4, eeO:0, afl:14912, tf:null},
+  'Eje_Central':    {name:'Eje Central',               cat:'12',icon:'ejecentral.png',         elevF:2, elevO:0,eeF:4, eeO:0, afl:10706, tf:null},
+  'Ermita':         {name:'Ermita',                    cat:'12',icon:'ermita.png',             elevF:3, elevO:0,eeF:8, eeO:0, afl:8347,  tf:'2'},
+  'Hospital_20_de_Noviembre':{name:'Hospital 20 de Noviembre',cat:'12',icon:'Hospital20Noviembre.jpg',elevF:2,elevO:0,eeF:4,eeO:0,afl:9571,tf:null},
+  'Insugentes_Sur': {name:'Insurgentes Sur',           cat:'12',icon:'insurgentes.png',        elevF:2, elevO:0,eeF:5, eeO:1, afl:31297, tf:null},
+  'Lomas_Estrella': {name:'Lomas Estrella',            cat:'12',icon:'lomasestrella.png',      elevF:2, elevO:0,eeF:4, eeO:0, platF:4,platO:0, afl:8563,  tf:null},
+  'Mexilcalcingo':  {name:'Mexicaltzingo',             cat:'12',icon:'mexicaltzingo.png',      elevF:3, elevO:0,eeF:6, eeO:0, afl:15094, tf:null},
+  'Mixcoac':        {name:'Mixcoac',                   cat:'12',icon:'mixcoac.png',            elevF:3, elevO:0,eeF:7, eeO:0, afl:14371, tf:'7'},
+  'Nopalera':       {name:'Nopalera',                  cat:'12',icon:'nopalera.png',           elevF:2, elevO:0,eeF:4, eeO:4, platF:4,platO:0, afl:21407, tf:null},
+  'Olivos':         {name:'Olivos',                    cat:'12',icon:'olivos.png',             elevF:2, elevO:0,eeF:4, eeO:4, platF:4,platO:0, afl:14581, tf:null},
+  'Parque_de_los_Venados':{name:'Parque de los Venados',cat:'12',icon:'parquedelosvenados.png',elevF:3,elevO:0,eeF:4,eeO:0,afl:9537,tf:null},
+  'Periferico_Oriente':{name:'Periférico Oriente',     cat:'12',icon:'perifericooriente.png',  elevF:3, elevO:0,eeF:8, eeO:0, afl:30853, tf:null},
+  'San_Andres_Tomatlan':{name:'San Andrés Tomatlán',   cat:'12',icon:'sanandrestomatlan.png',  elevF:2, elevO:0,eeF:4, eeO:0, platF:4,platO:0, afl:9441,  tf:null},
+  'Tezonco':        {name:'Tezonco',                   cat:'12',icon:'tezonco.png',            elevF:1, elevO:1,eeF:3, eeO:3, platF:4,platO:0, afl:20502, tf:null},
+  'Tlahuac':        {name:'Tláhuac',                   cat:'12',icon:'tlahuac.png',            elevF:4, elevO:0,eeF:4, eeO:0, afl:53267, tf:null},
+  'Tlaltenco':      {name:'Tlaltenco',                 cat:'12',icon:'tlaltenco.png',          elevF:2, elevO:0,eeF:3, eeO:0, afl:4640,  tf:null},
+  'Zapata':         {name:'Zapata',                    cat:'12',icon:'zapata.png',             elevF:2, elevO:1,eeF:7, eeO:0, afl:12415, tf:'3'},
+  'Zapotitlan':     {name:'Zapotitlán',                cat:'12',icon:'zapotitlan.png',         elevF:2, elevO:0,eeF:4, eeO:0, platF:4,platO:0, afl:11848, tf:null},
+  // ── Línea A ───────────────────────────────────────────
+  'Acatitla':       {name:'Acatitla',                  cat:'A', icon:'acatitla.png',           elevF:0, elevO:0,eeF:0, eeO:0, afl:13803, tf:null},
+  'Agricola_Oriental':{name:'Agrícola Oriental',       cat:'A', icon:'agricolaoRIENTAL.png',   elevF:0, elevO:0,eeF:0, eeO:0, afl:10147, tf:null},
+  'Canal_de_San_Juan':{name:'Canal de San Juan',       cat:'A', icon:'canalsanJUAN.png',       elevF:0, elevO:0,eeF:0, eeO:0, afl:11160, tf:null},
+  'Guelatao':       {name:'Guelatao',                  cat:'A', icon:'guelatao.png',           elevF:0, elevO:0,eeF:0, eeO:0, afl:17376, tf:null},
+  'La_Paz':         {name:'La Paz',                    cat:'A', icon:'lapaz.png',              elevF:2, elevO:0,eeF:0, eeO:0, afl:39432, tf:null},
+  'Los_Reyes':      {name:'Los Reyes',                 cat:'A', icon:'reyes.png',              elevF:0, elevO:0,eeF:0, eeO:0, afl:18729, tf:null},
+  'Pantitlan':      {name:'Pantitlán',                 cat:'A', icon:'pantitlan.png',          elevF:3, elevO:0,eeF:0, eeO:0, afl:30336, tf:'1'},
+  'Penon_Viejo':    {name:'Peñón Viejo',               cat:'A', icon:'PENONviejo.png',         elevF:0, elevO:0,eeF:0, eeO:0, afl:11557, tf:null},
+  'Santa_Martha':   {name:'Santa Marta',               cat:'A', icon:'santamartha.png',        elevF:1, elevO:0,eeF:0, eeO:0, afl:35324, tf:null},
+  'Tepalcates':     {name:'Tepalcates',                cat:'A', icon:'tepalcates.png',         elevF:1, elevO:0,eeF:0, eeO:0, afl:23232, tf:null}
+};
+const ICON_BASES={
+  '1':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%201%20SINNOMBRES/',
+  '2':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%202%20SINNOMBRES/',
+  '3':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%203%20SINNOMBRES/',
+  '7':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%207%20SINNOMBRES/',
+  '8':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%208%20SINNOMBRES/',
+  '9':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%209%20SINNOMBRES/',
+  '12':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%2012%20SINNOMBRES/',
+  'A':'Iconograf%C3%ADa/SIN%20NOMBRES/L%C3%ADnea%20A%20SINNOMBRES/'
+};
+const LINE_NAMES={'1':'Línea 1','2':'Línea 2','3':'Línea 3','7':'Línea 7','8':'Línea 8','9':'Línea 9','12':'Línea 12','A':'Línea A'};
+const BADGE_COLORS={'1':'#F44C94','2':'#046CC4','3':'#B4AC04','7':'#FC640C','8':'#048C4C','9':'#301000','12':'#C49C54','A':'#84047C'};
+
+function buildFichaHTML(id){
+  const D=ALL_STATION_DATA[id];
+  if(!D) return '';
+  const lc=BADGE_COLORS[D.cat]||LINE_COLORS[D.cat]||'#888';
+  const ln=LINE_NAMES[D.cat]||('Línea '+D.cat);
+  const base=ICON_BASES[D.cat];
+  const iconHtml=(D.icon&&base)?`<img class='nv-ficha-icon' src='${base}${D.icon}' alt='${D.name}'>`:'';
+  const tfRow=D.tf?`<div class='nv-ficha-row'><span class='nv-ficha-lbl'>Transbordo con:</span><span class='nv-ficha-badge' style='background:${BADGE_COLORS[D.tf]||LINE_COLORS[D.tf]||"#888"}'>${LINE_NAMES[D.tf]||D.tf}</span></div>`:'';
+  const pF=D.platF||0,pO=D.platO||0,cF=D.corrF||0,cO=D.corrO||0;
+  const hasAcc=D.elevF||D.elevO||D.eeF||D.eeO||pF||pO||cF||cO;
+  const accRow=(lbl,f,o)=>`<div class='nv-ficha-acc'><b>${lbl}:</b><div class='nv-ficha-acc-cols'><div class='nv-ficha-acc-col'><span class='nv-dot nv-dot-g'></span>${f} funcionando</div><div class='nv-ficha-acc-col'><span class='nv-dot nv-dot-r'></span>${o} fuera de servicio</div></div></div>`;
+  const accHtml=hasAcc
+    ?[D.elevF||D.elevO?accRow('Elevadores',D.elevF,D.elevO):'',
+      D.eeF||D.eeO?accRow('Escaleras eléctricas',D.eeF,D.eeO):'',
+      pF||pO?accRow('Plataformas',pF,pO):'',
+      cF||cO?accRow('Corredores',cF,cO):''].join('')
+    :`<div class='nv-ficha-acc' style='color:#888'>Sin datos de accesibilidad registrados</div>`;
+  return `<div class='nv-ficha'><div class='nv-ficha-top'>${iconHtml}<div class='nv-ficha-hd'><div class='nv-ficha-name'>${D.name}</div><div class='nv-ficha-row'><span class='nv-ficha-lbl'>Correspondiente a:</span><span class='nv-ficha-badge' style='background:${lc}'>${ln}</span></div>${tfRow}</div></div><hr class='nv-ficha-hr'><div class='nv-ficha-section'>ACCESIBILIDAD</div>${accHtml}</div>`;
+}
+
+function buildAccesoHTML(d){
+  const label=ACCESS_LABELS[d.id]||d.id;
+  const connMap={},seen=new Set();
+  RAW_LINKS.forEach(l=>{
+    const sid=l.s===d.id?l.t:l.t===d.id?l.s:null;
+    if(sid&&!seen.has(sid)){const n=nodeMap[sid];if(n&&n.tipo==='Estación'){seen.add(sid);connMap[sid]=l.w||0;}}
+  });
+  const connIds=Object.keys(connMap);
+  const byLine={};
+  connIds.forEach(sid=>{
+    const n=nodeMap[sid];if(!n)return;
+    const SD=ALL_STATION_DATA[sid];
+    const nm=SD?SD.name:sid.replace(/_/g,' ');
+    const ln=SD?SD.cat:n.cat;
+    if(!byLine[ln])byLine[ln]=[];
+    byLine[ln].push({nm,w:connMap[sid]});
+  });
+  const lineOrder=['1','2','3','7','8','9','12','A'];
+  let rows='';
+  lineOrder.forEach(ln=>{
+    if(!byLine[ln])return;
+    const lc=BADGE_COLORS[ln]||LINE_COLORS[ln]||'#888';
+    const lname=LINE_NAMES[ln]||('Línea '+ln);
+    rows+=`<div class='nv-ficha-section' style='margin-top:8px'><span class='nv-ficha-badge' style='background:${lc}'>${lname}</span></div>`;
+    byLine[ln].forEach(({nm,w})=>{rows+=`<div class='nv-ficha-acc' style='padding-left:4px;display:flex;justify-content:space-between'><span>${nm}</span>${w>0?`<span style='font-family:var(--mono);font-size:.6rem;color:#888;align-self:center'>${w} unidades</span>`:''}  </div>`;});
+  });
+  return `<div class='nv-ficha'><div class='nv-ficha-hd'><div class='nv-ficha-name' style='font-size:.95rem;text-transform:none'>${label}</div><div class='nv-ficha-row'><span class='nv-ficha-lbl'>${connIds.length} estaciones</span></div></div><hr class='nv-ficha-hr'>${rows}</div>`;
+}
+
+function showPopup(e,d){
+  const D=ALL_STATION_DATA[d.id];
+  const isAcceso=d.tipo==='Acceso'||d.tipo==='Especial';
+  popupContent.classList.toggle('has-ficha',!!(D||isAcceso));
+  popupContent.innerHTML=D?buildFichaHTML(d.id):isAcceso?buildAccesoHTML(d):d.html;
+  popup.style.maxHeight='none';
+  popup.style.display='block';
+  const cr=document.getElementById('nv-canvas').getBoundingClientRect();
+  const pw=popup.offsetWidth||300, gap=10;
+  const onRight=e.clientX > cr.left + cr.width/2;
+  let left;
+  if(onRight){
+    left=cr.left - pw - gap;
+    if(left < 4) left=4;
+  } else {
+    left=cr.right + gap;
+    if(left + pw > window.innerWidth - 4) left=window.innerWidth - pw - 4;
+  }
+  const viewH=window.innerHeight;
+  const naturalH=popup.offsetHeight;
+  const popH=Math.min(naturalH, viewH - 80);
+  const top=Math.max(40, Math.floor((viewH - popH) / 2));
+  popup.style.maxHeight=(viewH - top - 20)+'px';
+  popup.style.left=left+'px';
+  popup.style.top=top+'px';
+  popup.style.right='auto';
+  popupOpen=true;
 }
 function closePopup(){
   popup.style.display = 'none';
@@ -1789,7 +2035,7 @@ function linkStroke(d){ return Math.max(1.5, d.w * 1.1); }
 function linkColor(d){
   const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
   if(!src) return '#c5baa8';
-  if(src.cat==='SinAccesos') return '#c5baa8';
+  if(src.cat==='SinAccesos') return '#2a2a2a';
   if(src.cat==='AccesoNoFuncional') return '#cc0033';
   return '#2a985a';
 }
@@ -1821,21 +2067,12 @@ function buildDOM(){
 
   linkGrp
     .on('mouseover',(e,d)=>{
-      const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
-      const tgt = nodeMap[typeof d.target==='object'?d.target.id:d.target];
-      const sl = src?src.id.replace(/_/g,' '):'?';
-      const tl = tgt?tgt.id.replace(/_/g,' '):'?';
-      tooltip.innerHTML = `<span style="color:#9a8d7c;font-size:10px">${sl}</span><br><b style="color:#8b6d38">Peso: ${d.w}</b><br><span style="color:#9a8d7c;font-size:10px">${tl}</span>`;
-      tooltip.style.opacity='1';
-      moveTooltip(e);
       d3.select(e.currentTarget).select('line')
         .attr('stroke-opacity',0.9)
         .attr('stroke-width', d2=>Math.max(3, d2.w*1.8));
       d3.select(e.currentTarget).select('.wlabel').style('opacity',1);
     })
-    .on('mousemove', moveTooltip)
     .on('mouseout',(e)=>{
-      hideTooltip();
       d3.select(e.currentTarget).select('line')
         .attr('stroke-opacity',0.45)
         .attr('stroke-width', linkStroke);
@@ -1857,16 +2094,34 @@ function buildDOM(){
   );
 
   nodeSel
-    .on('mouseover',(e,d)=>{showTooltip(e,d); highlightConnected(d);})
-    .on('mousemove', moveTooltip)
-    .on('mouseout', (e,d)=>{hideTooltip(); if(!popupOpen) unhighlight();})
+    .on('mouseover',(e,d)=>{ if(!popupPinned){showPopup(e,d); highlightConnected(d);} })
+    .on('mouseout',(e,d)=>{ if(!popupPinned){closePopup(); unhighlight();} })
     .on('click',(e,d)=>{
       e.stopPropagation();
-      showPopup(d);
-      highlightConnected(d);
+      if(popupPinned && popupData && popupData.id===d.id){
+        popupPinned=false; popupData=null;
+        popup.classList.remove('is-pinned');
+        closePopup(); unhighlight();
+      } else {
+        popupPinned=true; popupData=d;
+        popup.classList.add('is-pinned');
+        showPopup(e,d); highlightConnected(d);
+      }
     });
 
-  svg.on('click',(e)=>{if(!popup.contains(e.target)&&!e.target.closest('.nv-node')) closePopup();});
+  document.getElementById('nv-popup-close').addEventListener('click',function(){
+    popupPinned=false; popupData=null;
+    popup.classList.remove('is-pinned');
+    closePopup();
+  });
+
+  svg.on('click',(e)=>{
+    if(!popup.contains(e.target)&&!e.target.closest('.nv-node')){
+      popupPinned=false; popupData=null;
+      popup.classList.remove('is-pinned');
+      closePopup();
+    }
+  });
   applyFilters();
 }
 
@@ -2033,35 +2288,23 @@ function drawRadial(){
     }
     function placeLabel(nodeEl, lx, ly, anchor, line1, line2, fontSize){
       nodeEl.select('text')
-        .attr('x',0).attr('y',0).attr('text-anchor',anchor)
+        .attr('x',0).attr('y',ly).attr('text-anchor',anchor)
         .attr('font-size', fontSize+'px')
         .text('').call(t=>{
           t.append('tspan').attr('x',lx).attr('dy','0em').text(line1);
-          if(line2) t.append('tspan').attr('x',lx).attr('dy','1.1em').text(line2);
+          if(line2) t.append('tspan').attr('x',lx).attr('dy','1.2em').text(line2);
         });
     }
 
-    // -- Inner nodes: place labels outward into gap between rings
+    // -- Inner nodes: labels always below the node, never covering it
     accessNodes.forEach(d=>{
       const r = nodeRadius(d,'radial');
-      const dx = d.rx-cx, dy = d.ry-cy;
-      const dist = Math.sqrt(dx*dx+dy*dy)||1;
-      const ndx = dx/dist, ndy = dy/dist;
-      const pad = r+7;
-      const lx = ndx*pad, ly = ndy*pad;
       const line1 = ACCESS_SHORT[d.id]||d.id;
       const line2 = ACCESS_STATUS[d.id]||'';
-      const anchor = ndx>0.25?'start':ndx<-0.25?'end':'middle';
-      const longer = line1.length >= line2.length ? line1 : line2;
-      const box1 = boxFor(d.rx+lx, d.ry+ly-cH*0.6, longer, anchor);
-      if(!collides(box1)){
-        placed.push(box1);
-        placed.push({...box1, y:box1.y+cH*1.1}); // reserve space for line2
-        placeLabel(
-          nodesG.selectAll('.nv-node').filter(n=>n.id===d.id),
-          lx, ly, anchor, line1, line2, 7
-        );
-      }
+      placeLabel(
+        nodesG.selectAll('.nv-node').filter(n=>n.id===d.id),
+        0, r+10, 'middle', line1, line2, 7
+      );
     });
 
     // -- Outer station nodes: sort by afluencia desc (prominent stations labeled first)
@@ -2570,6 +2813,104 @@ const V3 = (function(){
 </script>
 
 <script>
+// ── NV radial diagram entry animation ─────────────────────────────
+(function(){
+  var fired = false;
+  var PULSE_IDS = ['Chapultepec', 'Camarones', 'Centro_Medico_9'];
+
+  function run(){
+    if(fired) return; fired = true;
+
+    var ringG  = document.getElementById('nv-ring-g');
+    var nodesG = document.getElementById('nv-nodes-g');
+    if(!ringG || !nodesG) return;
+
+    // Part 1 — gentle fade-in: ring first, then nodes 400 ms later
+    var FADE = '1.8s ease-out';
+    [ringG, nodesG].forEach(function(g, i){
+      g.style.opacity    = '0';
+      g.style.transition = 'opacity ' + FADE + ' ' + (i * 400) + 'ms';
+    });
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        ringG.style.opacity  = '1';
+        nodesG.style.opacity = '1';
+      });
+    });
+    // Clean up inline styles once fully visible
+    var totalFade = 1800 + 400; // last group finishes at ~2.2 s
+    setTimeout(function(){
+      ringG.style.transition  = nodesG.style.transition  = '';
+      ringG.style.opacity     = nodesG.style.opacity     = '';
+    }, totalFade + 100);
+
+    // Part 2 — gentle pulse on 3 nodes after fade settles
+    setTimeout(startPulse, totalFade + 200);
+
+    function startPulse(){
+      var targets = [];
+      document.querySelectorAll('#nv-nodes-g .nv-node').forEach(function(el){
+        var d = el.__data__;
+        if(d && PULSE_IDS.indexOf(d.id) !== -1) targets.push(el);
+      });
+      targets.sort(function(a, b){
+        return PULSE_IDS.indexOf(a.__data__.id) - PULSE_IDS.indexOf(b.__data__.id);
+      });
+      var n = targets.length;
+      var hintAnchor = targets[0];
+      targets.forEach(function(el, i){
+        setTimeout(function(){
+          pulseNode(el, i === n - 1, hintAnchor);
+        }, i * 200);
+      });
+    }
+
+    function pulseNode(el, isLast, hintAnchor){
+      var circle = el.querySelector('circle');
+      if(!circle) return;
+      var r0 = parseFloat(circle.getAttribute('r')) || 8;
+      d3.select(el).select('circle')
+        .transition().duration(600).ease(d3.easeSinInOut)
+          .attr('r', r0 * 1.25)
+        .transition().duration(700).ease(d3.easeSinOut)
+          .attr('r', r0)
+        .on('end', function(){ if(isLast) showHint(hintAnchor); });
+    }
+
+    // Part 3 — single small hint near first pulsed node, disappears after 3 s
+    function showHint(anchor){
+      var canvas = document.getElementById('nv-canvas');
+      if(!canvas || !anchor) return;
+      var cr = canvas.getBoundingClientRect();
+      var er = anchor.getBoundingClientRect();
+      var hint = document.createElement('div');
+      hint.className = 'nv-anim-hint';
+      hint.textContent = 'Pasa el cursor para ver detalles';
+      hint.style.left = (er.left + er.width  / 2 - cr.left) + 'px';
+      hint.style.top  = (er.top  + er.height / 2 - cr.top)  + 'px';
+      canvas.appendChild(hint);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ hint.style.opacity = '1'; });
+      });
+      setTimeout(function(){
+        hint.style.opacity = '0';
+        setTimeout(function(){
+          if(hint.parentNode) hint.parentNode.removeChild(hint);
+        }, 420);
+      }, 3000);
+    }
+  }
+
+  var nvSection = document.getElementById('nv-section');
+  if(!nvSection) return;
+  var nvObs = new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting){ nvObs.disconnect(); run(); }
+  }, { threshold: 0.3, root: document.getElementById('introPanel') });
+  nvObs.observe(nvSection);
+})();
+</script>
+
+<script>
 // ─── Geo helpers (needed by initAccScript route scrollytelling) ───
 function hav(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function bearing(lat1,lon1,lat2,lon2){const dLon=(lon2-lon1)*Math.PI/180;const y=Math.sin(dLon)*Math.cos(lat2*Math.PI/180);const x=Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos(dLon);return(Math.atan2(y,x)*180/Math.PI+360)%360}
@@ -2713,16 +3054,16 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'};
 
   const R1=[
-    {id:'Balbuena',          nm:'Balbuena',          ln:'1',lat:19.423231,lng:-99.102302, elev:true, ee:true, acc:true,  tp:'origin'},
-    {id:'Moctezuma',         nm:'Moctezuma',          ln:'1',lat:19.427218,lng:-99.110305, elev:true, ee:true, acc:true},
-    {id:'San_Lazaro_1',      nm:'San Lázaro',         ln:'1',lat:19.430213,lng:-99.114833, elev:false,ee:false,acc:false},
-    {id:'Candelaria_1',      nm:'Candelaria',         ln:'1',lat:19.428837,lng:-99.119511, elev:false,ee:false,acc:false},
-    {id:'Pino_Suarez_1',     nm:'Pino Suárez',        ln:'1',lat:19.425336,lng:-99.132943, elev:true, ee:true, acc:true, tp:'transfer'},
-    {id:'Salto_del_Agua_1',  nm:'Salto del Agua',     ln:'1',lat:19.426813,lng:-99.142213, elev:true, ee:true, acc:true},
-    {id:'Balderas_1',        nm:'Balderas',           ln:'1',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer'},
-    {id:'Balderas_3',        nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer'},
+    {id:'Balbuena',          nm:'Balbuena',          ln:'1',lat:19.423231,lng:-99.102302, elev:true, ee:true, acc:true,  tp:'origin', ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/balbuena.png'},
+    {id:'Moctezuma',         nm:'Moctezuma',          ln:'1',lat:19.427218,lng:-99.110305, elev:true, ee:true, acc:true,              ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/moctezuma.png'},
+    {id:'San_Lazaro_1',      nm:'San Lázaro',         ln:'1',lat:19.430213,lng:-99.114833, elev:false,ee:false,acc:false,             ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/sanlazaro.png'},
+    {id:'Candelaria_1',      nm:'Candelaria',         ln:'1',lat:19.428837,lng:-99.119511, elev:false,ee:false,acc:false,             ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/candelaria.png'},
+    {id:'Pino_Suarez_1',     nm:'Pino Suárez',        ln:'1',lat:19.425336,lng:-99.132943, elev:true, ee:true, acc:true, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/pinosuarez.png'},
+    {id:'Salto_del_Agua_1',  nm:'Salto del Agua',     ln:'1',lat:19.426813,lng:-99.142213, elev:true, ee:true, acc:true,              ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/saltodelagua.png'},
+    {id:'Balderas_1',        nm:'Balderas',           ln:'1',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/balderas.png'},
+    {id:'Balderas_3',        nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/balderas.png'},
     {id:'Ninos_Heroes',      nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false},
-    {id:'Hospital_General',  nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true, tp:'dest'},
+    {id:'Hospital_General',  nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true, tp:'dest',   ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hospitalgeneral.png'},
   ];
   const R1_CAPS=[
     'Balbuena (L1) → Hospital General (L3): ruta de salud. Pantitlán, la terminal más cercana, no tiene accesibilidad — hay que salir del sistema para llegar hasta aquí.',
@@ -2738,29 +3079,29 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
   ];
 
   const R2=[
-    {id:'Cuatro_Caminos',          nm:'Cuatro Caminos',     ln:'2',lat:19.459592,lng:-99.215899, elev:true, ee:true, acc:true,  tp:'origin'},
-    {id:'Panteones',               nm:'Panteones',          ln:'2',lat:19.458763,lng:-99.203153, elev:false,ee:false,acc:false},
-    {id:'Tacuba_2',                nm:'Tacuba',             ln:'2',lat:19.459349,lng:-99.189205, elev:false,ee:true, acc:false, tp:'transfer'},
-    {id:'Cuitlahuac',              nm:'Cuitláhuac',         ln:'2',lat:19.457448,lng:-99.182038, elev:false,ee:true, acc:false},
-    {id:'Popotla',                 nm:'Popotla',            ln:'2',lat:19.452147,lng:-99.174700, elev:false,ee:true, acc:false},
-    {id:'Colegio_Militar',         nm:'Colegio Militar',    ln:'2',lat:19.449354,lng:-99.172254, elev:false,ee:true, acc:false},
-    {id:'Normal',                  nm:'Normal',             ln:'2',lat:19.444400,lng:-99.167400, elev:false,ee:true, acc:false},
-    {id:'San_Cosme',               nm:'San Cosme',          ln:'2',lat:19.441706,lng:-99.161096, elev:false,ee:false,acc:false},
-    {id:'Revolucion',              nm:'Revolución',         ln:'2',lat:19.439561,lng:-99.155431, elev:true, ee:true, acc:true},
-    {id:'Hidalgo_2',               nm:'Hidalgo',            ln:'2',lat:19.437295,lng:-99.147105, elev:false,ee:true, acc:false, tp:'transfer'},
-    {id:'Hidalgo_3r',              nm:'Hidalgo',            ln:'3',lat:19.437295,lng:-99.147105, elev:true, ee:false,acc:false, tp:'transfer'},
-    {id:'Juarez',                  nm:'Juárez',             ln:'3',lat:19.433167,lng:-99.147792, elev:true, ee:true, acc:true},
-    {id:'Balderas_3r',             nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true},
+    {id:'Cuatro_Caminos',          nm:'Cuatro Caminos',     ln:'2',lat:19.459592,lng:-99.215899, elev:true, ee:true, acc:true,  tp:'origin', ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/cuatrocaminos.png', icoBelow:true},
+    {id:'Panteones',               nm:'Panteones',          ln:'2',lat:19.458763,lng:-99.203153, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/panteones.png',    icoBelow:true},
+    {id:'Tacuba_2',                nm:'Tacuba',             ln:'2',lat:19.459349,lng:-99.189205, elev:false,ee:true, acc:false, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/tacuba.png',       icoBelow:true},
+    {id:'Cuitlahuac',              nm:'Cuitláhuac',         ln:'2',lat:19.457448,lng:-99.182038, elev:false,ee:true, acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/cuitlahuac.png',   icoBelow:true},
+    {id:'Popotla',                 nm:'Popotla',            ln:'2',lat:19.452147,lng:-99.174700, elev:false,ee:true, acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/popotla.png',      icoBelow:true},
+    {id:'Colegio_Militar',         nm:'Colegio Militar',    ln:'2',lat:19.449354,lng:-99.172254, elev:false,ee:true, acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/colegiomilitar.png',icoBelow:true},
+    {id:'Normal',                  nm:'Normal',             ln:'2',lat:19.444400,lng:-99.167400, elev:false,ee:true, acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/normal.png',       icoBelow:true},
+    {id:'San_Cosme',               nm:'San Cosme',          ln:'2',lat:19.441706,lng:-99.161096, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/sancosme.png',     icoBelow:true},
+    {id:'Revolucion',              nm:'Revolución',         ln:'2',lat:19.439561,lng:-99.155431, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/revolucion.png'},
+    {id:'Hidalgo_2',               nm:'Hidalgo',            ln:'2',lat:19.437295,lng:-99.147105, elev:false,ee:true, acc:false, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 2 SINNOMBRES/hidalgo.png'},
+    {id:'Hidalgo_3r',              nm:'Hidalgo',            ln:'3',lat:19.437295,lng:-99.147105, elev:true, ee:false,acc:false, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hidalgo.png'},
+    {id:'Juarez',                  nm:'Juárez',             ln:'3',lat:19.433167,lng:-99.147792, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/juarez.png'},
+    {id:'Balderas_3r',             nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/balderas.png'},
     {id:'Ninos_Heroes_r2',         nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false},
-    {id:'Hospital_General_r2',     nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true},
-    {id:'Centro_Medico_3r',        nm:'Centro Médico',      ln:'3',lat:19.406637,lng:-99.155753, elev:true, ee:true, acc:true},
-    {id:'Etiopia',                 nm:'Etiopía',            ln:'3',lat:19.395586,lng:-99.156268, elev:true, ee:false,acc:false},
-    {id:'Eugenia',                 nm:'Eugenia',            ln:'3',lat:19.385466,lng:-99.157469, elev:false,ee:false,acc:false},
-    {id:'Division_del_Norte',      nm:'División del Norte', ln:'3',lat:19.380021,lng:-99.158885, elev:false,ee:false,acc:false},
-    {id:'Zapata_3r',               nm:'Zapata',             ln:'3',lat:19.370952,lng:-99.164937, elev:false,ee:false,acc:false},
-    {id:'Coyoacan',                nm:'Coyoacán',           ln:'3',lat:19.361417,lng:-99.170709, elev:false,ee:false,acc:false},
-    {id:'Viveros',                 nm:'Viveros',            ln:'3',lat:19.353724,lng:-99.176052, elev:false,ee:false,acc:false},
-    {id:'Copilco',                 nm:'Copilco',            ln:'3',lat:19.335887,lng:-99.176652, elev:true, ee:true, acc:true,  tp:'dest'},
+    {id:'Hospital_General_r2',     nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hospitalgeneral.png'},
+    {id:'Centro_Medico_3r',        nm:'Centro Médico',      ln:'3',lat:19.406637,lng:-99.155753, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/centromedico.png'},
+    {id:'Etiopia',                 nm:'Etiopía',            ln:'3',lat:19.395586,lng:-99.156268, elev:true, ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/etiopiaplaza.png'},
+    {id:'Eugenia',                 nm:'Eugenia',            ln:'3',lat:19.385466,lng:-99.157469, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/eugenia.png'},
+    {id:'Division_del_Norte',      nm:'División del Norte', ln:'3',lat:19.380021,lng:-99.158885, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/divisiondelnorte.png'},
+    {id:'Zapata_3r',               nm:'Zapata',             ln:'3',lat:19.370952,lng:-99.164937, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/zapata.png'},
+    {id:'Coyoacan',                nm:'Coyoacán',           ln:'3',lat:19.361417,lng:-99.170709, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/coyoacan.png'},
+    {id:'Viveros',                 nm:'Viveros',            ln:'3',lat:19.353724,lng:-99.176052, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/viverosderechos.png'},
+    {id:'Copilco',                 nm:'Copilco',            ln:'3',lat:19.335887,lng:-99.176652, elev:true, ee:true, acc:true,  tp:'dest',   ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/copilco.png'},
   ];
   const R2_CAPS=[
     'Cuatro Caminos (L2) → Copilco (L3): ruta escolar. La UNAM no tiene estación accesible — hay que salir del sistema en Copilco y caminar.',
@@ -2789,28 +3130,28 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
   ];
 
   const R3=[
-    {id:'Periferico_Oriente_r3',nm:'Periférico Oriente', ln:'12',lat:19.317700,lng:-99.074600, elev:true, ee:true, acc:true,  tp:'origin'},
-    {id:'Calle_11_r3',          nm:'Calle 11',           ln:'12',lat:19.320500,lng:-99.085700, elev:true, ee:true, acc:true},
-    {id:'Lomas_Estrella_r3',    nm:'Lomas Estrella',     ln:'12',lat:19.324000,lng:-99.095000, elev:true, ee:true, acc:true},
-    {id:'San_Andres_r3',        nm:'San Andrés Tomatlán',ln:'12',lat:19.328300,lng:-99.104900, elev:true, ee:true, acc:true},
-    {id:'Culhuacan_r3',         nm:'Culhuacán',          ln:'12',lat:19.337000,lng:-99.109000, elev:true, ee:true, acc:true},
-    {id:'Atlalilco_12_r3',      nm:'Atlalilco',          ln:'12',lat:19.356134,lng:-99.101315, elev:true, ee:true, acc:true, tp:'transfer'},
-    {id:'Mexilcalcingo_r3',     nm:'Mexicalzingo',       ln:'12',lat:19.357700,lng:-99.121800, elev:true, ee:true, acc:true},
-    {id:'Ermita_12_r3',         nm:'Ermita',             ln:'12',lat:19.361883,lng:-99.142942, elev:true, ee:true, acc:true, tp:'transfer', lbl:[-9,17]},
-    {id:'Eje_Central_r3',       nm:'Eje Central',        ln:'12',lat:19.361400,lng:-99.151400, elev:true, ee:true, acc:true,                  lbl:[-9,-5]},
-    {id:'Parque_Venados_r3',    nm:'Parque de los Venados',ln:'12',lat:19.370700,lng:-99.158700, elev:true, ee:true, acc:true,                lbl:[-9,17]},
-    {id:'Zapata_12_r3',         nm:'Zapata',             ln:'12',lat:19.370952,lng:-99.164937, elev:true, ee:true, acc:true, tp:'transfer',   lbl:[-9,-5]},
-    {id:'Hospital_20_Nov_r3',   nm:'Hosp. 20 de Nov.',   ln:'12',lat:19.372000,lng:-99.171000, elev:true, ee:true, acc:true,                  lbl:[-9,17]},
-    {id:'Insugentes_Sur_r3',    nm:'Insurgentes Sur',    ln:'12',lat:19.373600,lng:-99.178800, elev:true, ee:true, acc:true,                  lbl:[-9,-5]},
-    {id:'Mixcoac_12_r3',        nm:'Mixcoac',            ln:'12',lat:19.375891,lng:-99.187531, elev:true, ee:true, acc:true, tp:'transfer'},
-    {id:'Mixcoac_7_r3',         nm:'Mixcoac',            ln:'7', lat:19.375891,lng:-99.187531, elev:false,ee:true, acc:false,tp:'transfer'},
-    {id:'San_Antonio_r3',       nm:'San Antonio',        ln:'7', lat:19.384757,lng:-99.186308, elev:false,ee:true, acc:false},
-    {id:'San_Pedro_r3',         nm:'San Pedro de los Pinos',ln:'7',lat:19.391275,lng:-99.186051,elev:false,ee:true, acc:false},
-    {id:'Tacubaya_7_r3',        nm:'Tacubaya',           ln:'7', lat:19.403439,lng:-99.187102, elev:false,ee:true, acc:false,tp:'transfer'},
-    {id:'Tacubaya_1_r3',        nm:'Tacubaya',           ln:'1', lat:19.403439,lng:-99.187102, elev:true, ee:true, acc:true, tp:'transfer', noLabel:true},
-    {id:'Juanacatlan_r3',       nm:'Juanacatlán',        ln:'1', lat:19.41289, lng:-99.182167,elev:true, ee:false,acc:false,                lbl:[-9,17]},
-    {id:'Chapultepec_r3',       nm:'Chapultepec',        ln:'1', lat:19.420783,lng:-99.176288,elev:true, ee:false,acc:false,                lbl:[-9,-5]},
-    {id:'Sevilla_r3',           nm:'Sevilla',            ln:'1', lat:19.421916,lng:-99.17058, elev:true, ee:true, acc:true, tp:'dest',      lbl:[-9,17]},
+    {id:'Periferico_Oriente_r3',nm:'Periférico Oriente',    ln:'12',lat:19.317700,lng:-99.074600, elev:true, ee:true, acc:true,  tp:'origin',  ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/perifericooriente.png'},
+    {id:'Calle_11_r3',          nm:'Calle 11',              ln:'12',lat:19.320500,lng:-99.085700, elev:true, ee:true, acc:true,                 ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/calle11.png'},
+    {id:'Lomas_Estrella_r3',    nm:'Lomas Estrella',        ln:'12',lat:19.324000,lng:-99.095000, elev:true, ee:true, acc:true,                 ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/lomasestrella.png'},
+    {id:'San_Andres_r3',        nm:'San Andrés Tomatlán',   ln:'12',lat:19.328300,lng:-99.104900, elev:true, ee:true, acc:true,                 ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/sanandrestomatlan.png'},
+    {id:'Culhuacan_r3',         nm:'Culhuacán',             ln:'12',lat:19.337000,lng:-99.109000, elev:true, ee:true, acc:true,                 ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/culhuacan.png'},
+    {id:'Atlalilco_12_r3',      nm:'Atlalilco',             ln:'12',lat:19.356134,lng:-99.101315, elev:true, ee:true, acc:true, tp:'transfer',  ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/atlatilco.png'},
+    {id:'Mexilcalcingo_r3',     nm:'Mexicalzingo',          ln:'12',lat:19.357700,lng:-99.121800, elev:true, ee:true, acc:true,                 ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/mexicaltzingo.png'},
+    {id:'Ermita_12_r3',         nm:'Ermita',                ln:'12',lat:19.361883,lng:-99.142942, elev:true, ee:true, acc:true, tp:'transfer', lbl:[-9,17], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/ermita.png'},
+    {id:'Eje_Central_r3',       nm:'Eje Central',           ln:'12',lat:19.361400,lng:-99.151400, elev:true, ee:true, acc:true,               lbl:[-9,-5], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/ejecentral.png'},
+    {id:'Parque_Venados_r3',    nm:'Parque de los Venados', ln:'12',lat:19.370700,lng:-99.158700, elev:true, ee:true, acc:true,               lbl:[-9,17], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/parquedelosvenados.png'},
+    {id:'Zapata_12_r3',         nm:'Zapata',                ln:'12',lat:19.370952,lng:-99.164937, elev:true, ee:true, acc:true, tp:'transfer', lbl:[-9,-5], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/zapata.png'},
+    {id:'Hospital_20_Nov_r3',   nm:'Hosp. 20 de Nov.',      ln:'12',lat:19.372000,lng:-99.171000, elev:true, ee:true, acc:true,               lbl:[-9,17], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/Hospital20Noviembre.jpg'},
+    {id:'Insugentes_Sur_r3',    nm:'Insurgentes Sur',       ln:'12',lat:19.373600,lng:-99.178800, elev:true, ee:true, acc:true,               lbl:[-9,-5], ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/insurgentes.png'},
+    {id:'Mixcoac_12_r3',        nm:'Mixcoac',               ln:'12',lat:19.375891,lng:-99.187531, elev:true, ee:true, acc:true, tp:'transfer',              ico:'Iconografía/SIN NOMBRES/Línea 12 SINNOMBRES/mixcoac.png'},
+    {id:'Mixcoac_7_r3',         nm:'Mixcoac',               ln:'7', lat:19.375891,lng:-99.187531, elev:false,ee:true, acc:false,tp:'transfer',              ico:'Iconografía/SIN NOMBRES/Línea 7 SINNOMBRES/mixcoac.png'},
+    {id:'San_Antonio_r3',       nm:'San Antonio',           ln:'7', lat:19.384757,lng:-99.186308, elev:false,ee:true, acc:false,                            ico:'Iconografía/SIN NOMBRES/Línea 7 SINNOMBRES/sanantonio.png'},
+    {id:'San_Pedro_r3',         nm:'San Pedro de los Pinos',ln:'7', lat:19.391275,lng:-99.186051, elev:false,ee:true, acc:false,                            ico:'Iconografía/SIN NOMBRES/Línea 7 SINNOMBRES/sanpedro.png'},
+    {id:'Tacubaya_7_r3',        nm:'Tacubaya',              ln:'7', lat:19.403439,lng:-99.187102, elev:false,ee:true, acc:false,tp:'transfer',              ico:'Iconografía/SIN NOMBRES/Línea 7 SINNOMBRES/tacubaya.png'},
+    {id:'Tacubaya_1_r3',        nm:'Tacubaya',              ln:'1', lat:19.403439,lng:-99.187102, elev:true, ee:true, acc:true, tp:'transfer', noLabel:true, ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/tacubaya.png'},
+    {id:'Juanacatlan_r3',       nm:'Juanacatlán',           ln:'1', lat:19.41289, lng:-99.182167, elev:true, ee:false,acc:false,              lbl:[-9,17],  ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/juanacatlan.png'},
+    {id:'Chapultepec_r3',       nm:'Chapultepec',           ln:'1', lat:19.420783,lng:-99.176288, elev:true, ee:false,acc:false,              lbl:[-9,-5],  ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/chapultepec.png'},
+    {id:'Sevilla_r3',           nm:'Sevilla',               ln:'1', lat:19.421916,lng:-99.17058,  elev:true, ee:true, acc:true, tp:'dest',    lbl:[-9,17],  ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/sevilla.png'},
   ];
   const R3_CAPS=[
     'Constitución de 1917 (L8) no es accesible. La persona debe trasladarse fuera del sistema a Periférico Oriente (L12), la estación accesible más cercana.',
@@ -2873,8 +3214,14 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       zoomControl:false,attributionControl:false,
       scrollWheelZoom:false,dragging:false,
       keyboard:false,doubleClickZoom:false,boxZoom:false,tap:false,
-      center:[19.4326,-99.1332],zoom:10
+      center:[19.4326,-99.1332],zoom:10,zoomSnap:0
     });
+
+    // ── Custom pane for basemap polygons — z-index 250 keeps them below route
+    //    elements which live in overlayPane (400) and markerPane (600)
+    lmap.createPane('basemapPane');
+    lmap.getPane('basemapPane').style.zIndex = 250;
+    lmap.getPane('basemapPane').style.pointerEvents = 'none';
 
     // ── Basemap layers — same style as Radial.html ──
     // Layer 1: Edomex municipios (bottom — rendered first so CDMX fill covers overlap)
@@ -2882,7 +3229,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       style:function(){
         return{fillColor:'#f2f2f2',weight:0.5,opacity:1,color:'#cecece',fillOpacity:1,className:'bm-mun'};
       },
-      interactive:false
+      interactive:false,pane:'basemapPane'
     }).addTo(lmap);
 
     // Layer 2: CDMX alcaldías (on top — fill:#faf9f6 matches bg, clean boundary)
@@ -2890,7 +3237,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       style:function(){
         return{fillColor:'#faf9f6',weight:1.4,opacity:1,color:'#aaaaaa',fillOpacity:1,className:'bm-cdmx'};
       },
-      interactive:false
+      interactive:false,pane:'basemapPane'
     }).addTo(lmap);
     // ── Basemap labels: alcaldías + municipios ──
     var _bfs="font-family:'Satoshi','DM Sans',sans-serif;white-space:nowrap;pointer-events:none;text-shadow:0 0 4px rgba(250,249,246,.92),0 0 3px rgba(250,249,246,.92)";
@@ -2913,7 +3260,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
           style:function(){
             return{fillColor:'transparent',weight:0.4,opacity:0.55,color:'#c8c8c8',fillOpacity:0};
           },
-          interactive:false
+          interactive:false,pane:'basemapPane'
         }).addTo(lmap);
       }
     });
@@ -3051,6 +3398,22 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       }).addTo(lmap)
     );
 
+    // ── Station icons — separate floating markers, left of station dot ──
+    const stIcoMarkers=stations.map((st,i)=>{
+      if(!st.ico) return null;
+      var _icoPos=st.icoBelow
+        ?'top:16px;left:50%;transform:translateX(-50%)'
+        :'bottom:16px;left:50%;transform:translateX(-50%)';
+      var _ih='<div style="position:relative;width:0;height:0"><img src="'+st.ico
+        +'" style="position:absolute;height:16px;width:auto;max-width:22px;'+_icoPos+';pointer-events:none;border-radius:2px"'
+        +' onerror="this.style.display=\'none\'"></div>';
+      return L.marker([+st.lat,+st.lng],{
+        icon:L.divIcon({html:_ih,className:'',iconSize:[0,0],iconAnchor:[0,0]}),
+        interactive:false,keyboard:false,zIndexOffset:700,
+        opacity:(i===0&&!hasOffFrom)?1:0
+      }).addTo(lmap);
+    });
+
     let activeRing=null;
     const N=stations.length;
     // Regenerate rs-step divs so scroll step count matches CSV row count
@@ -3078,6 +3441,11 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       stLabels.forEach(function(lbl,i){
         var rev=(i===0&&!hasOffFrom)||(i<=si&&si>=0);
         lbl.setOpacity(rev?1:0);
+      });
+      stIcoMarkers.forEach(function(ico,i){
+        if(!ico) return;
+        var rev=(i===0&&!hasOffFrom)||(i<=si&&si>=0);
+        ico.setOpacity(rev?1:0);
       });
       if(si<0){if(activeRing){lmap.removeLayer(activeRing);activeRing=null;}}
       else{
@@ -3419,14 +3787,22 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     if(_navWrap)_navWrap.appendChild(_skipEl);
 
     const _fp=o.fitPadding||[16,16];
-    setTimeout(()=>{lmap.invalidateSize();lmap.fitBounds(bounds,{padding:_fp,maxZoom:16});if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);},160);
+    function _applyZoom(){
+      lmap.fitBounds(bounds,{padding:_fp,maxZoom:16,animate:false});
+      if(o.zoomOffset||o.panShift){
+        var _z=lmap.getZoom()+(o.zoomOffset||0);
+        var _c=bounds.getCenter();
+        if(o.panShift){var _px=lmap.project(_c,_z).add(L.point(o.panShift));_c=lmap.unproject(_px,_z);}
+        lmap.setView(_c,_z,{animate:false});
+      }
+    }
+    setTimeout(()=>{lmap.invalidateSize();_applyZoom();},160);
     // Re-fit the first time this story scrolls into view (Leaflet off-screen init fix)
     var _ioFit=new IntersectionObserver(function(ens){
       if(!ens[0].isIntersecting)return;
       _ioFit.disconnect();
       lmap.invalidateSize();
-      lmap.fitBounds(bounds,{padding:_fp,maxZoom:16});
-      if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);
+      _applyZoom();
       _dbgLog('refit S'+storyId.slice(-1));
     },{root:panel,threshold:0.01});
     _ioFit.observe(story);
@@ -3497,7 +3873,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
   makeRoute({storyId:'rs-story-2',mapId:'rs-map-2',capId:'rs-cap-text-2',stations:R2,caps:_capsByStory[2]||[],
     overlayId:'rs-overlay-2',offSystem:{to:{lat:19.324427,lng:-99.173970,name:'Universidad UNAM'}}});
   makeRoute({storyId:'rs-story-3',mapId:'rs-map-3',capId:'rs-cap-text-3',stations:R3,caps:[],phaseData:_phaseData3,
-    overlayId:'rs-overlay-3',fitToStations:true,fitPadding:[10,10],
+    overlayId:'rs-overlay-3',fitToStations:false,fitPadding:[10,10],
     phases:[
       {goStep:-1,showOffFrom:false,showOffTo:false,note:-1},
       {goStep:-1,showOffFrom:false,showOffTo:false,note:0},
