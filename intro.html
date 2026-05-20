@@ -165,7 +165,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   width:60%;
   margin-left:auto;
   margin-right:auto;
-  padding:10px 0 0;
+  padding:0;
   text-align:center;
 }
 
@@ -177,9 +177,9 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   height:75px;
   width:auto;
   display:block;
-  margin:0 auto 0.6rem;
+  margin:0 auto -0.4rem;
   opacity:0;
-  animation:fadeUp .35s .05s forwards;
+  animation:fadeUp .18s .02s forwards;
 }
 .hero-kicker{
   font-family:var(--sans);
@@ -188,10 +188,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   letter-spacing:.18em;
   text-transform:uppercase;
   color:rgba(4,4,4,0.5);
-  margin-top:1.2rem;
+  margin-top:1.8rem;
   margin-bottom:0;
   opacity:0;
-  animation:fadeUp .35s .35s forwards;
+  animation:fadeUp .18s .18s forwards;
 }
 
 .hero-hl{
@@ -204,7 +204,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   letter-spacing:.01em;
   margin-bottom:.4rem;
   opacity:0;
-  animation:fadeUp .4s .1s forwards;
+  animation:fadeUp .2s .05s forwards;
 }
 .hero-hl em{
   font-style:normal;
@@ -218,9 +218,9 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   line-height:1.35;
   color:#040404;
   max-width:100%;
-  margin-bottom:2.4rem;
+  margin-bottom:0.6rem;
   opacity:0;
-  animation:fadeUp .4s .2s forwards;
+  animation:fadeUp .2s .1s forwards;
 }
 
 .hero-meta{
@@ -230,7 +230,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   border-top:1px solid rgba(4,4,4,.15);
   padding-top:.9rem;
   opacity:0;
-  animation:fadeUp .35s .3s forwards;
+  animation:fadeUp .18s .15s forwards;
 }
 .hero-meta strong{color:rgba(4,4,4,.7);font-weight:600}
 
@@ -243,7 +243,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   text-transform:uppercase;color:rgba(4,4,4,0.55);
   z-index:3;
   opacity:0;
-  animation:fadeUp .35s .55s forwards, scrollBounce 1.8s .9s ease-in-out infinite;
+  animation:fadeUp .18s .25s forwards, scrollBounce 1.8s .45s ease-in-out infinite;
 }
 
 @keyframes fadeUp{
@@ -257,6 +257,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 @keyframes scrollBounce{
   0%,100%{ transform:translateY(0) }
   50%{     transform:translateY(6px) }
+}
+@keyframes btnPulse{
+  0%,100%{ transform:scale(1);box-shadow:0 0 0 0 rgba(232,104,47,0) }
+  50%{     transform:scale(1.045);box-shadow:0 0 0 6px rgba(232,104,47,0.22) }
 }
 
 /* ═══════════════════════════════════════════════
@@ -527,6 +531,14 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .rs-cap-hidden{display:none!important;}
 .rs-nav{position:absolute;bottom:4.2rem;left:1.4rem;z-index:2001;display:flex;align-items:center;gap:.4rem;pointer-events:auto;}
 .rs-skip{position:absolute;bottom:4.2rem;right:1.4rem;z-index:2001;pointer-events:auto;}
+@keyframes rs-ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+.rs-origin-pulse{width:26px;height:26px;border-radius:50%;border:2px solid;animation:rs-ping 1.9s ease-out infinite;pointer-events:none}
+.lm-wrap{pointer-events:none}
+.lm-inner{pointer-events:auto;cursor:default;display:flex;flex-direction:column;align-items:center}
+.lm-img{display:block;transition:transform .22s ease,filter .22s ease;transform-origin:50% 100%}
+.lm-inner:hover .lm-img{transform:scale(1.85);filter:drop-shadow(0 4px 10px rgba(0,0,0,.30))}
+.lm-name{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.05em;color:rgba(4,4,4,.8);background:rgba(250,249,246,.95);padding:2px 7px;border-radius:3px;border:1px solid rgba(0,0,0,.13);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s ease;margin-top:3px;text-align:center;line-height:1.4;box-shadow:0 1px 4px rgba(0,0,0,.10)}
+.lm-inner:hover .lm-name{opacity:1}
 .rs-skip-btn{background:rgba(250,249,246,0.93);border:1px solid rgba(0,0,0,0.15);border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:.62rem;font-weight:700;padding:4px 10px;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;-webkit-appearance:none;appearance:none;transition:background .12s;}
 .rs-skip-btn:hover{background:rgba(220,220,215,0.98);color:var(--text);}
 .rs-nav-btn{background:rgba(250,249,246,0.93);border:1px solid rgba(0,0,0,0.15);border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:.82rem;font-weight:700;padding:4px 10px;color:var(--text);line-height:1;-webkit-appearance:none;appearance:none;transition:background .12s;}
@@ -910,8 +922,8 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 </div>
 <style>
 #loader{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity 0.4s}
-#loader-inner{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
-#loader-img{width:120px;height:120px;object-fit:contain;transition:opacity 0.2s}
+#loader-inner{display:flex;flex-direction:column;align-items:center;gap:2.4rem}
+#loader-img{width:96px;height:96px;object-fit:contain;transition:opacity 0.2s}
 #loader-text{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text3)}
 @keyframes ellipsis{0%{content:''}33%{content:'.'}66%{content:'. .'}100%{content:'. . .'}}
 #loader-text::after{content:'';animation:ellipsis 1.2s steps(1,end) infinite}
@@ -936,31 +948,32 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     'cargando/tezozomoc.png','cargando/zapata.png','cargando/zoc%20web_Mesa%20de%20trabajo%203.png'
   ];
 
-  // Shuffle only from index 5 so the 5 preloaded images always appear first
-  for(var i=IMAGES.length-1;i>5;i--){var j=5+Math.floor(Math.random()*(i-4));var t=IMAGES[i];IMAGES[i]=IMAGES[j];IMAGES[j]=t;}
+  // Shuffle all images randomly
+  for(var i=IMAGES.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=IMAGES[i];IMAGES[i]=IMAGES[j];IMAGES[j]=t;}
+
+  // Preload all images so onload never blocks the cycle
+  var _cache=IMAGES.map(function(src){var img=new Image();img.src=src;return img;});
 
   var wrap=document.getElementById('loader-img-wrap');
-  wrap.style.cssText='position:relative;width:120px;height:120px;';
+  wrap.style.cssText='position:relative;width:96px;height:96px;';
 
-  // two stacked images for real crossfade
   var imgA=document.getElementById('loader-img');
-  imgA.style.cssText='position:absolute;inset:0;width:120px;height:120px;object-fit:contain;transition:opacity 0.25s;opacity:1;';
+  imgA.style.cssText='position:absolute;inset:0;width:96px;height:96px;object-fit:contain;transition:opacity 0.04s;opacity:1;';
   var imgB=document.createElement('img');
-  imgB.style.cssText='position:absolute;inset:0;width:120px;height:120px;object-fit:contain;transition:opacity 0.25s;opacity:0;';
+  imgB.style.cssText='position:absolute;inset:0;width:96px;height:96px;object-fit:contain;transition:opacity 0.04s;opacity:0;';
   wrap.appendChild(imgB);
 
   var idx=0, front=imgA, back=imgB;
   front.src=IMAGES[0];
 
+  // Direct swap every tick — no onload dependency, never freezes
   var interval=setInterval(function(){
     idx=(idx+1)%IMAGES.length;
     back.src=IMAGES[idx];
-    back.onload=function(){
-      front.style.opacity='0';
-      back.style.opacity='1';
-      var tmp=front; front=back; back=tmp;
-    };
-  },400);
+    front.style.opacity='0';
+    back.style.opacity='1';
+    var tmp=front; front=back; back=tmp;
+  },55);
 
   // Hide loader when the 5 critical images are ready (not waiting for basemap_data.js)
   var minPassed=false, critLoaded=0, CRITICAL=5;
@@ -984,7 +997,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     })(IMAGES[k]);
   }
 
-  setTimeout(function(){minPassed=true;tryHide();},500);
+  setTimeout(function(){minPassed=true;tryHide();},420);
 })();
 </script>
 <!-- ── END LOADER ── -->
@@ -1207,7 +1220,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-desc">Para muchas personas que viven con una discapacidad, el metro es el único camino para llegar a recibir atención médica. Este es el trayecto de Pantitlán al Hospital General, una ruta que miles recorren cada día con ese propósito.</div>
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#FF5808"/></svg>Estación parcialmente accesible*</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
@@ -1244,7 +1257,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-desc">Miles de estudiantes hacen cada día un recorrido como este para llegar a clases. Este es el trayecto de Cuatro Caminos a Ciudad Universitaria, una de las rutas más transitadas del sistema por jóvenes que dependen del metro para acceder a la educación.</div>
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#FF5808"/></svg>Estación parcialmente accesible*</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
@@ -1280,7 +1293,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-desc">Miles de personas recorren cada día una ruta como esta con un destino común: el trabajo. Analizamos el trayecto de Constitución de 1917 a Polanco para explorar qué tan accesible es ese recorrido para quienes viven con alguna discapacidad.</div>
           <div class="rs-legend">
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--green)"/></svg>Estación accesible</span>
-            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#E8A000"/></svg>Estación parcialmente accesible*</span>
+            <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="#FF5808"/></svg>Estación parcialmente accesible*</span>
             <span class="rs-leg-item"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5.5" fill="var(--red)"/></svg>Estación sin accesibilidad</span>
             <span class="rs-leg-item"><svg width="28" height="12" aria-hidden="true"><line x1="0" y1="6" x2="28" y2="6" stroke="#555" stroke-width="2" stroke-dasharray="4,5"/></svg>Recorrido fuera del sistema</span>
           </div>
@@ -1308,38 +1321,20 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     </div>
 
   <div style="text-align:center;margin:2rem 0 1rem">
-    <a href="radial.html" style="display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;padding:12px 28px;background:var(--accent);color:#fff;border-radius:4px;text-decoration:none;letter-spacing:.04em;text-transform:uppercase">Planea tu ruta</a>
+    <a href="radial.html" style="display:inline-block;font-family:var(--sans);font-size:.6rem;font-weight:400;padding:10px 24px;background:var(--orange);color:#fff;border-radius:999px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;animation:btnPulse 1.8s ease-in-out 1.2s infinite">Encuentra <span style="font-weight:700">aquí</span> una ruta accesible</a>
   </div>
 
-  <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
+  <h2 id="sec-accesibilidad" class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
 <div class="dark-section">
   <!-- ── Exclusión ── -->
   <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:stretch; margin:1.6rem 0;">
-    <p class="body-p reveal" style="margin:0;">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
     <img src="Foto/IMG_4780-chica.webp" alt="Metro CDMX accesibilidad" loading="lazy"
          style="width:100%; height:100%; object-fit:cover; display:block; border-radius:12px;">
+    <p class="body-p reveal" style="margin:0;">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
   </div>
 
-  <div class="line-cards reveal">
-
-    <div class="line-card">
-      <img src="Número de línea de Metro/Linea_12.png" alt="Línea 12" loading="lazy" style="height:22px;width:auto;margin-top:.1rem;flex-shrink:0">
-      <p class="line-card-text">
-        La Línea 12 destaca como el modelo a seguir por integrar de forma continua elevadores, escaleras eléctricas y plataformas accesibles. Su diseño permite un desplazamiento autónomo desde la calle hasta el vagón en todas sus estaciones.
-      </p>
-    </div>
-
-    <div class="line-card">
-      <div style="display:flex;flex-direction:column;gap:4px;margin-top:.1rem;flex-shrink:0;align-items:flex-start">
-        <img src="Número de línea de Metro/Linea_8.png" alt="Línea 8" loading="lazy" style="height:22px;width:auto">
-        <img src="Número de línea de Metro/Linea_7.svg" alt="Línea 7" loading="lazy" style="height:22px;width:auto">
-      </div>
-      <p class="line-card-text">
-        La Línea 8 representa el caso opuesto, con cobertura limitada y fallas operativas constantes. En muchas de sus estaciones, los elevadores solo conectan niveles internos, pero no garantizan la entrada o salida efectiva hacia la vía pública. Por otro lado, la Línea 7 es, en la práctica, territorio prohibido para usuarios de silla de ruedas debido a su gran profundidad y la ausencia de elevadores.
-      </p>
-    </div>
-
-  </div>
+  <p class="body-p reveal" style="margin:0 0 1rem">La <strong>Línea 12</strong> destaca como el modelo a seguir por integrar de forma continua elevadores, escaleras eléctricas y plataformas accesibles. Su diseño permite un desplazamiento autónomo desde la calle hasta el vagón en todas sus estaciones.</p>
+  <p class="body-p reveal" style="margin:0 0 1rem">La <strong>Línea 8</strong> representa el caso opuesto, con cobertura limitada y fallas operativas constantes. En muchas de sus estaciones, los elevadores solo conectan niveles internos, pero no garantizan la entrada o salida efectiva hacia la vía pública. Por otro lado, la <strong>Línea 7</strong> es, en la práctica, territorio prohibido para usuarios de silla de ruedas debido a su gran profundidad y la ausencia de elevadores.</p>
 
   <!-- ═══ VISUALIZACIÓN: RED DE ACCESIBILIDAD ═══ -->
   <div class="viz-embed reveal-wipe" id="nv-section" style="padding-top:.5rem">
@@ -1947,7 +1942,8 @@ function buildFichaHTML(id){
       pF||pO?accRow('Plataformas',pF,pO):'',
       cF||cO?accRow('Corredores',cF,cO):''].join('')
     :`<div class='nv-ficha-acc' style='color:#888'>Sin datos de accesibilidad registrados</div>`;
-  return `<div class='nv-ficha'><div class='nv-ficha-top'>${iconHtml}<div class='nv-ficha-hd'><div class='nv-ficha-name'>${D.name}</div><div class='nv-ficha-row'><span class='nv-ficha-lbl'>Correspondiente a:</span><span class='nv-ficha-badge' style='background:${lc}'>${ln}</span></div>${tfRow}</div></div><hr class='nv-ficha-hr'><div class='nv-ficha-section'>ACCESIBILIDAD</div>${accHtml}</div>`;
+  const aflHtml=D.afl?`<hr class='nv-ficha-hr'><div class='nv-ficha-section'>AFLUENCIA DIARIA PROMEDIO</div><div class='nv-ficha-afluencia'><span style='font-size:.88rem;font-weight:700;color:#1a1a1a'>${D.afl.toLocaleString('es-MX')}</span> personas</div>`:'';
+  return `<div class='nv-ficha'><div class='nv-ficha-top'>${iconHtml}<div class='nv-ficha-hd'><div class='nv-ficha-name'>${D.name}</div><div class='nv-ficha-row'><span class='nv-ficha-lbl'>Correspondiente a:</span><span class='nv-ficha-badge' style='background:${lc}'>${ln}</span></div>${tfRow}</div></div><hr class='nv-ficha-hr'><div class='nv-ficha-section'>ACCESIBILIDAD</div>${accHtml}${aflHtml}</div>`;
 }
 
 function buildAccesoHTML(d){
@@ -3062,7 +3058,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     {id:'Salto_del_Agua_1',  nm:'Salto del Agua',     ln:'1',lat:19.426813,lng:-99.142213, elev:true, ee:true, acc:true,              ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/saltodelagua.png'},
     {id:'Balderas_1',        nm:'Balderas',           ln:'1',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 1 SINNOMBRES/balderas.png'},
     {id:'Balderas_3',        nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/balderas.png'},
-    {id:'Ninos_Heroes',      nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false},
+    {id:'Ninos_Heroes',      nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/NINOSHEROES.png'},
     {id:'Hospital_General',  nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true, tp:'dest',   ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hospitalgeneral.png'},
   ];
   const R1_CAPS=[
@@ -3092,16 +3088,16 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     {id:'Hidalgo_3r',              nm:'Hidalgo',            ln:'3',lat:19.437295,lng:-99.147105, elev:true, ee:false,acc:false, tp:'transfer',ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hidalgo.png'},
     {id:'Juarez',                  nm:'Juárez',             ln:'3',lat:19.433167,lng:-99.147792, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/juarez.png'},
     {id:'Balderas_3r',             nm:'Balderas',           ln:'3',lat:19.427440,lng:-99.149036, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/balderas.png'},
-    {id:'Ninos_Heroes_r2',         nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false},
-    {id:'Hospital_General_r2',     nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hospitalgeneral.png'},
-    {id:'Centro_Medico_3r',        nm:'Centro Médico',      ln:'3',lat:19.406637,lng:-99.155753, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/centromedico.png'},
-    {id:'Etiopia',                 nm:'Etiopía',            ln:'3',lat:19.395586,lng:-99.156268, elev:true, ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/etiopiaplaza.png'},
-    {id:'Eugenia',                 nm:'Eugenia',            ln:'3',lat:19.385466,lng:-99.157469, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/eugenia.png'},
-    {id:'Division_del_Norte',      nm:'División del Norte', ln:'3',lat:19.380021,lng:-99.158885, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/divisiondelnorte.png'},
-    {id:'Zapata_3r',               nm:'Zapata',             ln:'3',lat:19.370952,lng:-99.164937, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/zapata.png'},
-    {id:'Coyoacan',                nm:'Coyoacán',           ln:'3',lat:19.361417,lng:-99.170709, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/coyoacan.png'},
-    {id:'Viveros',                 nm:'Viveros',            ln:'3',lat:19.353724,lng:-99.176052, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/viverosderechos.png'},
-    {id:'Copilco',                 nm:'Copilco',            ln:'3',lat:19.335887,lng:-99.176652, elev:true, ee:true, acc:true,  tp:'dest',   ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/copilco.png'},
+    {id:'Ninos_Heroes_r2',         nm:'Niños Héroes',       ln:'3',lat:19.419508,lng:-99.150581, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/NINOSHEROES.png',     icoLeft:true},
+    {id:'Hospital_General_r2',     nm:'Hospital General',   ln:'3',lat:19.413578,lng:-99.153886, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/hospitalgeneral.png',  icoLeft:true},
+    {id:'Centro_Medico_3r',        nm:'Centro Médico',      ln:'3',lat:19.406637,lng:-99.155753, elev:true, ee:true, acc:true,               ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/centromedico.png',     icoLeft:true},
+    {id:'Etiopia',                 nm:'Etiopía',            ln:'3',lat:19.395586,lng:-99.156268, elev:true, ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/etiopiaplaza.png',     icoLeft:true},
+    {id:'Eugenia',                 nm:'Eugenia',            ln:'3',lat:19.385466,lng:-99.157469, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/eugenia.png',          icoLeft:true},
+    {id:'Division_del_Norte',      nm:'División del Norte', ln:'3',lat:19.380021,lng:-99.158885, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/divisiondelnorte.png', icoLeft:true},
+    {id:'Zapata_3r',               nm:'Zapata',             ln:'3',lat:19.370952,lng:-99.164937, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/zapata.png',           icoLeft:true},
+    {id:'Coyoacan',                nm:'Coyoacán',           ln:'3',lat:19.361417,lng:-99.170709, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/coyoacan.png',         icoLeft:true},
+    {id:'Viveros',                 nm:'Viveros',            ln:'3',lat:19.353724,lng:-99.176052, elev:false,ee:false,acc:false,              ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/viverosderechos.png',  icoLeft:true},
+    {id:'Copilco',                 nm:'Copilco',            ln:'3',lat:19.335887,lng:-99.176652, elev:true, ee:true, acc:true,  tp:'dest',   ico:'Iconografía/SIN NOMBRES/Línea 3 SINNOMBRES/copilco.png',          icoLeft:true},
   ];
   const R2_CAPS=[
     'Cuatro Caminos (L2) → Copilco (L3): ruta escolar. La UNAM no tiene estación accesible — hay que salir del sistema en Copilco y caminar.',
@@ -3278,7 +3274,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       L.polyline([ptA,ptB],{color:'#555',weight:1.5,dashArray:'3,6',opacity:0.7,interactive:false}).addTo(lmap);
       L.circleMarker(ptA,{radius:5,color:'#777',weight:1.5,fillColor:'#ccc',fillOpacity:0.85,interactive:false}).addTo(lmap);
       const mid=[(ptA[0]+ptB[0])/2,(ptA[1]+ptB[1])/2];
-      L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[80,5]}),interactive:false,keyboard:false,zIndexOffset:900}).addTo(lmap);
+      L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[-8,7]}),interactive:false,keyboard:false,zIndexOffset:900}).addTo(lmap);
       if(name){L.marker(ptA,{icon:L.divIcon({html:'<span style="'+_ofn+'">'+name+'</span>',className:'bm-label',iconSize:null,iconAnchor:[-7,5]}),interactive:false,keyboard:false,zIndexOffset:901}).addTo(lmap);}
     }
     // offSystem.from: static origin markers always visible + animated dashed line
@@ -3289,23 +3285,53 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       const ptA=[f.lat,f.lng],ptB=[+t.lat,+t.lng];
       const fClr=(f.acc===false)?'#e53935':(f.elev!==f.ee?'#fb8c00':'#66bb6a');
       const fLnClr=LC2[f.ln]||'#777';
-      L.circleMarker(ptA,{radius:6,color:fLnClr,weight:2,fillColor:fClr,fillOpacity:0.9,interactive:false}).addTo(lmap);
+      L.circleMarker(ptA,{radius:8,color:fLnClr,weight:2,fillColor:fClr,fillOpacity:0.9,interactive:false}).addTo(lmap);
+      L.circleMarker(ptA,{radius:16,color:fLnClr,weight:1.5,fillColor:'transparent',fillOpacity:0,opacity:0.55,interactive:false}).addTo(lmap);
       if(f.name){L.marker(ptA,{icon:L.divIcon({html:'<span style="'+_ofn+'">'+f.name+'</span>',className:'bm-label',iconSize:null,iconAnchor:[-7,5]}),interactive:false,keyboard:false,zIndexOffset:901}).addTo(lmap);}
-      L.marker(ptA,{icon:L.divIcon({html:'<img src="Referencias de diseño/Ubi2.png" style="width:20px;height:auto;display:block">',className:'bm-label',iconSize:null,iconAnchor:[10,22]}),interactive:false,keyboard:false,zIndexOffset:902}).addTo(lmap);
+
       offFromLine=L.polyline([ptA,ptB],{color:'#555',weight:1.5,dashArray:'3,6',opacity:0,interactive:false}).addTo(lmap);
       const mid=[(ptA[0]+ptB[0])/2,(ptA[1]+ptB[1])/2];
-      offFromLbl=L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[80,5]}),interactive:false,keyboard:false,zIndexOffset:900,opacity:0}).addTo(lmap);
+      offFromLbl=L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[-8,7]}),interactive:false,keyboard:false,zIndexOffset:900,opacity:0}).addTo(lmap);
     }
-    let offToLine=null,offToLbl=null,offToCircle=null,offToName=null;
+    let offToLine=null,offToLbl=null,offToCircle=null,offToRing=null,offToName=null;
     if(o.offSystem&&o.offSystem.to){
       const f=stations[stations.length-1],t=o.offSystem.to;
       const ptA=[t.lat,t.lng],ptB=[+f.lat,+f.lng];
-      offToCircle=L.circleMarker(ptA,{radius:5,color:'#777',weight:1.5,fillColor:'#ccc',fillOpacity:0,opacity:0,interactive:false}).addTo(lmap);
+      offToCircle=L.circleMarker(ptA,{radius:8,color:'#777',weight:2,fillColor:'#ccc',fillOpacity:0,opacity:0,interactive:false}).addTo(lmap);
+      offToRing=L.circleMarker(ptA,{radius:16,color:'#777',weight:1.5,fillColor:'transparent',fillOpacity:0,opacity:0,interactive:false}).addTo(lmap);
       if(t.name){offToName=L.marker(ptA,{icon:L.divIcon({html:'<span style="'+_ofn+'">'+t.name+'</span>',className:'bm-label',iconSize:null,iconAnchor:[-7,5]}),interactive:false,keyboard:false,zIndexOffset:901,opacity:0}).addTo(lmap);}
       offToLine=L.polyline([ptA,ptB],{color:'#555',weight:1.5,dashArray:'3,6',opacity:0,interactive:false}).addTo(lmap);
       const mid=[(ptA[0]+ptB[0])/2,(ptA[1]+ptB[1])/2];
-      offToLbl=L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[80,5]}),interactive:false,keyboard:false,zIndexOffset:900,opacity:0}).addTo(lmap);
+      offToLbl=L.marker(mid,{icon:L.divIcon({html:'<span style="'+_ofs+'">fuera del sistema del metro</span>',className:'bm-label',iconSize:null,iconAnchor:[-8,7]}),interactive:false,keyboard:false,zIndexOffset:900,opacity:0}).addTo(lmap);
     }
+
+    // ── Origin pulse marker ──
+    (function(){
+      var _pLat,_pLng,_pClr=LC2[stations[0]&&stations[0].ln]||'#888';
+      if(hasOffFrom){_pLat=o.offSystem.from.lat;_pLng=o.offSystem.from.lng;}
+      else if(stations.length&&stations[0].tp==='origin'){_pLat=+stations[0].lat;_pLng=+stations[0].lng;}
+      if(_pLat!=null){
+        L.marker([_pLat,_pLng],{
+          icon:L.divIcon({html:'<div class="rs-origin-pulse" style="border-color:'+_pClr+'"></div>',className:'',iconSize:[26,26],iconAnchor:[13,13]}),
+          interactive:false,keyboard:false,zIndexOffset:601
+        }).addTo(lmap);
+      }
+    })();
+
+    // ── Landmark image markers ──
+    (o.landmarks||[]).forEach(function(lm){
+      var sz=lm.size||36, ox=lm.offsetX||0, oy=lm.offsetY||0;
+      var _lbl=lm.label||'';
+      var _lih='<div class="lm-wrap" style="position:relative;width:0;height:0">' +
+        '<div class="lm-inner" style="position:absolute;top:'+oy+'px;left:'+ox+'px;transform:translateX(-50%);">' +
+        '<img src="'+lm.src+'" class="lm-img" style="width:'+sz+'px;height:auto;" onerror="this.style.display=\'none\'">' +
+        (_lbl?'<span class="lm-name">'+_lbl+'</span>':'') +
+        '</div></div>';
+      L.marker([lm.lat,lm.lng],{
+        icon:L.divIcon({html:_lih,className:'',iconSize:[0,0],iconAnchor:[0,0]}),
+        interactive:false,keyboard:false,zIndexOffset:500
+      }).addTo(lmap);
+    });
 
     // ── Segments (one polyline per station pair) ──
     const segLines=stations.slice(1).map((st,i)=>
@@ -3398,19 +3424,16 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       }).addTo(lmap)
     );
 
-    // ── Station icons — separate floating markers, left of station dot ──
-    const stIcoMarkers=stations.map((st,i)=>{
-      if(!st.ico) return null;
-      var _icoPos=st.icoBelow
-        ?'top:16px;left:50%;transform:translateX(-50%)'
-        :'bottom:16px;left:50%;transform:translateX(-50%)';
-      var _ih='<div style="position:relative;width:0;height:0"><img src="'+st.ico
-        +'" style="position:absolute;height:16px;width:auto;max-width:22px;'+_icoPos+';pointer-events:none;border-radius:2px"'
-        +' onerror="this.style.display=\'none\'"></div>';
+    const stIcoMarkers=stations.map(function(st,i){
+      if(!st.ico)return null;
+      var sz=18,below=!!st.icoBelow,left=!!st.icoLeft;
+      var ax=left?sz+8:sz/2;
+      var ay=left?sz/2:(below?-12:sz+14);
+      var startVis=(i===0&&!hasOffFrom);
+      var _ih='<img src="'+st.ico+'" style="width:'+sz+'px;height:auto;display:block" onerror="this.style.display=\'none\'">';
       return L.marker([+st.lat,+st.lng],{
-        icon:L.divIcon({html:_ih,className:'',iconSize:[0,0],iconAnchor:[0,0]}),
-        interactive:false,keyboard:false,zIndexOffset:700,
-        opacity:(i===0&&!hasOffFrom)?1:0
+        icon:L.divIcon({html:_ih,className:'',iconSize:[sz,sz],iconAnchor:[ax,ay]}),
+        interactive:false,keyboard:false,zIndexOffset:400,opacity:startVis?1:0
       }).addTo(lmap);
     });
 
@@ -3473,6 +3496,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
         if(offToLine)offToLine.setStyle({opacity:destFinal?0.7:0});
         if(offToLbl)offToLbl.setOpacity(destFinal?1:0);
         if(offToCircle)offToCircle.setStyle({opacity:destFinal?1:0,fillOpacity:destFinal?0.85:0});
+        if(offToRing)offToRing.setStyle({opacity:destFinal?0.55:0});
         if(offToName)offToName.setOpacity(destFinal?1:0);
       }
 
@@ -3508,7 +3532,8 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
         if(!o.phases&&step>=0)_updateNav(step);
         if(!o.phases&&phaseNotes[0]){
           var _nc=phaseNotes[0];
-          var _nd=o.caps&&o.caps[step]?o.caps[step]:null;
+          var _ndIdx=step+(o.noteOffset||0);
+          var _nd=o.caps&&_ndIdx>=0&&o.caps[_ndIdx]?o.caps[_ndIdx]:null;
           if(_nd&&_nd.nt){_nc.innerHTML=_nd.nt;_nc.style.background=_nd.nbg||'';_nc.style.setProperty('--nc-x',(_nd.nx||0)+'px');_nc.style.setProperty('--nc-y',(_nd.ny||0)+'px');_nc.classList.add('visible');}
           else _nc.classList.remove('visible');
         }
@@ -3698,6 +3723,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       if(offToLine)offToLine.setStyle({opacity:ph.showOffTo?0.7:0});
       if(offToLbl)offToLbl.setOpacity(ph.showOffTo?1:0);
       if(offToCircle)offToCircle.setStyle({opacity:ph.showOffTo?1:0,fillOpacity:ph.showOffTo?0.85:0});
+      if(offToRing)offToRing.setStyle({opacity:ph.showOffTo?0.55:0});
       if(offToName)offToName.setOpacity(ph.showOffTo?1:0);
       // Show caption from phaseData when available and non-empty
       function _showPhaseCap(){
@@ -3784,6 +3810,16 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       });
       _skipEl.appendChild(_btnNext);
     }
+    if(_sIdx===_allStories.length-1){
+      var _btnSec=document.createElement('button');
+      _btnSec.className='rs-skip-btn';
+      _btnSec.textContent='Siguiente sección ›';
+      _btnSec.addEventListener('click',function(){
+        var _sec=document.getElementById('sec-accesibilidad');
+        if(_sec){_unlockPanel();_sec.scrollIntoView({behavior:'smooth',block:'start'});}
+      });
+      _skipEl.appendChild(_btnSec);
+    }
     if(_navWrap)_navWrap.appendChild(_skipEl);
 
     const _fp=o.fitPadding||[16,16];
@@ -3868,12 +3904,31 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
                     2:R2_CAPS.map(function(t,i){return{t:t,bg:'',op:1,si:i};})};
   var _phaseData3=[];
   function _initRoutes(){
-  makeRoute({storyId:'rs-story-1',mapId:'rs-map-1',capId:'rs-cap-text-1',stations:R1,caps:_capsByStory[1]||[],
-    overlayId:'rs-overlay-1',offSystem:{from:{lat:19.415359,lng:-99.072132,name:'Pantitlán'}}});
+  makeRoute({storyId:'rs-story-1',mapId:'rs-map-1',capId:'rs-cap-text-1',stations:R1,caps:_capsByStory[1]||[],noteOffset:1,
+    overlayId:'rs-overlay-1',offSystem:{from:{lat:19.415359,lng:-99.072132,name:'Pantitlán'}},
+    landmarks:[
+      {lat:19.42556,lng:-99.12472,src:'Lugares representativos/MERCED.png',size:22,label:'Mercado de la Merced'},
+      {lat:19.42392,lng:-99.13528,src:'Lugares representativos/TRIBUNAL.png',size:22,label:'Tribunal Federal de Conciliación y Arbitraje'}
+    ]});
   makeRoute({storyId:'rs-story-2',mapId:'rs-map-2',capId:'rs-cap-text-2',stations:R2,caps:_capsByStory[2]||[],
-    overlayId:'rs-overlay-2',offSystem:{to:{lat:19.324427,lng:-99.173970,name:'Universidad UNAM'}}});
+    overlayId:'rs-overlay-2',offSystem:{to:{lat:19.324427,lng:-99.173970,name:'Universidad UNAM'}},
+    landmarks:[
+      {lat:19.44083,lng:-99.20472,src:'Lugares representativos/Soumaya.png',size:22,label:'Museo Soumaya'},
+      {lat:19.42611,lng:-99.18611,src:'Lugares representativos/antropologia.png',size:22,offsetX:-28,offsetY:30,label:'Museo Nacional de Antropología e Historia'},
+      {lat:19.3649,lng:-99.0444,src:'Lugares representativos/cuitlahuac.png',size:22,label:'Parque Cuitláhuac'},
+      {lat:19.43611,lng:-99.07194,src:'Lugares representativos/aeropuerto.png',size:22,label:'Aeropuerto Internacional de la Ciudad de México'},
+      {lat:19.40500,lng:-99.09583,src:'Lugares representativos/EstadioGNP.png',size:22,label:'Estadio GNP'}
+    ]});
   makeRoute({storyId:'rs-story-3',mapId:'rs-map-3',capId:'rs-cap-text-3',stations:R3,caps:[],phaseData:_phaseData3,
     overlayId:'rs-overlay-3',fitToStations:false,fitPadding:[10,10],
+    landmarks:[
+      {lat:19.44083,lng:-99.20472,src:'Lugares representativos/Soumaya.png',size:22,label:'Museo Soumaya'},
+      {lat:19.42611,lng:-99.18611,src:'Lugares representativos/antropologia.png',size:22,offsetX:-28,offsetY:30,label:'Museo Nacional de Antropología e Historia'},
+      {lat:19.35528,lng:-99.16250,src:'Lugares representativos/casaazul.png',size:22,label:'Casa Azul, Museo Frida Kahlo'},
+      {lat:19.3649,lng:-99.0444,src:'Lugares representativos/cuitlahuac.png',size:22,label:'Parque Cuitláhuac'},
+      {lat:19.43611,lng:-99.07194,src:'Lugares representativos/aeropuerto.png',size:22,label:'Aeropuerto Internacional de la Ciudad de México'},
+      {lat:19.40500,lng:-99.09583,src:'Lugares representativos/EstadioGNP.png',size:22,label:'Estadio GNP'}
+    ],
     phases:[
       {goStep:-1,showOffFrom:false,showOffTo:false,note:-1},
       {goStep:-1,showOffFrom:false,showOffTo:false,note:0},
